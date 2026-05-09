@@ -8,10 +8,35 @@ export function useLoginMutation() {
     const router = useRouter();
 
     return useMutation({
-        mutationFn: (credentials) => AuthService.login(credentials),
+        mutationFn: async (credentials) => {
+            const data = await AuthService.login(credentials);
+            if (data.role === 'COMPANY_ADMIN') {
+                throw new Error('Accès refusé. Utilisez le portail entreprise.');
+            }
+            return data;
+        },
         onSuccess: (data, variables) => {
             authStore.setAuth({ ...data, email: variables.email });
             router.push('/');
+        },
+    });
+}
+
+export function useCompanyLoginMutation() {
+    const authStore = useAuthStore();
+    const router = useRouter();
+
+    return useMutation({
+        mutationFn: async (credentials) => {
+            const data = await AuthService.login(credentials);
+            if (data.role !== 'COMPANY_ADMIN') {
+                throw new Error('Ces identifiants ne correspondent pas à un compte entreprise.');
+            }
+            return data;
+        },
+        onSuccess: (data, variables) => {
+            authStore.setAuth({ ...data, email: variables.email });
+            router.push('/company/orders');
         },
     });
 }

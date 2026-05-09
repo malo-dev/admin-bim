@@ -49,14 +49,22 @@ const logItems = computed(() =>
                     class="text-sm"
                     stripedRows
                 >
-                    <Column field="userId" header="ID Utilisateur">
+                    <Column header="Utilisateur" style="min-width:12rem">
                         <template #body="{ data }">
-                            <span class="font-mono font-semibold">#{{ data.userId }}</span>
+                            <div class="flex items-center gap-2">
+                                <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                    <i class="pi pi-user text-primary text-xs" />
+                                </div>
+                                <div>
+                                    <div class="font-semibold text-sm">{{ data.username ?? '—' }}</div>
+                                    <div class="text-xs text-muted-color font-mono">#{{ data.userId }}</div>
+                                </div>
+                            </div>
                         </template>
                     </Column>
-                    <Column field="connectedAt" header="Connecté depuis">
+                    <Column header="Connecté depuis" style="min-width:9rem">
                         <template #body="{ data }">
-                            {{ new Date(data.connectedAt).toLocaleTimeString('fr-FR') }}
+                            <span class="text-sm">{{ new Date(data.connectedAt).toLocaleTimeString('fr-FR') }}</span>
                         </template>
                     </Column>
                     <Column header="Statut">
@@ -76,7 +84,7 @@ const logItems = computed(() =>
                     <span class="text-sm text-muted-color">Session en cours</span>
                 </div>
 
-                <div class="flex flex-col gap-2 max-h-[420px] overflow-y-auto">
+                <div class="flex flex-col gap-2 max-h-105 overflow-y-auto">
                     <div
                         v-if="logItems.length === 0"
                         class="text-center text-muted-color py-8 text-sm"
@@ -95,7 +103,7 @@ const logItems = computed(() =>
                         "
                     >
                         <span
-                            class="w-2 h-2 rounded-full flex-shrink-0"
+                            class="w-2 h-2 rounded-full shrink-0"
                             :class="entry.event === 'online' ? 'bg-green-500' : 'bg-red-400'"
                         />
                         <span class="flex-1 text-sm font-medium">
@@ -106,13 +114,14 @@ const logItems = computed(() =>
                                         : 'text-red-600 dark:text-red-400'
                                 "
                             >
-                                User #{{ entry.userId }}
+                                {{ entry.username ?? 'Utilisateur' }}
                             </span>
+                            <span class="text-muted-color font-mono text-xs ml-1">#{{ entry.userId }}</span>
                             <span class="text-surface-500 ml-1">
-                                {{ entry.event === 'online' ? 'connecté' : 'déconnecté' }}
+                                {{ entry.event === 'online' ? 'vient de se connecter' : 'vient de se déconnecter' }}
                             </span>
                         </span>
-                        <span class="text-xs text-muted-color flex-shrink-0">
+                        <span class="text-xs text-muted-color shrink-0">
                             {{ entry.timeFormatted }}
                         </span>
                     </div>

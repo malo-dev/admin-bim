@@ -25,13 +25,34 @@ const bootstrap = async (payload) => {
 };
 
 /**
- * @param {{ email: string, newPassword: string }} payload
+ * @param {{ email: string }} payload
+ */
+const requestBimReset = async (payload) => {
+    const { data } = await apiClient.post('/auth/request-bim-reset', payload);
+    return data;
+};
+
+/**
+ * @param {{ email: string, otp: string, newPassword: string }} payload
  */
 const resetBimPassword = async (payload) => {
     const { data } = await apiClient.post('/auth/reset-bim-password', payload);
     return data;
 };
 
-const AccountService = { createBimAdmin, createCompanyAccount, bootstrap, resetBimPassword };
+/**
+ * @param {{ search?: string, page?: number, pageSize?: number, paginate?: string }} params
+ */
+const getAdminAccounts = async (params = {}) => {
+    const { data } = await apiClient.get('/auth/admin-accounts', { params });
+    return data;
+};
+
+const addCompanyAdmin = async (payload) => {
+    const { data } = await apiClient.post('/auth/add-company-admin', payload);
+    return data;
+};
+
+const AccountService = { createBimAdmin, createCompanyAccount, addCompanyAdmin, bootstrap, requestBimReset, resetBimPassword, getAdminAccounts };
 
 export default AccountService;

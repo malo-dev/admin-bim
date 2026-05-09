@@ -1,4 +1,5 @@
 import AppLayout from '@/layout/AppLayout.vue';
+import CompanyLayout from '@/layout/CompanyLayout.vue';
 import { createRouter, createWebHistory } from 'vue-router';
 
 const router = createRouter({
@@ -16,6 +17,8 @@ const router = createRouter({
 
                 // Comptes
                 { path: '/accounts/create', name: 'createAccount', component: () => import('@/views/accounts/CreateAccount.vue') },
+                { path: '/accounts/list', name: 'accountsList', component: () => import('@/views/accounts/AccountsList.vue') },
+                { path: '/accounts/create-company', name: 'createCompanyAccount', component: () => import('@/views/accounts/CreateCompanyAccount.vue') },
 
                 // Utilisateurs & Accès
                 { path: '/users', name: 'users', component: () => import('@/views/users/Users.vue') },
@@ -58,11 +61,24 @@ const router = createRouter({
             name: 'landing',
             component: () => import('@/views/pages/Landing.vue'),
         },
+        // ── Portail entreprise ──────────────────────────────────────────────────
         {
-            path: '/pages/notfound',
-            name: 'notfound',
-            component: () => import('@/views/pages/NotFound.vue'),
+            path: '/company',
+            component: CompanyLayout,
+            meta: { requiresCompanyAuth: true },
+            children: [
+                { path: 'orders', name: 'companyOrders', component: () => import('@/views/company/CompanyOrders.vue') },
+                { path: 'payments', name: 'companyPayments', component: () => import('@/views/company/CompanyPayments.vue') },
+                { path: 'accounts', name: 'companyAccounts', component: () => import('@/views/company/CompanyAccounts.vue') },
+            ],
         },
+        {
+            path: '/company/login',
+            name: 'companyLogin',
+            meta: { companyGuestOnly: true },
+            component: () => import('@/views/company/CompanyLogin.vue'),
+        },
+        // ── Auth admin ──────────────────────────────────────────────────────────
         {
             path: '/auth/login',
             name: 'login',
@@ -91,15 +107,39 @@ const router = createRouter({
             name: 'error',
             component: () => import('@/views/pages/auth/Error.vue'),
         },
+        {
+            path: '/:pathMatch(.*)*',
+            name: 'notfound',
+            component: () => import('@/views/pages/NotFound.vue'),
+        },
     ],
 });
 
 router.beforeEach((to) => {
     const token = localStorage.getItem('bim_admin_token');
     const isAuthenticated = !!token;
+    const userStr = localStorage.getItem('bim_admin_user');
+    const user = userStr ? JSON.parse(userStr) : null;
+    const role = user?.role;
+    const isCompanyAdmin = role === 'COMPANY_ADMIN';
 
+    // Espace admin principal — réservé aux BIM
     if (to.meta.requiresAuth && !isAuthenticated) return { name: 'login' };
-    if (to.meta.guestOnly && isAuthenticated) return { name: 'dashboard' };
+    if (to.meta.requiresAuth && isAuthenticated && isCompanyAdmin) return { name: 'companyOrders' };
+
+    // Espace portail entreprise — réservé aux COMPANY_ADMIN
+    if (to.meta.requiresCompanyAuth && !isAuthenticated) return { name: 'companyLogin' };
+    if (to.meta.requiresCompanyAuth && isAuthenticated && !isCompanyAdmin) return { name: 'dashboard' };
+
+    // Pages guest admin (login admin)
+    if (to.meta.guestOnly && isAuthenticated) {
+        return isCompanyAdmin ? { name: 'companyOrders' } : { name: 'dashboard' };
+    }
+
+    // Pages guest portail entreprise (login company)
+    if (to.meta.companyGuestOnly && isAuthenticated) {
+        return isCompanyAdmin ? { name: 'companyOrders' } : { name: 'dashboard' };
+    }
 });
 
 export default router;

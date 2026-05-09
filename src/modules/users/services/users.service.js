@@ -1,0 +1,34 @@
+import apiClient from '@/api/axios';
+
+const getUsers = async (params = {}) => {
+    const { data } = await apiClient.get('/auth/users', { params });
+    return data;
+};
+
+const getCommerces = async () => {
+    const { data } = await apiClient.get('/commerce_track');
+    return data;
+};
+
+const toggleUserActive = async (id) => {
+    const { data } = await apiClient.put(`/auth/users/${id}/activate`);
+    return data;
+};
+
+const toggleUserBlock = async (id) => {
+    const { data } = await apiClient.put(`/auth/users/${id}/block-user`);
+    return data;
+};
+
+const deleteUser = async (id) => {
+    const { data } = await apiClient.delete(`/auth/users/${id}`);
+    return data;
+};
+
+const updateUserProfile = async (id, payload) => {
+    const { data } = await apiClient.put(`/auth/users/${id}/profile`, payload);
+    return data;
+};
+
+const UsersService = { getUsers, getCommerces, toggleUserActive, toggleUserBlock, deleteUser, updateUserProfile };
+export default UsersService;

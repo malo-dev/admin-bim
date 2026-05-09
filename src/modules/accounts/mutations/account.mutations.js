@@ -1,4 +1,4 @@
-import { useMutation } from '@tanstack/vue-query';
+import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import AccountService from '../services/account.service';
 
 export function useCreateBimAdminMutation() {
@@ -8,8 +8,13 @@ export function useCreateBimAdminMutation() {
 }
 
 export function useCreateCompanyAccountMutation() {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (payload) => AccountService.createCompanyAccount(payload),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['adminAccounts'] });
+            queryClient.invalidateQueries({ queryKey: ['companies'] });
+        },
     });
 }
 
@@ -19,8 +24,22 @@ export function useBootstrapMutation() {
     });
 }
 
+export function useRequestBimResetMutation() {
+    return useMutation({
+        mutationFn: (payload) => AccountService.requestBimReset(payload),
+    });
+}
+
 export function useResetBimPasswordMutation() {
     return useMutation({
         mutationFn: (payload) => AccountService.resetBimPassword(payload),
+    });
+}
+
+export function useAddCompanyAdminMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: (payload) => AccountService.addCompanyAdmin(payload),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['adminAccounts'] }),
     });
 }

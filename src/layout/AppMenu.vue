@@ -29,32 +29,28 @@ const model = computed(() => [
     {
         label: 'Comptes',
         items: [
-            { label: 'Créer un compte', icon: 'pi pi-fw pi-user-plus', to: '/accounts/create' }
+            { label: 'Créer un compte', icon: 'pi pi-fw pi-user-plus', to: '/accounts/create' },
+            { label: 'Compte entreprise', icon: 'pi pi-fw pi-building', to: '/accounts/create-company' },
+            { label: 'Liste des comptes', icon: 'pi pi-fw pi-list', to: '/accounts/list' }
         ]
     },
     {
         label: 'Utilisateurs & Accès',
         items: [
-            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' },
-            { label: 'Rôles', icon: 'pi pi-fw pi-shield', to: '/roles' },
-            { label: 'Attribution des rôles', icon: 'pi pi-fw pi-id-card', to: '/user-roles' }
+            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' }
         ]
     },
     {
         label: 'Entreprises & Commerce',
         items: [
-            { label: 'Entreprises', icon: 'pi pi-fw pi-building', to: '/companies' },
-            { label: 'Commerces', icon: 'pi pi-fw pi-shop', to: '/commerces' },
-            { label: 'Branches', icon: 'pi pi-fw pi-sitemap', to: '/branches' },
-            { label: "Secteurs d'activité", icon: 'pi pi-fw pi-tag', to: '/business-categories' }
+            { label: "Secteurs d'activité", icon: 'pi pi-fw pi-tag', to: '/business-categories' },
+            { label: 'Entreprises', icon: 'pi pi-fw pi-building', to: '/companies' }
         ]
     },
     {
         label: 'Catalogue Produits',
         items: [
-            { label: 'Produits', icon: 'pi pi-fw pi-box', to: '/products' },
-            { label: 'Catégories produits', icon: 'pi pi-fw pi-list', to: '/product-categories' },
-            { label: 'Produits vendus', icon: 'pi pi-fw pi-check-square', to: '/products-sold' }
+            { label: 'Produits', icon: 'pi pi-fw pi-box', to: '/products' }
         ]
     },
     {
@@ -66,28 +62,17 @@ const model = computed(() => [
     {
         label: 'Transactions & Finance',
         items: [
-            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' },
-            { label: 'Recharges', icon: 'pi pi-fw pi-plus-circle', to: '/recharges' },
-            { label: 'Historique financier', icon: 'pi pi-fw pi-history', to: '/history' },
-            { label: 'Bonus', icon: 'pi pi-fw pi-star', to: '/bonus' }
+            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' }
         ]
     },
     {
         label: 'Support & Suivi',
         items: [
             { label: 'Support', icon: 'pi pi-fw pi-headphones', to: '/support' },
-            { label: 'Feedbacks', icon: 'pi pi-fw pi-comments', to: '/feedbacks' },
-            { label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
+{ label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
             { label: 'Notes entreprises', icon: 'pi pi-fw pi-file-edit', to: '/notes' }
         ]
     },
-    {
-        label: 'Paramètres',
-        items: [
-            { label: 'Devises', icon: 'pi pi-fw pi-dollar', to: '/currencies' },
-            { label: 'Catégories', icon: 'pi pi-fw pi-th-large', to: '/categories' }
-        ]
-    }
 ]);
 </script>
 

@@ -9,7 +9,7 @@ const { mutate: login, isPending, isError, error } = useLoginMutation();
 
 const errorMessage = computed(() => {
     if (!isError.value) return null;
-    return error.value?.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.';
+    return error.value?.message || error.value?.response?.data?.message || 'Une erreur est survenue. Veuillez réessayer.';
 });
 
 function handleLogin() {
