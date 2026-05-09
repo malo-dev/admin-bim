@@ -41,7 +41,7 @@ const paymentStats = computed(() => stats.value?.payments ?? { count: 0, totalAm
 function onPage(e) { currentPage.value = e.page + 1; pageSize.value = e.rows; }
 
 function formatDate(d) {
-    return d ? new Date(d).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+    return d ? new Date(d).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : '—';
 }
 
 function formatAmount(amount) {
@@ -51,50 +51,49 @@ function formatAmount(amount) {
 </script>
 
 <template>
-    <div class="flex flex-col gap-4">
-        <!-- Header -->
-        <div class="flex flex-wrap items-center gap-3">
-            <div class="flex items-center gap-3 flex-1">
-                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <i class="pi pi-credit-card text-primary text-lg" />
+    <div class="flex flex-col gap-3 sm:gap-4">
+
+        <!-- Header + période -->
+        <div class="flex flex-wrap items-start sm:items-center gap-3">
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+                <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <i class="pi pi-credit-card text-primary text-base sm:text-lg" />
                 </div>
-                <div>
-                    <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">Paiements reçus</h1>
-                    <p class="text-sm text-muted-color">Transactions de paiement effectuées auprès de votre entreprise</p>
+                <div class="min-w-0">
+                    <h1 class="text-xl sm:text-2xl font-bold text-surface-900 dark:text-surface-0 leading-tight">Paiements reçus</h1>
+                    <p class="text-xs sm:text-sm text-muted-color hidden sm:block">Transactions de paiement effectuées auprès de votre entreprise</p>
                 </div>
             </div>
-            <!-- Sélecteur de période global -->
             <Select v-model="period" :options="PERIOD_OPTIONS" optionLabel="label" optionValue="value"
-                placeholder="Toute période" showClear class="min-w-44" />
+                placeholder="Période" showClear class="w-full sm:w-auto sm:min-w-44" />
         </div>
 
-        <!-- Cartes de statistiques -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="card py-5!">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                        <i class="pi pi-wallet text-green-600 dark:text-green-400 text-xl" />
+        <!-- Cartes stats -->
+        <div class="grid grid-cols-2 gap-3">
+            <div class="card py-4! px-4!">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                        <i class="pi pi-wallet text-green-600 dark:text-green-400 text-lg" />
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-muted-color mb-1">Montant total reçu</p>
-                        <div v-if="statsLoading" class="h-7 w-32 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
-                        <p v-else class="text-2xl font-bold text-green-600 dark:text-green-400">
+                    <div class="min-w-0">
+                        <p class="text-xs text-muted-color mb-0.5 truncate">Montant total</p>
+                        <div v-if="statsLoading" class="h-6 w-20 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+                        <p v-else class="text-lg sm:text-xl font-bold text-green-600 dark:text-green-400 leading-none">
                             {{ formatAmount(paymentStats.totalAmount) }}
-                            <span class="text-sm font-normal text-muted-color ml-1">FCFA</span>
+                            <span class="text-xs font-normal text-muted-color">EC</span>
                         </p>
                     </div>
                 </div>
             </div>
-
-            <div class="card py-5!">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                        <i class="pi pi-arrows-h text-primary text-xl" />
+            <div class="card py-4! px-4!">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <i class="pi pi-arrows-h text-primary text-lg" />
                     </div>
-                    <div class="flex-1">
-                        <p class="text-sm text-muted-color mb-1">Nombre de paiements</p>
-                        <div v-if="statsLoading" class="h-7 w-20 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
-                        <p v-else class="text-2xl font-bold text-surface-900 dark:text-surface-0">
+                    <div class="min-w-0">
+                        <p class="text-xs text-muted-color mb-0.5">Paiements</p>
+                        <div v-if="statsLoading" class="h-6 w-12 bg-surface-200 dark:bg-surface-700 rounded animate-pulse" />
+                        <p v-else class="text-lg sm:text-xl font-bold text-surface-900 dark:text-surface-0 leading-none">
                             {{ paymentStats.count.toLocaleString('fr-FR') }}
                         </p>
                     </div>
@@ -103,13 +102,13 @@ function formatAmount(amount) {
         </div>
 
         <!-- Tableau -->
-        <div class="card">
-            <div class="flex flex-wrap items-center gap-3 mb-5">
-                <IconField class="flex-1 min-w-52">
+        <div class="card px-3! sm:px-6!">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center mb-4">
+                <IconField class="w-full sm:flex-1 sm:min-w-52">
                     <InputIcon class="pi pi-search" />
                     <InputText v-model="searchInput" placeholder="Référence, client…" class="w-full" />
                 </IconField>
-                <span class="text-sm text-muted-color whitespace-nowrap ml-auto">
+                <span class="text-xs sm:text-sm text-muted-color sm:ml-auto">
                     <i v-if="isFetching && !isLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                     {{ totalRecords }} paiement(s)
                 </span>
@@ -117,47 +116,46 @@ function formatAmount(amount) {
 
             <DataTable :value="payments" :loading="isLoading" lazy paginator :rows="pageSize"
                 :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                stripedRows scrollable size="small">
                 <template #empty>
-                    <div class="text-center py-12 text-muted-color">
+                    <div class="text-center py-10 text-muted-color">
                         <i class="pi pi-credit-card text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun paiement trouvé</p>
+                        <p class="font-medium text-sm">Aucun paiement trouvé</p>
                     </div>
                 </template>
 
-                <Column header="Date" style="min-width:12rem">
+                <Column header="Date" style="min-width:9rem">
                     <template #body="{ data: row }">
-                        <span class="text-sm">{{ formatDate(row.createdAt) }}</span>
+                        <span class="text-xs whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
                     </template>
                 </Column>
 
-                <Column header="Client" style="min-width:13rem">
+                <Column header="Client" style="min-width:10rem">
                     <template #body="{ data: row }">
                         <div v-if="row.payer">
-                            <div class="font-semibold text-sm">{{ row.payer.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.payer.email }}</div>
+                            <div class="font-semibold text-xs sm:text-sm">{{ row.payer.username }}</div>
+                            <div class="text-xs text-muted-color hidden sm:block">{{ row.payer.email }}</div>
                         </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
+                        <span v-else class="text-muted-color text-xs">—</span>
                     </template>
                 </Column>
 
-                <Column header="Produit" style="min-width:12rem">
+                <Column header="Produit" style="min-width:9rem">
                     <template #body="{ data: row }">
-                        <span v-if="row.product?.name" class="text-sm">{{ row.product.name }}</span>
-                        <span v-else class="text-muted-color text-sm">—</span>
+                        <span class="text-xs sm:text-sm">{{ row.product?.name || '—' }}</span>
                     </template>
                 </Column>
 
-                <Column header="Montant" style="min-width:10rem">
+                <Column header="Montant" style="min-width:8rem">
                     <template #body="{ data: row }">
-                        <span class="font-bold text-sm text-green-600 dark:text-green-400">
-                            {{ formatAmount(row.amount) }} FCFA
+                        <span class="font-bold text-xs sm:text-sm text-green-600 dark:text-green-400 whitespace-nowrap">
+                            {{ formatAmount(row.amount) }} EC
                         </span>
                     </template>
                 </Column>
 
-                <Column header="Référence" style="min-width:12rem">
+                <Column header="Réf." style="min-width:9rem">
                     <template #body="{ data: row }">
                         <span class="font-mono text-xs text-muted-color">{{ row.reference ?? '—' }}</span>
                     </template>
