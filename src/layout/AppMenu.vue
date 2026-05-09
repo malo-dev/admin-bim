@@ -1,259 +1,91 @@
 <script setup>
-import { ref } from 'vue';
+import { computed } from 'vue';
 import AppMenuItem from './AppMenuItem.vue';
+import { useSocketStore } from '@/modules/socket/store/socket.store';
+import { useAuthStore } from '@/modules/auth/store/auth.store';
 
-const model = ref([
+const socketStore = useSocketStore();
+const authStore = useAuthStore();
+
+const model = computed(() => [
     {
-        label: 'Home',
+        label: 'Accueil',
+        items: [
+            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }
+        ]
+    },
+    {
+        label: 'Temps Réel',
         items: [
             {
-                label: 'Dashboard',
-                icon: 'pi pi-fw pi-home',
-                to: '/'
+                label: 'Utilisateurs connectés',
+                icon: 'pi pi-fw pi-wifi',
+                to: '/online-users',
+                badge: socketStore.onlineCount > 0 ? String(socketStore.onlineCount) : null,
+                badgeSeverity: 'success'
             }
         ]
     },
     {
-        label: 'UI Components',
-        path: '/uikit',
+        label: 'Comptes',
         items: [
-            {
-                label: 'Form Layout',
-                icon: 'pi pi-fw pi-id-card',
-                to: '/uikit/formlayout'
-            },
-            {
-                label: 'Input',
-                icon: 'pi pi-fw pi-check-square',
-                to: '/uikit/input'
-            },
-            {
-                label: 'Button',
-                icon: 'pi pi-fw pi-mobile',
-                to: '/uikit/button',
-                class: 'rotated-icon'
-            },
-            {
-                label: 'Table',
-                icon: 'pi pi-fw pi-table',
-                to: '/uikit/table'
-            },
-            {
-                label: 'List',
-                icon: 'pi pi-fw pi-list',
-                to: '/uikit/list'
-            },
-            {
-                label: 'Tree',
-                icon: 'pi pi-fw pi-share-alt',
-                to: '/uikit/tree'
-            },
-            {
-                label: 'Panel',
-                icon: 'pi pi-fw pi-tablet',
-                to: '/uikit/panel'
-            },
-            {
-                label: 'Overlay',
-                icon: 'pi pi-fw pi-clone',
-                to: '/uikit/overlay'
-            },
-            {
-                label: 'Media',
-                icon: 'pi pi-fw pi-image',
-                to: '/uikit/media'
-            },
-            {
-                label: 'Menu',
-                icon: 'pi pi-fw pi-bars',
-                to: '/uikit/menu'
-            },
-            {
-                label: 'Message',
-                icon: 'pi pi-fw pi-comment',
-                to: '/uikit/message'
-            },
-            {
-                label: 'File',
-                icon: 'pi pi-fw pi-file',
-                to: '/uikit/file'
-            },
-            {
-                label: 'Chart',
-                icon: 'pi pi-fw pi-chart-bar',
-                to: '/uikit/charts'
-            },
-            {
-                label: 'Timeline',
-                icon: 'pi pi-fw pi-calendar',
-                to: '/uikit/timeline'
-            },
-            {
-                label: 'Misc',
-                icon: 'pi pi-fw pi-circle',
-                to: '/uikit/misc'
-            }
+            { label: 'Créer un compte', icon: 'pi pi-fw pi-user-plus', to: '/accounts/create' }
         ]
     },
     {
-        label: 'Prime Blocks',
-        icon: 'pi pi-fw pi-prime',
-        path: '/blocks',
+        label: 'Utilisateurs & Accès',
         items: [
-            {
-                label: 'Free Blocks',
-                icon: 'pi pi-fw pi-eye',
-                to: '/blocks/free'
-            },
-            {
-                label: 'All Blocks',
-                icon: 'pi pi-fw pi-globe',
-                url: 'https://blocks.primevue.org/',
-                target: '_blank'
-            }
+            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' },
+            { label: 'Rôles', icon: 'pi pi-fw pi-shield', to: '/roles' },
+            { label: 'Attribution des rôles', icon: 'pi pi-fw pi-id-card', to: '/user-roles' }
         ]
     },
     {
-        label: 'Pages',
-        icon: 'pi pi-fw pi-briefcase',
-        path: '/pages',
+        label: 'Entreprises & Commerce',
         items: [
-            {
-                label: 'Landing',
-                icon: 'pi pi-fw pi-globe',
-                to: '/landing'
-            },
-            {
-                label: 'Auth',
-                icon: 'pi pi-fw pi-user',
-                path: '/auth',
-                items: [
-                    {
-                        label: 'Login',
-                        icon: 'pi pi-fw pi-sign-in',
-                        to: '/auth/login'
-                    },
-                    {
-                        label: 'Error',
-                        icon: 'pi pi-fw pi-times-circle',
-                        to: '/auth/error'
-                    },
-                    {
-                        label: 'Access Denied',
-                        icon: 'pi pi-fw pi-lock',
-                        to: '/auth/access'
-                    }
-                ]
-            },
-            {
-                label: 'Crud',
-                icon: 'pi pi-fw pi-pencil',
-                to: '/pages/crud'
-            },
-            {
-                label: 'Not Found',
-                icon: 'pi pi-fw pi-exclamation-circle',
-                to: '/pages/notfound'
-            },
-            {
-                label: 'Empty',
-                icon: 'pi pi-fw pi-circle-off',
-                to: '/pages/empty'
-            }
+            { label: 'Entreprises', icon: 'pi pi-fw pi-building', to: '/companies' },
+            { label: 'Commerces', icon: 'pi pi-fw pi-shop', to: '/commerces' },
+            { label: 'Branches', icon: 'pi pi-fw pi-sitemap', to: '/branches' },
+            { label: "Secteurs d'activité", icon: 'pi pi-fw pi-tag', to: '/business-categories' }
         ]
     },
     {
-        label: 'Hierarchy',
-        icon: 'pi pi-fw pi-align-left',
-        path: '/hierarchy',
+        label: 'Catalogue Produits',
         items: [
-            {
-                label: 'Submenu 1',
-                icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_1',
-                items: [
-                    {
-                        label: 'Submenu 1.1',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_1',
-                        items: [
-                            {
-                                label: 'Submenu 1.1.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 1.1.2',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 1.1.3',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
-                    },
-                    {
-                        label: 'Submenu 1.2',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_1_2',
-                        items: [
-                            {
-                                label: 'Submenu 1.2.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
-                    }
-                ]
-            },
-            {
-                label: 'Submenu 2',
-                icon: 'pi pi-fw pi-align-left',
-                path: '/submenu_2',
-                items: [
-                    {
-                        label: 'Submenu 2.1',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_1',
-                        items: [
-                            {
-                                label: 'Submenu 2.1.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            },
-                            {
-                                label: 'Submenu 2.1.2',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
-                    },
-                    {
-                        label: 'Submenu 2.2',
-                        icon: 'pi pi-fw pi-align-left',
-                        path: '/submenu_2_2',
-                        items: [
-                            {
-                                label: 'Submenu 2.2.1',
-                                icon: 'pi pi-fw pi-align-left'
-                            }
-                        ]
-                    }
-                ]
-            }
+            { label: 'Produits', icon: 'pi pi-fw pi-box', to: '/products' },
+            { label: 'Catégories produits', icon: 'pi pi-fw pi-list', to: '/product-categories' },
+            { label: 'Produits vendus', icon: 'pi pi-fw pi-check-square', to: '/products-sold' }
         ]
     },
     {
-        label: 'Get Started',
-        path: '/start',
+        label: 'Commandes',
         items: [
-            {
-                label: 'Documentation',
-                icon: 'pi pi-fw pi-book',
-                to: '/start/documentation'
-            },
-            {
-                label: 'View Source',
-                icon: 'pi pi-fw pi-github',
-                url: 'https://github.com/primefaces/sakai-vue',
-                target: '_blank'
-            }
+            { label: 'Commandes', icon: 'pi pi-fw pi-shopping-cart', to: '/orders' }
+        ]
+    },
+    {
+        label: 'Transactions & Finance',
+        items: [
+            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' },
+            { label: 'Recharges', icon: 'pi pi-fw pi-plus-circle', to: '/recharges' },
+            { label: 'Historique financier', icon: 'pi pi-fw pi-history', to: '/history' },
+            { label: 'Bonus', icon: 'pi pi-fw pi-star', to: '/bonus' }
+        ]
+    },
+    {
+        label: 'Support & Suivi',
+        items: [
+            { label: 'Support', icon: 'pi pi-fw pi-headphones', to: '/support' },
+            { label: 'Feedbacks', icon: 'pi pi-fw pi-comments', to: '/feedbacks' },
+            { label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
+            { label: 'Notes entreprises', icon: 'pi pi-fw pi-file-edit', to: '/notes' }
+        ]
+    },
+    {
+        label: 'Paramètres',
+        items: [
+            { label: 'Devises', icon: 'pi pi-fw pi-dollar', to: '/currencies' },
+            { label: 'Catégories', icon: 'pi pi-fw pi-th-large', to: '/categories' }
         ]
     }
 ]);
@@ -261,9 +93,9 @@ const model = ref([
 
 <template>
     <ul class="layout-menu">
-        <template v-for="(item, i) in model" :key="item">
-            <app-menu-item v-if="!item.separator" :item="item" :index="i"></app-menu-item>
-            <li v-if="item.separator" class="menu-separator"></li>
+        <template v-for="(item, i) in model" :key="i">
+            <app-menu-item v-if="!item.separator" :item="item" :index="i" />
+            <li v-if="item.separator" class="menu-separator" />
         </template>
     </ul>
 </template>

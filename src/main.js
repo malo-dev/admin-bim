@@ -2,6 +2,9 @@ import { createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
 
+import { createPinia } from 'pinia';
+import { VueQueryPlugin, QueryClient } from '@tanstack/vue-query';
+
 import Aura from '@primeuix/themes/aura';
 import PrimeVue from 'primevue/config';
 import ConfirmationService from 'primevue/confirmationservice';
@@ -10,16 +13,27 @@ import ToastService from 'primevue/toastservice';
 import '@/assets/tailwind.css';
 import '@/assets/styles.scss';
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1,
+            staleTime: 1000 * 60 * 5,
+        },
+    },
+});
+
 const app = createApp(App);
 
+app.use(createPinia());
 app.use(router);
+app.use(VueQueryPlugin, { queryClient });
 app.use(PrimeVue, {
     theme: {
         preset: Aura,
         options: {
-            darkModeSelector: '.app-dark'
-        }
-    }
+            darkModeSelector: '.app-dark',
+        },
+    },
 });
 app.use(ToastService);
 app.use(ConfirmationService);
