@@ -30,5 +30,30 @@ const updateUserProfile = async (id, payload) => {
     return data;
 };
 
-const UsersService = { getUsers, getCommerces, toggleUserActive, toggleUserBlock, deleteUser, updateUserProfile };
+const rechargeUser = async (id, amount) => {
+    const { data } = await apiClient.post(`/auth/users/${id}/admin-recharge`, { amount });
+    return data;
+};
+
+const resetUserPassword = async (id) => {
+    const { data } = await apiClient.post(`/auth/users/${id}/admin-reset-password`);
+    return data;
+};
+
+const getOtps = async (params = {}) => {
+    const { data } = await apiClient.get('/auth/otps', { params });
+    return data;
+};
+
+const UsersService = {
+    getUsers,
+    getCommerces,
+    toggleUserActive,
+    toggleUserBlock,
+    deleteUser,
+    updateUserProfile,
+    rechargeUser,
+    resetUserPassword,
+    getOtps,
+};
 export default UsersService;

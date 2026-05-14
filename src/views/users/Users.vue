@@ -8,6 +8,8 @@ import {
     useToggleUserActiveMutation,
     useToggleUserBlockMutation,
     useDeleteUserMutation,
+    useRechargeUserMutation,
+    useResetUserPasswordMutation,
 } from '@/modules/users/mutations/users.mutations';
 
 const toast = useToast();
@@ -22,7 +24,6 @@ const dateTo = ref(null);
 const currentPage = ref(1);
 const pageSize = ref(20);
 
-// Reset page on filter change
 watch([search, selectedCommerceId, dateFrom, dateTo], () => { currentPage.value = 1; });
 
 const filters = computed(() => ({
@@ -68,6 +69,8 @@ function clearFilters() {
 const { mutate: toggleActive, isPending: activePending } = useToggleUserActiveMutation();
 const { mutate: toggleBlock, isPending: blockPending } = useToggleUserBlockMutation();
 const { mutate: deleteUser, isPending: deletePending } = useDeleteUserMutation();
+const { mutate: rechargeUser, isPending: rechargePending } = useRechargeUserMutation();
+const { mutate: resetPassword, isPending: resetPending } = useResetUserPasswordMutation();
 
 function doToggleActive(user) {
     toggleActive(user.id, {
@@ -113,6 +116,72 @@ function confirmDelete(user) {
     });
 }
 
+// ── Recharge dialog ────────────────────────────────────────────────────────────
+const showRechargeDialog = ref(false);
+const rechargeTarget = ref(null);
+const rechargeAmount = ref(null);
+
+function openRechargeDialog(user) {
+    rechargeTarget.value = user;
+    rechargeAmount.value = null;
+    showRechargeDialog.value = true;
+}
+
+function submitRecharge() {
+    if (!rechargeAmount.value || rechargeAmount.value <= 0) {
+        toast.add({ severity: 'warn', summary: 'Montant invalide', detail: 'Entrez un montant positif', life: 3000 });
+        return;
+    }
+    rechargeUser(
+        { id: rechargeTarget.value.id, amount: rechargeAmount.value },
+        {
+            onSuccess: () => {
+                showRechargeDialog.value = false;
+                toast.add({
+                    severity: 'success',
+                    summary: 'Rechargé',
+                    detail: `${rechargeAmount.value} EC ajoutés au compte de ${rechargeTarget.value.username}`,
+                    life: 4000,
+                });
+            },
+            onError: (err) =>
+                toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
+        }
+    );
+}
+
+// ── Reset password dialog ──────────────────────────────────────────────────────
+const showResetDialog = ref(false);
+const resetTarget = ref(null);
+const generatedPassword = ref('');
+
+function openResetDialog(user) {
+    resetTarget.value = user;
+    generatedPassword.value = '';
+    showResetDialog.value = true;
+}
+
+function submitReset() {
+    resetPassword(resetTarget.value.id, {
+        onSuccess: (res) => {
+            generatedPassword.value = res?.newPassword ?? res?.password ?? '(voir email)';
+            toast.add({
+                severity: 'success',
+                summary: 'Mot de passe réinitialisé',
+                detail: `Nouveau mot de passe généré pour ${resetTarget.value.username}`,
+                life: 4000,
+            });
+        },
+        onError: (err) =>
+            toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
+    });
+}
+
+function copyPassword() {
+    navigator.clipboard.writeText(generatedPassword.value);
+    toast.add({ severity: 'info', summary: 'Copié', detail: 'Mot de passe copié', life: 2000 });
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 function formatDate(d) {
     return d ? new Date(d).toLocaleDateString('fr-FR') : '—';
@@ -126,6 +195,11 @@ function getCommerceName(user) {
     if (!user.commerce) return null;
     if (Array.isArray(user.commerce)) return user.commerce[0]?.commerceName ?? null;
     return user.commerce.commerceName ?? null;
+}
+
+function fmtBalance(val) {
+    if (val === undefined || val === null) return '—';
+    return Number(val).toLocaleString('fr-FR') + ' EC';
 }
 </script>
 
@@ -147,13 +221,11 @@ function getCommerceName(user) {
         <div class="card">
             <!-- Filters toolbar -->
             <div class="flex flex-wrap items-center gap-3 mb-5">
-                <!-- Search -->
                 <IconField class="flex-1 min-w-52">
                     <InputIcon class="pi pi-search" />
                     <InputText v-model="searchInput" placeholder="Nom, email, prénom…" class="w-full" />
                 </IconField>
 
-                <!-- Commerce filter -->
                 <Select
                     v-model="selectedCommerceId"
                     :options="commerceOptions"
@@ -164,7 +236,6 @@ function getCommerceName(user) {
                     style="min-width:13rem"
                 />
 
-                <!-- Date range -->
                 <DatePicker
                     v-model="dateFrom"
                     placeholder="Créé depuis"
@@ -180,7 +251,6 @@ function getCommerceName(user) {
                     style="min-width:9rem"
                 />
 
-                <!-- Clear filters -->
                 <Button
                     v-if="hasActiveFilters"
                     icon="pi pi-filter-slash"
@@ -190,7 +260,6 @@ function getCommerceName(user) {
                     @click="clearFilters"
                 />
 
-                <!-- Count -->
                 <span class="text-sm text-muted-color ml-auto whitespace-nowrap">
                     <i v-if="isFetching && !isLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                     {{ totalRecords }} utilisateur(s)
@@ -259,6 +328,18 @@ function getCommerceName(user) {
                     </template>
                 </Column>
 
+                <!-- Solde -->
+                <Column header="Solde" style="min-width:9rem">
+                    <template #body="{ data: row }">
+                        <span
+                            class="font-semibold text-sm"
+                            :class="(row.balance ?? row.wallet?.balance ?? 0) > 0 ? 'text-green-600 dark:text-green-400' : 'text-muted-color'"
+                        >
+                            {{ fmtBalance(row.balance ?? row.wallet?.balance) }}
+                        </span>
+                    </template>
+                </Column>
+
                 <!-- Commerce -->
                 <Column header="Commerce" style="min-width:11rem">
                     <template #body="{ data: row }">
@@ -291,9 +372,31 @@ function getCommerceName(user) {
                 </Column>
 
                 <!-- Actions -->
-                <Column header="Actions" style="min-width:10rem" alignHeader="right">
+                <Column header="Actions" style="min-width:14rem" alignHeader="right">
                     <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
+                        <div class="flex gap-1 justify-end flex-wrap">
+                            <!-- Recharger -->
+                            <Button
+                                v-tooltip.top="'Recharger le compte'"
+                                icon="pi pi-wallet"
+                                severity="info"
+                                outlined
+                                rounded
+                                size="small"
+                                @click="openRechargeDialog(row)"
+                            />
+                            <!-- Réinitialiser MDP -->
+                            <Button
+                                v-tooltip.top="'Réinitialiser mot de passe'"
+                                icon="pi pi-key"
+                                severity="secondary"
+                                outlined
+                                rounded
+                                size="small"
+                                :loading="resetPending"
+                                @click="openResetDialog(row)"
+                            />
+                            <!-- Activer/Désactiver -->
                             <Button
                                 v-tooltip.top="row.isActive ? 'Désactiver' : 'Activer'"
                                 :icon="row.isActive ? 'pi pi-power-off' : 'pi pi-check-circle'"
@@ -304,6 +407,7 @@ function getCommerceName(user) {
                                 :loading="activePending"
                                 @click="doToggleActive(row)"
                             />
+                            <!-- Bloquer/Débloquer -->
                             <Button
                                 v-tooltip.top="row.isBlocked ? 'Débloquer' : 'Bloquer'"
                                 :icon="row.isBlocked ? 'pi pi-lock-open' : 'pi pi-ban'"
@@ -314,6 +418,7 @@ function getCommerceName(user) {
                                 :loading="blockPending"
                                 @click="doToggleBlock(row)"
                             />
+                            <!-- Supprimer -->
                             <Button
                                 v-tooltip.top="'Supprimer'"
                                 icon="pi pi-trash"
@@ -329,5 +434,107 @@ function getCommerceName(user) {
                 </Column>
             </DataTable>
         </div>
+
+        <!-- ── Dialog Recharge ──────────────────────────────────────────────── -->
+        <Dialog
+            v-model:visible="showRechargeDialog"
+            :header="`Recharger le compte de ${rechargeTarget?.username ?? ''}`"
+            :style="{ width: '26rem' }"
+            modal
+            :draggable="false"
+        >
+            <div class="flex flex-col gap-4 pt-2">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+                    <Avatar
+                        :label="getInitials(rechargeTarget?.username)"
+                        shape="circle"
+                        :style="{ backgroundColor: 'var(--p-surface-200)', color: 'var(--p-text-color)', fontWeight: '600' }"
+                    />
+                    <div>
+                        <div class="font-semibold">{{ rechargeTarget?.fullname || rechargeTarget?.username }}</div>
+                        <div class="text-xs text-muted-color">
+                            Solde actuel : <strong>{{ fmtBalance(rechargeTarget?.balance ?? rechargeTarget?.wallet?.balance) }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Montant à ajouter (EC)</label>
+                    <InputNumber
+                        v-model="rechargeAmount"
+                        :min="1"
+                        :step="1"
+                        showButtons
+                        buttonLayout="horizontal"
+                        decrementButtonIcon="pi pi-minus"
+                        incrementButtonIcon="pi pi-plus"
+                        class="w-full"
+                        placeholder="Ex : 50"
+                        fluid
+                    />
+                </div>
+            </div>
+
+            <template #footer>
+                <Button label="Annuler" severity="secondary" outlined @click="showRechargeDialog = false" />
+                <Button
+                    label="Recharger"
+                    icon="pi pi-wallet"
+                    severity="info"
+                    :loading="rechargePending"
+                    :disabled="!rechargeAmount || rechargeAmount <= 0"
+                    @click="submitRecharge"
+                />
+            </template>
+        </Dialog>
+
+        <!-- ── Dialog Reset Password ────────────────────────────────────────── -->
+        <Dialog
+            v-model:visible="showResetDialog"
+            :header="`Réinitialiser le mot de passe de ${resetTarget?.username ?? ''}`"
+            :style="{ width: '28rem' }"
+            modal
+            :draggable="false"
+        >
+            <div class="flex flex-col gap-4 pt-2">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+                    <Avatar
+                        :label="getInitials(resetTarget?.username)"
+                        shape="circle"
+                        :style="{ backgroundColor: 'var(--p-surface-200)', color: 'var(--p-text-color)', fontWeight: '600' }"
+                    />
+                    <div>
+                        <div class="font-semibold">{{ resetTarget?.fullname || resetTarget?.username }}</div>
+                        <div class="text-xs text-muted-color">{{ resetTarget?.email }}</div>
+                    </div>
+                </div>
+
+                <Message severity="warn" :closable="false" class="text-sm">
+                    Un nouveau mot de passe sera généré automatiquement et envoyé à l'utilisateur.
+                </Message>
+
+                <!-- Affiche le nouveau mot de passe après génération -->
+                <div v-if="generatedPassword" class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Nouveau mot de passe généré</label>
+                    <div class="flex items-center gap-2">
+                        <InputText :value="generatedPassword" readonly class="flex-1 font-mono" />
+                        <Button icon="pi pi-copy" severity="secondary" outlined @click="copyPassword" v-tooltip="'Copier'" />
+                    </div>
+                    <p class="text-xs text-muted-color">Transmettez ce mot de passe à l'utilisateur de manière sécurisée.</p>
+                </div>
+            </div>
+
+            <template #footer>
+                <Button label="Fermer" severity="secondary" outlined @click="showResetDialog = false" />
+                <Button
+                    v-if="!generatedPassword"
+                    label="Générer un nouveau mot de passe"
+                    icon="pi pi-key"
+                    severity="warning"
+                    :loading="resetPending"
+                    @click="submitReset"
+                />
+            </template>
+        </Dialog>
     </div>
 </template>

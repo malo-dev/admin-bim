@@ -44,6 +44,10 @@ const router = createRouter({
                 { path: '/recharges', name: 'recharges', component: () => import('@/views/recharges/Recharges.vue') },
                 { path: '/history', name: 'history', component: () => import('@/views/history/History.vue') },
                 { path: '/bonus', name: 'bonus', component: () => import('@/views/bonus/Bonus.vue') },
+                { path: '/finance-stats', name: 'financeStats', component: () => import('@/views/finance-stats/FinanceStats.vue') },
+
+                // OTPs
+                { path: '/otps', name: 'otps', component: () => import('@/views/otps/Otps.vue') },
 
                 // Support & Suivi
                 { path: '/support', name: 'support', component: () => import('@/views/support/Support.vue') },

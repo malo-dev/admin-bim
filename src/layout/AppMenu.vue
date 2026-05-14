@@ -37,7 +37,8 @@ const model = computed(() => [
     {
         label: 'Utilisateurs & Accès',
         items: [
-            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' }
+            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' },
+            { label: 'OTP envoyés', icon: 'pi pi-fw pi-shield', to: '/otps' },
         ]
     },
     {
@@ -62,7 +63,8 @@ const model = computed(() => [
     {
         label: 'Transactions & Finance',
         items: [
-            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' }
+            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' },
+            { label: 'Statistiques financières', icon: 'pi pi-fw pi-chart-bar', to: '/finance-stats' },
         ]
     },
     {

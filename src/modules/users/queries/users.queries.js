@@ -16,3 +16,10 @@ export function useCommercesQuery() {
         staleTime: 1000 * 60 * 10,
     });
 }
+
+export function useOtpsQuery(filters) {
+    return useQuery({
+        queryKey: computed(() => ['otps', filters.value]),
+        queryFn: () => UsersService.getOtps({ ...filters.value }),
+    });
+}

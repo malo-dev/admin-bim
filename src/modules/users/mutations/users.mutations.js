@@ -37,3 +37,17 @@ export function useUpdateUserProfileMutation() {
         onSuccess: () => invalidateAll(queryClient),
     });
 }
+
+export function useRechargeUserMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, amount }) => UsersService.rechargeUser(id, amount),
+        onSuccess: () => invalidateAll(queryClient),
+    });
+}
+
+export function useResetUserPasswordMutation() {
+    return useMutation({
+        mutationFn: (id) => UsersService.resetUserPassword(id),
+    });
+}
