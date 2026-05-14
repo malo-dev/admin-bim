@@ -21,5 +21,15 @@ export function useOtpsQuery(filters) {
     return useQuery({
         queryKey: computed(() => ['otps', filters.value]),
         queryFn: () => UsersService.getOtps({ ...filters.value }),
+        retry: false,
+    });
+}
+
+export function useUsersBalanceStatsQuery(period) {
+    return useQuery({
+        queryKey: computed(() => ['users-balance-stats', period.value]),
+        queryFn: () => UsersService.getUsersBalanceStats(period.value ? { period: period.value } : {}),
+        retry: false,
+        staleTime: 1000 * 30,
     });
 }

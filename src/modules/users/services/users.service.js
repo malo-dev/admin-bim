@@ -45,6 +45,16 @@ const getOtps = async (params = {}) => {
     return data;
 };
 
+const getUsersBalanceStats = async (params = {}) => {
+    const { data } = await apiClient.get('/auth/users/balance-stats', { params });
+    return data;
+};
+
+const getTransactionPassword = async (id) => {
+    const { data } = await apiClient.get(`/auth/users/${id}/transaction-password`);
+    return data;
+};
+
 const UsersService = {
     getUsers,
     getCommerces,
@@ -55,5 +65,7 @@ const UsersService = {
     rechargeUser,
     resetUserPassword,
     getOtps,
+    getUsersBalanceStats,
+    getTransactionPassword,
 };
 export default UsersService;

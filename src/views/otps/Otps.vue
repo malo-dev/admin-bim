@@ -13,15 +13,15 @@ const pageSize = ref(20);
 watch([search, selectedStatus, selectedPeriod], () => { currentPage.value = 1; });
 
 const STATUS_OPTIONS = [
-    { label: 'Actif', value: 'active' },
+    { label: 'Actif',    value: 'active' },
     { label: 'Utilisé', value: 'used' },
-    { label: 'Expiré', value: 'expired' },
+    { label: 'Expiré',  value: 'expired' },
 ];
 
 const PERIOD_OPTIONS = [
-    { label: "Aujourd'hui", value: 'daily' },
+    { label: "Aujourd'hui",   value: 'daily' },
     { label: 'Cette semaine', value: 'weekly' },
-    { label: 'Ce mois', value: 'monthly' },
+    { label: 'Ce mois',       value: 'monthly' },
 ];
 
 const STATUS_SEVERITY = { active: 'success', used: 'secondary', expired: 'danger' };
@@ -35,7 +35,9 @@ const filters = computed(() => ({
     pageSize: pageSize.value,
 }));
 
-const { data, isLoading, isFetching } = useOtpsQuery(filters);
+const { data, isLoading, isFetching, isError, error } = useOtpsQuery(filters);
+
+const is404 = computed(() => error.value?.response?.status === 404);
 
 const otps = computed(() => {
     const raw = data.value;
@@ -95,8 +97,48 @@ function getOtpStatus(otp) {
             </div>
         </div>
 
-        <div class="card">
-            <!-- Filters -->
+        <!-- Endpoint 404 -->
+        <div v-if="is404" class="card">
+            <div class="flex flex-col items-center justify-center py-12 gap-5 text-center">
+                <div class="w-16 h-16 rounded-2xl bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
+                    <i class="pi pi-exclamation-triangle text-orange-500 text-3xl" />
+                </div>
+                <div>
+                    <h2 class="text-lg font-semibold text-surface-900 dark:text-surface-0 mb-1">
+                        Endpoint à créer côté serveur
+                    </h2>
+                    <p class="text-sm text-muted-color max-w-md">
+                        Les OTPs sont stockés sur le modèle <strong>User</strong> (champs <code class="bg-surface-100 dark:bg-surface-800 px-1 rounded font-mono text-xs">otp</code> et <code class="bg-surface-100 dark:bg-surface-800 px-1 rounded font-mono text-xs">otpExpires</code>).
+                        Une route dédiée doit être créée dans <strong>bim_server</strong> pour les lister.
+                    </p>
+                </div>
+                <div class="p-4 rounded-xl bg-surface-50 dark:bg-surface-800 text-left text-sm max-w-lg w-full">
+                    <p class="font-semibold mb-2 text-surface-700 dark:text-surface-200">Route à créer dans le contrôleur auth :</p>
+                    <pre class="text-xs font-mono text-primary bg-surface-100 dark:bg-surface-900 p-3 rounded overflow-auto">// GET /api/v1/auth/otps
+router.get('/otps', authMiddleware, async (req, res) => {
+  const { page = 1, pageSize = 20, status, period } = req.query;
+  const where = {};
+  if (status === 'active') where.otp = { [Op.ne]: null };
+  if (status === 'expired') where.otpExpires = { [Op.lt]: new Date() };
+  const users = await User.findAndCountAll({
+    where, offset: (page-1)*pageSize, limit: +pageSize,
+    attributes: ['id','username','email','otp','otpExpires'],
+  });
+  res.json({ data: users.rows, pagination: { total: users.count, page, pageSize } });
+});</pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Autre erreur -->
+        <div v-else-if="isError && !is404" class="card">
+            <Message severity="error" :closable="false">
+                Erreur lors du chargement des OTP : {{ error?.message ?? 'Erreur serveur' }}
+            </Message>
+        </div>
+
+        <!-- Contenu normal -->
+        <div v-else class="card">
             <div class="flex flex-wrap items-center gap-3 mb-5">
                 <IconField class="flex-1 min-w-52">
                     <InputIcon class="pi pi-search" />
@@ -160,7 +202,6 @@ function getOtpStatus(otp) {
                     </div>
                 </template>
 
-                <!-- Utilisateur -->
                 <Column header="Utilisateur" style="min-width:14rem">
                     <template #body="{ data: row }">
                         <div v-if="row.user">
@@ -174,7 +215,6 @@ function getOtpStatus(otp) {
                     </template>
                 </Column>
 
-                <!-- Code OTP -->
                 <Column header="Code OTP" style="min-width:9rem">
                     <template #body="{ data: row }">
                         <code
@@ -186,7 +226,6 @@ function getOtpStatus(otp) {
                     </template>
                 </Column>
 
-                <!-- Statut -->
                 <Column header="Statut" style="min-width:8rem">
                     <template #body="{ data: row }">
                         <Tag
@@ -196,19 +235,16 @@ function getOtpStatus(otp) {
                     </template>
                 </Column>
 
-                <!-- Type -->
                 <Column header="Type" style="min-width:9rem">
                     <template #body="{ data: row }">
                         <span class="text-sm text-muted-color capitalize">{{ row.type ?? row.purpose ?? '—' }}</span>
                     </template>
                 </Column>
 
-                <!-- Créé le -->
                 <Column header="Créé le" style="min-width:10rem">
                     <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
                 </Column>
 
-                <!-- Expire le -->
                 <Column header="Expire le" style="min-width:10rem">
                     <template #body="{ data: row }">
                         <span :class="isExpired(row) ? 'text-red-500 text-sm' : 'text-sm'">
@@ -217,7 +253,6 @@ function getOtpStatus(otp) {
                     </template>
                 </Column>
 
-                <!-- Utilisé le -->
                 <Column header="Utilisé le" style="min-width:10rem">
                     <template #body="{ data: row }">{{ formatDate(row.usedAt) }}</template>
                 </Column>
