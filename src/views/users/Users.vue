@@ -97,10 +97,11 @@ const {
     refetch: balanceRefetch,
 } = useUsersBalanceStatsQuery(balancePeriodParam);
 
-const totalBalance    = computed(() => balanceStats.value?.totalBalance    ?? balanceStats.value?.total_balance    ?? null);
-const totalUsers      = computed(() => balanceStats.value?.totalUsers      ?? balanceStats.value?.total_users      ?? totalRecords.value);
-const activeUsersCount = computed(() => balanceStats.value?.activeUsers    ?? balanceStats.value?.active_users     ?? null);
-const avgBalance      = computed(() => {
+const totalBalance     = computed(() => balanceStats.value?.totalBalance ?? null);
+const totalUsers       = computed(() => balanceStats.value?.totalUsers   ?? totalRecords.value);
+const activeUsersCount = computed(() => balanceStats.value?.activeUsers  ?? null);
+const newUsersCount    = computed(() => balanceStats.value?.newUsers     ?? null);
+const avgBalance       = computed(() => {
     if (totalBalance.value != null && totalUsers.value > 0)
         return Math.round(totalBalance.value / totalUsers.value);
     return null;
@@ -394,19 +395,19 @@ function fmtBig(val) {
 
             <!-- 3 Cards -->
             <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Solde total -->
+                <!-- Solde total (toujours la somme de tous les utilisateurs) -->
                 <div class="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
                     <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
                         <i class="pi pi-wallet text-blue-600 dark:text-blue-400" />
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs text-muted-color">Solde total</p>
+                        <p class="text-xs text-muted-color">Solde total — tous utilisateurs</p>
                         <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
                             <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
                             <span v-else-if="totalBalance != null">{{ fmtBig(totalBalance) }} EC</span>
                             <span v-else class="text-surface-400 text-base">— EC</span>
                         </p>
-                        <p class="text-xs text-muted-color mt-0.5">{{ balancePeriodLabel }}</p>
+                        <p class="text-xs text-muted-color mt-0.5">{{ totalUsers }} comptes · solde cumulé</p>
                     </div>
                 </div>
 
@@ -421,21 +422,20 @@ function fmtBig(val) {
                             <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
                             <span v-else>{{ fmtBig(activeUsersCount) }}</span>
                         </p>
-                        <p class="text-xs text-muted-color mt-0.5">{{ balancePeriodLabel }}</p>
+                        <p class="text-xs text-muted-color mt-0.5">Total enregistrés</p>
                     </div>
                 </div>
 
-                <!-- Solde moyen -->
+                <!-- Nouveaux inscrits sur la période -->
                 <div class="flex items-start gap-3 p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20">
                     <div class="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center shrink-0">
-                        <i class="pi pi-chart-line text-violet-600 dark:text-violet-400" />
+                        <i class="pi pi-user-plus text-violet-600 dark:text-violet-400" />
                     </div>
                     <div class="min-w-0">
-                        <p class="text-xs text-muted-color">Solde moyen/utilisateur</p>
+                        <p class="text-xs text-muted-color">Nouveaux inscrits</p>
                         <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">
                             <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
-                            <span v-else-if="avgBalance != null">{{ fmtBig(avgBalance) }} EC</span>
-                            <span v-else class="text-surface-400 text-base">— EC</span>
+                            <span v-else>{{ fmtBig(newUsersCount) }}</span>
                         </p>
                         <p class="text-xs text-muted-color mt-0.5">{{ balancePeriodLabel }}</p>
                     </div>
@@ -568,14 +568,6 @@ function fmtBig(val) {
                         >
                             N/D
                         </span>
-                    </template>
-                </Column>
-
-                <!-- Commerce -->
-                <Column header="Commerce" style="min-width:11rem">
-                    <template #body="{ data: row }">
-                        <span v-if="getCommerceName(row)" class="text-sm">{{ getCommerceName(row) }}</span>
-                        <span v-else class="text-muted-color text-sm">—</span>
                     </template>
                 </Column>
 
