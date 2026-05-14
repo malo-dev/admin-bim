@@ -38,6 +38,14 @@ export function useUpdateUserProfileMutation() {
     });
 }
 
+export function useUpdateSoldNumberMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, soldNumber }) => UsersService.updateSoldNumber(id, soldNumber),
+        onSuccess: () => invalidateAll(queryClient),
+    });
+}
+
 export function useRechargeUserMutation() {
     const queryClient = useQueryClient();
     return useMutation({

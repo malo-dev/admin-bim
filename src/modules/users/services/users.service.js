@@ -30,6 +30,11 @@ const updateUserProfile = async (id, payload) => {
     return data;
 };
 
+const updateSoldNumber = async (id, soldNumber) => {
+    const { data } = await apiClient.put(`/auth/users/${id}/sold`, { soldNumber });
+    return data;
+};
+
 const rechargeUser = async (id, amount) => {
     const { data } = await apiClient.post(`/auth/users/${id}/admin-recharge`, { amount });
     return data;
@@ -62,6 +67,7 @@ const UsersService = {
     toggleUserBlock,
     deleteUser,
     updateUserProfile,
+    updateSoldNumber,
     rechargeUser,
     resetUserPassword,
     getOtps,

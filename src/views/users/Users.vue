@@ -13,6 +13,7 @@ import {
     useToggleUserActiveMutation,
     useToggleUserBlockMutation,
     useDeleteUserMutation,
+    useUpdateSoldNumberMutation,
     useRechargeUserMutation,
     useResetUserPasswordMutation,
 } from '@/modules/users/mutations/users.mutations';
@@ -114,6 +115,7 @@ const balancePeriodLabel = computed(() => {
 const { mutate: toggleActive, isPending: activePending } = useToggleUserActiveMutation();
 const { mutate: toggleBlock,  isPending: blockPending  } = useToggleUserBlockMutation();
 const { mutate: deleteUser,   isPending: deletePending } = useDeleteUserMutation();
+const { mutate: updateSold, isPending: soldPending } = useUpdateSoldNumberMutation();
 const { mutate: rechargeUser, isPending: rechargePending } = useRechargeUserMutation();
 const { mutate: resetPassword, isPending: resetPending } = useResetUserPasswordMutation();
 
@@ -159,6 +161,40 @@ function confirmDelete(user) {
                     toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
             }),
     });
+}
+
+// ── Dialog Modifier Solde ──────────────────────────────────────────────────────
+const showEditSoldDialog = ref(false);
+const editSoldTarget = ref(null);
+const editSoldValue = ref(null);
+
+function openEditSoldDialog(user) {
+    editSoldTarget.value = user;
+    editSoldValue.value = getUserBalance(user) ?? 0;
+    showEditSoldDialog.value = true;
+}
+
+function submitEditSold() {
+    if (editSoldValue.value === null || editSoldValue.value < 0 || editSoldValue.value > 5000) {
+        toast.add({ severity: 'warn', summary: 'Valeur invalide', detail: 'Le solde doit être entre 0 et 5000 EC', life: 3000 });
+        return;
+    }
+    updateSold(
+        { id: editSoldTarget.value.id, soldNumber: editSoldValue.value },
+        {
+            onSuccess: () => {
+                showEditSoldDialog.value = false;
+                toast.add({
+                    severity: 'success',
+                    summary: 'Solde mis à jour',
+                    detail: `Solde de ${editSoldTarget.value.username} → ${editSoldValue.value} EC`,
+                    life: 4000,
+                });
+            },
+            onError: (err) =>
+                toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
+        }
+    );
 }
 
 // ── Dialog Recharge ────────────────────────────────────────────────────────────
@@ -580,6 +616,16 @@ function fmtBig(val) {
                                 @click="openPinDialog(row)"
                             />
                             <Button
+                                v-tooltip.top="'Modifier le solde'"
+                                icon="pi pi-pencil"
+                                severity="success"
+                                outlined
+                                rounded
+                                size="small"
+                                :loading="soldPending"
+                                @click="openEditSoldDialog(row)"
+                            />
+                            <Button
                                 v-tooltip.top="'Recharger le compte'"
                                 icon="pi pi-wallet"
                                 severity="info"
@@ -633,6 +679,63 @@ function fmtBig(val) {
                 </Column>
             </DataTable>
         </div>
+
+        <!-- ── Dialog Modifier Solde ───────────────────────────────────────── -->
+        <Dialog
+            v-model:visible="showEditSoldDialog"
+            :header="`Modifier le solde de ${editSoldTarget?.username ?? ''}`"
+            :style="{ width: '24rem' }"
+            modal
+            :draggable="false"
+        >
+            <div class="flex flex-col gap-4 pt-2">
+                <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800">
+                    <Avatar
+                        :label="getInitials(editSoldTarget?.username)"
+                        shape="circle"
+                        :style="{ backgroundColor: 'var(--p-surface-200)', color: 'var(--p-text-color)', fontWeight: '600' }"
+                    />
+                    <div>
+                        <div class="font-semibold">{{ editSoldTarget?.fullname || editSoldTarget?.username }}</div>
+                        <div class="text-xs text-muted-color">
+                            Solde actuel : <strong>{{ fmtEC(getUserBalance(editSoldTarget ?? {})) ?? 'N/D' }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-1">
+                    <label class="text-sm font-medium">Nouveau solde (EC) <span class="text-muted-color font-normal">· max 5 000</span></label>
+                    <InputNumber
+                        v-model="editSoldValue"
+                        :min="0"
+                        :max="5000"
+                        :step="1"
+                        showButtons
+                        buttonLayout="horizontal"
+                        decrementButtonIcon="pi pi-minus"
+                        incrementButtonIcon="pi pi-plus"
+                        class="w-full"
+                        fluid
+                    />
+                </div>
+
+                <Message severity="info" :closable="false" class="text-xs">
+                    Cette action <strong>remplace</strong> le solde actuel. Pour ajouter des fonds, utilisez plutôt « Recharger ».
+                </Message>
+            </div>
+
+            <template #footer>
+                <Button label="Annuler" severity="secondary" outlined @click="showEditSoldDialog = false" />
+                <Button
+                    label="Enregistrer"
+                    icon="pi pi-check"
+                    severity="success"
+                    :loading="soldPending"
+                    :disabled="editSoldValue === null || editSoldValue < 0 || editSoldValue > 5000"
+                    @click="submitEditSold"
+                />
+            </template>
+        </Dialog>
 
         <!-- ── Dialog Recharge ──────────────────────────────────────────────── -->
         <Dialog
