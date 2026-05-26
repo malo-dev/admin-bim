@@ -1,7 +1,9 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { refDebounced } from '@vueuse/core';
+import { useToast } from 'primevue/usetoast';
 import { useMyOrdersQuery, useMyStatsQuery } from '@/modules/company-portal/queries/company-portal.queries';
+import { useUpdateOrderStatusMutation } from '@/modules/company-portal/mutations/company-portal.mutations';
 
 const STATUS_LABEL = {
     pending: 'En attente',
@@ -18,6 +20,16 @@ const STATUS_SEVERITY = {
     shipped: 'secondary',
     delivered: 'success',
     cancelled: 'danger',
+};
+const PAY_LABEL = {
+    pending: 'En attente',
+    paid: 'Payé',
+    refunded: 'Remboursé',
+};
+const PAY_SEVERITY = {
+    pending: 'warn',
+    paid: 'success',
+    refunded: 'info',
 };
 const STATUS_OPTIONS = Object.entries(STATUS_LABEL).map(([value, label]) => ({ label, value }));
 
@@ -50,12 +62,31 @@ const filters = computed(() => ({
     pageSize: pageSize.value,
 }));
 
+const toast = useToast();
 const { data, isLoading, isFetching } = useMyOrdersQuery(filters);
 const { data: stats, isLoading: statsLoading } = useMyStatsQuery(period);
+const { mutate: updateStatus, isPending: updatingStatus } = useUpdateOrderStatusMutation();
 
 const orders = computed(() => data.value?.data ?? []);
 const totalRecords = computed(() => data.value?.total ?? 0);
 const orderStats = computed(() => stats.value?.orders ?? { count: 0, totalAmount: 0 });
+
+const NEXT_ACTIONS = {
+    pending:    [
+        { status: 'confirmed', label: 'Accepter',       severity: 'success', icon: 'pi pi-check' },
+        { status: 'cancelled', label: 'Refuser',         severity: 'danger',  icon: 'pi pi-times' },
+    ],
+    confirmed:  [{ status: 'processing', label: 'En préparation', severity: 'info',    icon: 'pi pi-cog' }],
+    processing: [{ status: 'shipped',    label: 'Expédier',       severity: 'info',    icon: 'pi pi-send' }],
+    shipped:    [{ status: 'delivered',  label: 'Livré',          severity: 'success', icon: 'pi pi-box' }],
+};
+
+function handleStatusChange(row, newStatus) {
+    updateStatus({ id: row.orderId, status: newStatus }, {
+        onSuccess: () => toast.add({ severity: 'success', summary: 'Statut mis à jour', life: 2500 }),
+        onError: () => toast.add({ severity: 'error', summary: 'Erreur', detail: 'Impossible de mettre à jour le statut', life: 3000 }),
+    });
+}
 
 function onPage(e) { currentPage.value = e.page + 1; pageSize.value = e.rows; }
 
@@ -173,11 +204,17 @@ function clearFilters() {
                     </template>
                 </Column>
 
-                <Column header="Client" style="min-width:10rem">
+                <Column header="Client" style="min-width:12rem">
                     <template #body="{ data: row }">
                         <div v-if="row.user">
                             <div class="font-semibold text-xs sm:text-sm">{{ row.user.username }}</div>
                             <div class="text-xs text-muted-color hidden sm:block">{{ row.user.email }}</div>
+                            <a v-if="row.clientPhone"
+                               :href="`tel:${row.clientPhone}`"
+                               class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 hover:underline">
+                                <i class="pi pi-phone text-xs" />
+                                {{ row.clientPhone }}
+                            </a>
                         </div>
                         <span v-else class="text-muted-color text-xs">—</span>
                     </template>
@@ -202,6 +239,33 @@ function clearFilters() {
                         <Tag :value="STATUS_LABEL[row.status] ?? row.status"
                             :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
                             class="text-xs!" />
+                    </template>
+                </Column>
+
+                <Column header="Paiement" style="min-width:8rem">
+                    <template #body="{ data: row }">
+                        <Tag :value="PAY_LABEL[row.paymentStatus] ?? row.paymentStatus ?? 'En attente'"
+                            :severity="PAY_SEVERITY[row.paymentStatus] ?? 'warn'"
+                            class="text-xs!" />
+                    </template>
+                </Column>
+
+                <Column header="Actions" style="min-width:14rem">
+                    <template #body="{ data: row }">
+                        <div class="flex gap-1 flex-wrap">
+                            <Button
+                                v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
+                                :key="action.status"
+                                :label="action.label"
+                                :icon="action.icon"
+                                :severity="action.severity"
+                                size="small"
+                                outlined
+                                :loading="updatingStatus"
+                                @click="handleStatusChange(row, action.status)"
+                            />
+                            <span v-if="!NEXT_ACTIONS[row.status]" class="text-xs text-muted-color italic">—</span>
+                        </div>
                     </template>
                 </Column>
             </DataTable>

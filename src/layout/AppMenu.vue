@@ -71,8 +71,9 @@ const model = computed(() => [
         label: 'Support & Suivi',
         items: [
             { label: 'Support', icon: 'pi pi-fw pi-headphones', to: '/support' },
-{ label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
-            { label: 'Notes entreprises', icon: 'pi pi-fw pi-file-edit', to: '/notes' }
+            { label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
+            { label: 'Notes entreprises', icon: 'pi pi-fw pi-file-edit', to: '/notes' },
+            { label: 'BIM SOS', icon: 'pi pi-fw pi-exclamation-triangle', to: '/bim-sos' }
         ]
     },
 ]);

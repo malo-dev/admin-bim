@@ -54,6 +54,7 @@ const router = createRouter({
                 { path: '/feedbacks', name: 'feedbacks', component: () => import('@/views/feedbacks/Feedbacks.vue') },
                 { path: '/notifications', name: 'notifications', component: () => import('@/views/notifications/Notifications.vue') },
                 { path: '/notes', name: 'notes', component: () => import('@/views/notes/Notes.vue') },
+                { path: '/bim-sos', name: 'bimSOS', component: () => import('@/views/sos/BimSOS.vue') },
 
                 // Paramètres
                 { path: '/currencies', name: 'currencies', component: () => import('@/views/currencies/Currencies.vue') },
@@ -74,6 +75,9 @@ const router = createRouter({
                 { path: 'orders', name: 'companyOrders', component: () => import('@/views/company/CompanyOrders.vue') },
                 { path: 'payments', name: 'companyPayments', component: () => import('@/views/company/CompanyPayments.vue') },
                 { path: 'accounts', name: 'companyAccounts', component: () => import('@/views/company/CompanyAccounts.vue') },
+                { path: 'livreurs', name: 'companyLivreurs', component: () => import('@/views/company/CompanyLivreurs.vue') },
+                { path: 'settings', name: 'companySettings', component: () => import('@/views/company/CompanySettings.vue') },
+                { path: 'sos',      name: 'companySOSAlerts', component: () => import('@/views/company/CompanySOSAlerts.vue') },
             ],
         },
         {

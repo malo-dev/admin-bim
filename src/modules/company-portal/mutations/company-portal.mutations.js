@@ -16,3 +16,19 @@ export function useDeleteCompanyAdminMutation() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-company-admins'] }),
     });
 }
+
+export function useUpdateOrderStatusMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, status }) => CompanyPortalService.updateOrderStatus(id, status),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['my-orders'] }),
+    });
+}
+
+export function useUpdateLivreurStatusMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, status }) => CompanyPortalService.updateLivreurStatus(id, status),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['livreur-candidates'] }),
+    });
+}

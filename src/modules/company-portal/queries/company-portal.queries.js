@@ -30,3 +30,10 @@ export function useMyStatsQuery(period) {
         queryFn: () => CompanyPortalService.getMyStats(period.value ? { period: period.value } : {}),
     });
 }
+
+export function useLivreurCandidatesQuery(status) {
+    return useQuery({
+        queryKey: computed(() => ['livreur-candidates', status?.value]),
+        queryFn: () => CompanyPortalService.getLivreurCandidates(status?.value ? { status: status.value } : {}),
+    });
+}

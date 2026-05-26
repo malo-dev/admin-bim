@@ -9,7 +9,10 @@ const authStore = useAuthStore();
 const navItems = [
     { label: 'Commandes', icon: 'pi pi-shopping-cart', to: '/company/orders' },
     { label: 'Paiements', icon: 'pi pi-credit-card', to: '/company/payments' },
+    { label: 'Livreurs', icon: 'pi pi-truck', to: '/company/livreurs' },
     { label: 'Comptes', icon: 'pi pi-users', to: '/company/accounts' },
+    { label: 'Alertes SOS', icon: 'pi pi-exclamation-triangle', to: '/company/sos' },
+    { label: 'Paramètres', icon: 'pi pi-cog', to: '/company/settings' },
 ];
 
 function isActive(to) {

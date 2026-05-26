@@ -18,5 +18,14 @@ const getMyPayments = (params = {}) =>
 const getMyStats = (params = {}) =>
     apiClient.get('/order/my-stats', { params }).then((r) => r.data);
 
-const CompanyPortalService = { getMyOrders, getMyCompanyAdmins, updateCompanyAdmin, deleteCompanyAdmin, getMyPayments, getMyStats };
+const updateOrderStatus = (id, status) =>
+    apiClient.put(`/order/${id}`, { status }).then((r) => r.data);
+
+const getLivreurCandidates = (params = {}) =>
+    apiClient.get('/livreur/company/candidates', { params }).then((r) => r.data);
+
+const updateLivreurStatus = (id, status) =>
+    apiClient.put(`/livreur/${id}/status`, { status }).then((r) => r.data);
+
+const CompanyPortalService = { getMyOrders, getMyCompanyAdmins, updateCompanyAdmin, deleteCompanyAdmin, getMyPayments, getMyStats, updateOrderStatus, getLivreurCandidates, updateLivreurStatus };
 export default CompanyPortalService;
