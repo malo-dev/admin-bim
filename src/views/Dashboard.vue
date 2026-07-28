@@ -1,9 +1,69 @@
 <script setup>
 import { ref, computed } from 'vue';
+import { useRouter } from 'vue-router';
 import { useDashboardStatsQuery } from '@/modules/dashboard/queries/dashboard.queries';
 import { useSocketStore } from '@/modules/socket/store/socket.store';
+import { useRechargesQuery } from '@/modules/transactions/queries/transactions.queries';
+import {
+    useApproveRechargeMutation,
+    useRejectRechargeMutation,
+} from '@/modules/transactions/mutations/transactions.mutations';
+import { useToast } from 'primevue/usetoast';
+import { useConfirm } from 'primevue/useconfirm';
+
+const router      = useRouter();
+const toast       = useToast();
+const confirm     = useConfirm();
 
 const socketStore = useSocketStore();
+
+/* ── Pending recharges ── */
+const pendingFilters = computed(() => ({ status: 'pending', pageSize: 5 }));
+const { data: pendingData, isLoading: pendingLoading, refetch: refetchPending } = useRechargesQuery(pendingFilters);
+const pendingRecharges = computed(() => pendingData.value?.data ?? (Array.isArray(pendingData.value) ? pendingData.value : []));
+const pendingTotal     = computed(() => pendingData.value?.total ?? pendingRecharges.value.length);
+
+const { mutate: doApprove, isPending: approving } = useApproveRechargeMutation();
+const { mutate: doReject }                         = useRejectRechargeMutation();
+const actionId = ref(null);
+
+function fmtAmount(row) { return Number(row.amount ?? 0).toLocaleString('fr-FR', { minimumFractionDigits: 2 }) + ' EC'; }
+
+function quickApprove(row) {
+    const id = row.transactionRechargeId ?? row.id ?? row.tsxId;
+    confirm.require({
+        message: `Approuver ${fmtAmount(row)} pour ${row.user?.username ?? 'cet utilisateur'} ?`,
+        header: 'Approuver la recharge',
+        icon: 'pi pi-check-circle',
+        rejectProps: { label: 'Annuler', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Approuver', severity: 'success' },
+        accept: () => {
+            actionId.value = id;
+            doApprove(id, {
+                onSuccess: () => { toast.add({ severity: 'success', summary: 'Approuvée', detail: fmtAmount(row) + ' crédité', life: 3000 }); actionId.value = null; refetchPending(); },
+                onError:   (err) => { toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur', life: 4000 }); actionId.value = null; },
+            });
+        },
+    });
+}
+
+function quickReject(row) {
+    const id = row.transactionRechargeId ?? row.id ?? row.tsxId;
+    confirm.require({
+        message: `Rejeter la demande de ${fmtAmount(row)} de ${row.user?.username ?? 'cet utilisateur'} ?`,
+        header: 'Rejeter la recharge',
+        icon: 'pi pi-times-circle',
+        rejectProps: { label: 'Annuler', severity: 'secondary', outlined: true },
+        acceptProps: { label: 'Rejeter', severity: 'danger' },
+        accept: () => {
+            actionId.value = id;
+            doReject({ id, reason: 'Refusé depuis le tableau de bord' }, {
+                onSuccess: () => { toast.add({ severity: 'warn', summary: 'Rejetée', detail: 'Notification envoyée', life: 3000 }); actionId.value = null; refetchPending(); },
+                onError:   (err) => { toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur', life: 4000 }); actionId.value = null; },
+            });
+        },
+    });
+}
 
 const PERIODS = [
     { label: 'Tout', value: '' },
@@ -154,6 +214,91 @@ function formatNumber(n) {
                         <span v-else>{{ formatNumber(kpi.value) }}</span>
                     </p>
                     <p class="text-xs text-muted-color mt-1">{{ kpi.sub }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── Demandes de recharge en attente ──────────────────────────── -->
+        <ConfirmDialog />
+        <div class="card">
+            <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center shrink-0">
+                        <i class="pi pi-plus-circle text-amber-600 dark:text-amber-400" />
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-semibold text-surface-900 dark:text-surface-0">Demandes de recharge en attente</h2>
+                        <p class="text-xs text-muted-color">Approuvez ou rejetez rapidement depuis le tableau de bord</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <Badge v-if="pendingTotal > 0" :value="pendingTotal + ' en attente'" severity="warn" />
+                    <Button label="Voir tout" size="small" severity="secondary" outlined icon="pi pi-arrow-right" iconPos="right" @click="router.push('/recharges')" />
+                </div>
+            </div>
+
+            <!-- Loading -->
+            <div v-if="pendingLoading" class="flex justify-center py-6">
+                <i class="pi pi-spin pi-spinner text-2xl text-primary" />
+            </div>
+
+            <!-- Empty -->
+            <div v-else-if="pendingRecharges.length === 0" class="text-center py-8 text-muted-color">
+                <i class="pi pi-check-circle text-3xl mb-2 block text-green-400" />
+                <p class="text-sm font-medium">Aucune recharge en attente</p>
+            </div>
+
+            <!-- List -->
+            <div v-else class="flex flex-col gap-2">
+                <div
+                    v-for="row in pendingRecharges"
+                    :key="row.id ?? row.tsxId"
+                    class="flex items-center gap-4 px-4 py-3 rounded-xl border border-amber-100 dark:border-amber-900/40 bg-amber-50/50 dark:bg-amber-900/10 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors"
+                >
+                    <!-- Avatar -->
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0 font-bold text-primary text-sm">
+                        {{ (row.user?.username ?? '?')[0]?.toUpperCase() }}
+                    </div>
+
+                    <!-- Info -->
+                    <div class="flex-1 min-w-0">
+                        <p class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+                            {{ row.user?.username ?? row.user?.name ?? '—' }}
+                        </p>
+                        <p class="text-xs text-muted-color truncate">{{ row.user?.email }}</p>
+                    </div>
+
+                    <!-- Amount -->
+                    <div class="text-right shrink-0">
+                        <p class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ fmtAmount(row) }}</p>
+                        <p class="text-xs text-muted-color">{{ row.paymentMethod ?? '—' }}</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 shrink-0">
+                        <Button
+                            icon="pi pi-check"
+                            v-tooltip.top="'Approuver'"
+                            severity="success"
+                            rounded
+                            size="small"
+                            :loading="actionId === (row.id ?? row.tsxId)"
+                            @click="quickApprove(row)"
+                        />
+                        <Button
+                            icon="pi pi-times"
+                            v-tooltip.top="'Rejeter'"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="quickReject(row)"
+                        />
+                    </div>
+                </div>
+
+                <div v-if="pendingTotal > pendingRecharges.length" class="text-center pt-1">
+                    <Button label="Voir toutes les demandes" size="small" text @click="router.push('/recharges')" />
                 </div>
             </div>
         </div>

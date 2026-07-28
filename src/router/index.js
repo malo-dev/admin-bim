@@ -59,6 +59,10 @@ const router = createRouter({
                 // Paramètres
                 { path: '/currencies', name: 'currencies', component: () => import('@/views/currencies/Currencies.vue') },
                 { path: '/categories', name: 'categories', component: () => import('@/views/categories/Categories.vue') },
+
+                // Développeur
+                { path: '/api-docs', name: 'apiDocs', component: () => import('@/views/api-docs/ApiDocs.vue') },
+                { path: '/portals', name: 'portals', component: () => import('@/views/portals/Portals.vue') },
             ],
         },
         {

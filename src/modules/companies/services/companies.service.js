@@ -12,7 +12,8 @@ const createCompany = async (companies) => {
 };
 
 const updateCompany = async (id, payload) => {
-    const { data } = await apiClient.put(`/company/update/${id}`, payload);
+    const isForm = payload instanceof FormData;
+    const { data } = await apiClient.put(`/company/update/${id}`, payload, isForm ? { headers: { 'Content-Type': 'multipart/form-data' } } : {});
     return data;
 };
 

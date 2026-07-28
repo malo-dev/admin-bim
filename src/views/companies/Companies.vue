@@ -76,28 +76,86 @@ function submitAddAdmin() {
     );
 }
 
+/* ── Image compression (target < 300 KB) ── */
+async function compressImage(file, maxBytes = 300 * 1024) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        const url = URL.createObjectURL(file);
+        img.onload = () => {
+            URL.revokeObjectURL(url);
+            const canvas = document.createElement('canvas');
+            let { width, height } = img;
+            const MAX_DIM = 1200;
+            if (width > MAX_DIM || height > MAX_DIM) {
+                const ratio = Math.min(MAX_DIM / width, MAX_DIM / height);
+                width = Math.round(width * ratio);
+                height = Math.round(height * ratio);
+            }
+            canvas.width = width;
+            canvas.height = height;
+            canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+            let quality = 0.85;
+            const tryCompress = () => {
+                canvas.toBlob((blob) => {
+                    if (blob.size <= maxBytes || quality <= 0.15) {
+                        resolve(new File([blob], file.name.replace(/\.[^.]+$/, '.jpg'), { type: 'image/jpeg' }));
+                    } else {
+                        quality -= 0.1;
+                        tryCompress();
+                    }
+                }, 'image/jpeg', quality);
+            };
+            tryCompress();
+        };
+        img.src = url;
+    });
+}
+
 // ── Create dialog ──────────────────────────────────────────────────────────────
 const createDialog = ref(false);
-const createForm = ref({ name: '', email: '', description: '', location: '', businessId: null, logo: '' });
+const createForm = ref({ name: '', email: '', description: '', location: '', businessId: null });
+const createLogoFile = ref(null);
+const createLogoPreview = ref(null);
+const createLogoInput = ref(null);
 
 function openCreate() {
-    createForm.value = { name: '', email: '', description: '', location: '', businessId: null, logo: '' };
+    createForm.value = { name: '', email: '', description: '', location: '', businessId: null };
+    createLogoFile.value = null;
+    createLogoPreview.value = null;
     createDialog.value = true;
 }
 
+async function onCreateLogoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const compressed = await compressImage(file);
+    createLogoFile.value = compressed;
+    createLogoPreview.value = URL.createObjectURL(compressed);
+}
+
 function submitCreate() {
+    const f = createForm.value;
     const payload = {
-        name: createForm.value.name,
-        email: createForm.value.email,
-        ...(createForm.value.description && { description: createForm.value.description }),
-        ...(createForm.value.location && { location: createForm.value.location }),
-        ...(createForm.value.businessId && { businessId: createForm.value.businessId }),
-        ...(createForm.value.logo && { logo: createForm.value.logo }),
+        name: f.name,
+        email: f.email,
+        ...(f.description && { description: f.description }),
+        ...(f.location && { location: f.location }),
+        ...(f.businessId && { businessId: f.businessId }),
     };
 
     createCompany([payload], {
         onSuccess: (res) => {
-            toast.add({ severity: 'success', summary: 'Créée', detail: `${res.count ?? 1} entreprise(s) créée(s)`, life: 3000 });
+            const newId = res.data?.[0]?.companyId;
+            if (createLogoFile.value && newId) {
+                const fd = new FormData();
+                fd.append('logo', createLogoFile.value);
+                updateCompany({ id: newId, payload: fd }, {
+                    onSuccess: () => toast.add({ severity: 'success', summary: 'Créée', detail: 'Entreprise créée avec logo', life: 3000 }),
+                    onError: () => toast.add({ severity: 'warn', summary: 'Créée sans logo', detail: 'L\'entreprise a été créée mais le logo n\'a pas pu être envoyé', life: 4000 }),
+                });
+            } else {
+                toast.add({ severity: 'success', summary: 'Créée', detail: `${res.count ?? 1} entreprise(s) créée(s)`, life: 3000 });
+            }
             createDialog.value = false;
         },
         onError: (err) =>
@@ -109,7 +167,10 @@ const canCreate = computed(() => !!createForm.value.name && !!createForm.value.e
 
 // ── Edit dialog ────────────────────────────────────────────────────────────────
 const editDialog = ref(false);
-const editForm = ref({ id: null, name: '', email: '', description: '', location: '', businessId: null, logo: '' });
+const editForm = ref({ id: null, name: '', email: '', description: '', location: '', businessId: null });
+const editLogoFile = ref(null);
+const editLogoPreview = ref(null);
+const editLogoInput = ref(null);
 
 function openEdit(row) {
     editForm.value = {
@@ -119,24 +180,36 @@ function openEdit(row) {
         description: row.description ?? '',
         location: row.location ?? '',
         businessId: row.businessId ?? null,
-        logo: row.logo ?? '',
     };
+    editLogoFile.value = null;
+    editLogoPreview.value = row.logo ?? null;
     editDialog.value = true;
 }
 
+async function onEditLogoChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const compressed = await compressImage(file);
+    editLogoFile.value = compressed;
+    editLogoPreview.value = URL.createObjectURL(compressed);
+}
+
 function submitEdit() {
+    const f = editForm.value;
+    let payload;
+    if (editLogoFile.value) {
+        payload = new FormData();
+        payload.append('name', f.name);
+        payload.append('email', f.email);
+        if (f.description) payload.append('description', f.description);
+        if (f.location) payload.append('location', f.location);
+        if (f.businessId) payload.append('businessId', String(f.businessId));
+        payload.append('logo', editLogoFile.value);
+    } else {
+        payload = { name: f.name, email: f.email, description: f.description, location: f.location, businessId: f.businessId };
+    }
     updateCompany(
-        {
-            id: editForm.value.id,
-            payload: {
-                name: editForm.value.name,
-                email: editForm.value.email,
-                description: editForm.value.description,
-                location: editForm.value.location,
-                businessId: editForm.value.businessId,
-                logo: editForm.value.logo,
-            },
-        },
+        { id: f.id, payload },
         {
             onSuccess: () => {
                 toast.add({ severity: 'success', summary: 'Mis à jour', detail: 'Entreprise modifiée', life: 3000 });
@@ -173,6 +246,15 @@ function formatDate(d) {
 }
 function getInitials(name) {
     return name ? name[0].toUpperCase() : '?';
+}
+function companyRating(row) {
+    return Number(row.note ?? row.rating ?? row.averageRating ?? 0);
+}
+function reviewCount(row) {
+    return row._count?.reviews ?? row.reviewCount ?? row.avisCount ?? row.reviews?.length ?? 0;
+}
+function starClass(star, rating) {
+    return rating >= star ? 'pi-star-fill text-amber-400' : 'pi-star text-surface-300';
 }
 </script>
 
@@ -284,6 +366,28 @@ function getInitials(name) {
                     </template>
                 </Column>
 
+                <!-- Note & Avis -->
+                <Column header="Note / Avis" style="min-width:12rem">
+                    <template #body="{ data: row }">
+                        <div class="flex flex-col gap-0.5">
+                            <div class="flex items-center gap-0.5">
+                                <i
+                                    v-for="star in 5"
+                                    :key="star"
+                                    class="pi text-sm"
+                                    :class="starClass(star, companyRating(row))"
+                                />
+                                <span class="ml-1 text-xs font-semibold text-surface-700 dark:text-surface-300">
+                                    {{ companyRating(row) > 0 ? companyRating(row).toFixed(1) : '—' }}
+                                </span>
+                            </div>
+                            <span class="text-xs text-muted-color">
+                                {{ reviewCount(row) > 0 ? `${reviewCount(row)} avis au total` : 'Aucun avis' }}
+                            </span>
+                        </div>
+                    </template>
+                </Column>
+
                 <!-- Date -->
                 <Column header="Créée le" style="min-width:9rem">
                     <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
@@ -361,11 +465,20 @@ function getInitials(name) {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <label class="font-medium text-sm">Logo (URL)</label>
-                    <InputText v-model="createForm.logo" placeholder="https://…" />
-                    <div v-if="createForm.logo" class="flex items-center gap-2 mt-1">
-                        <img :src="createForm.logo" alt="logo preview" class="w-8 h-8 rounded object-contain" @error="createForm.logo = ''" />
-                        <span class="text-xs text-muted-color">Aperçu</span>
+                    <label class="font-medium text-sm">Logo</label>
+                    <div class="flex items-center gap-4">
+                        <div v-if="createLogoPreview" class="relative">
+                            <img :src="createLogoPreview" alt="logo" class="w-16 h-16 rounded-xl object-cover border border-surface-200 dark:border-surface-700" />
+                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="createLogoFile=null;createLogoPreview=null;createLogoInput.value=''">×</button>
+                        </div>
+                        <div v-else class="w-16 h-16 rounded-xl bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color">
+                            <i class="pi pi-building text-2xl opacity-40" />
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <input ref="createLogoInput" type="file" accept="image/*" class="hidden" @change="onCreateLogoChange" />
+                            <Button label="Choisir un logo" icon="pi pi-upload" severity="secondary" outlined size="small" @click="createLogoInput.click()" />
+                            <span class="text-xs text-muted-color">Compressé automatiquement ≤ 300 Ko</span>
+                        </div>
                     </div>
                 </div>
 
@@ -454,11 +567,20 @@ function getInitials(name) {
                 </div>
 
                 <div class="flex flex-col gap-2">
-                    <label class="font-medium text-sm">Logo (URL)</label>
-                    <InputText v-model="editForm.logo" placeholder="https://…" />
-                    <div v-if="editForm.logo" class="flex items-center gap-2 mt-1">
-                        <img :src="editForm.logo" alt="logo preview" class="w-8 h-8 rounded object-contain" @error="editForm.logo = ''" />
-                        <span class="text-xs text-muted-color">Aperçu</span>
+                    <label class="font-medium text-sm">Logo</label>
+                    <div class="flex items-center gap-4">
+                        <div v-if="editLogoPreview" class="relative">
+                            <img :src="editLogoPreview" alt="logo" class="w-16 h-16 rounded-xl object-cover border border-surface-200 dark:border-surface-700" @error="editLogoPreview=null" />
+                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="editLogoFile=null;editLogoPreview=null;editLogoInput.value=''">×</button>
+                        </div>
+                        <div v-else class="w-16 h-16 rounded-xl bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color">
+                            <i class="pi pi-building text-2xl opacity-40" />
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <input ref="editLogoInput" type="file" accept="image/*" class="hidden" @change="onEditLogoChange" />
+                            <Button label="Changer le logo" icon="pi pi-upload" severity="secondary" outlined size="small" @click="editLogoInput.click()" />
+                            <span class="text-xs text-muted-color">Compressé automatiquement ≤ 300 Ko</span>
+                        </div>
                     </div>
                 </div>
 

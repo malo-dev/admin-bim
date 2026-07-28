@@ -15,5 +15,14 @@ const getPaiements = (params = {}) =>
 const getAllCompanies = () =>
     apiClient.get('/company', { params: { paginate: 'false' } }).then((r) => r.data);
 
-const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies };
+const approveRecharge = (id) =>
+    apiClient.patch(`/tsx/admin/recharges/${id}/approve`).then((r) => r.data);
+
+const rejectRecharge = (id, reason) =>
+    apiClient.patch(`/tsx/admin/recharges/${id}/reject`, { reason }).then((r) => r.data);
+
+const reverseRecharge = (id) =>
+    apiClient.patch(`/tsx/admin/recharges/${id}/reverse`).then((r) => r.data);
+
+const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies, approveRecharge, rejectRecharge, reverseRecharge };
 export default TransactionsService;

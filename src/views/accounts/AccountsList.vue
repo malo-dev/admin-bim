@@ -131,6 +131,18 @@ function formatDate(d) {
 function getInitials(name) {
     return name ? name[0].toUpperCase() : '?';
 }
+function isCompanyAdmin(row) {
+    return row.role?.some(r => r.name !== 'BIM');
+}
+function companyRating(row) {
+    return Number(row.company?.note ?? row.company?.rating ?? 0);
+}
+function companyReviews(row) {
+    return row.company?._count?.reviews ?? row.company?.reviewCount ?? row.company?.avisCount ?? 0;
+}
+function starClass(star, rating) {
+    return rating >= star ? 'pi-star-fill text-amber-400' : 'pi-star text-surface-300';
+}
 </script>
 
 <template>
@@ -214,6 +226,31 @@ function getInitials(name) {
                                 :severity="roleSeverity(r.name)"
                             />
                         </div>
+                    </template>
+                </Column>
+
+                <!-- Note entreprise -->
+                <Column header="Note entreprise" style="min-width:12rem">
+                    <template #body="{ data: row }">
+                        <template v-if="isCompanyAdmin(row)">
+                            <div class="flex flex-col gap-0.5">
+                                <div class="flex items-center gap-0.5">
+                                    <i
+                                        v-for="star in 5"
+                                        :key="star"
+                                        class="pi text-sm"
+                                        :class="starClass(star, companyRating(row))"
+                                    />
+                                    <span class="ml-1 text-xs font-semibold text-surface-700 dark:text-surface-300">
+                                        {{ companyRating(row) > 0 ? companyRating(row).toFixed(1) : '—' }}
+                                    </span>
+                                </div>
+                                <span class="text-xs text-muted-color">
+                                    {{ companyReviews(row) > 0 ? `${companyReviews(row)} avis` : 'Aucun avis' }}
+                                </span>
+                            </div>
+                        </template>
+                        <span v-else class="text-muted-color text-sm">—</span>
                     </template>
                 </Column>
 
