@@ -13,6 +13,8 @@ export function useRechargesQuery(filters) {
     return useQuery({
         queryKey: computed(() => ['recharges', filters.value]),
         queryFn: () => TransactionsService.getRecharges(filters.value),
+        refetchInterval: 15_000,      // nouvelle demande visible sans recharger
+        refetchOnWindowFocus: true,
     });
 }
 
@@ -20,6 +22,8 @@ export function useRetraitsQuery(filters) {
     return useQuery({
         queryKey: computed(() => ['retraits', filters.value]),
         queryFn: () => TransactionsService.getRetraits(filters.value),
+        refetchInterval: 15_000,
+        refetchOnWindowFocus: true,
     });
 }
 

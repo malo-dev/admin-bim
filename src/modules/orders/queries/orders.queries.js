@@ -6,6 +6,8 @@ export function useOrdersQuery(filters) {
     return useQuery({
         queryKey: computed(() => ['orders', filters.value]),
         queryFn: () => OrdersService.getOrders({ ...filters.value, paginate: 'true' }),
+        refetchInterval: 15_000,       // rafraîchit toutes les 15 s en arrière-plan
+        refetchOnWindowFocus: true,    // aussi quand l'admin revient sur l'onglet
     });
 }
 
