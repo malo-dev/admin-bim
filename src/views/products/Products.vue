@@ -447,12 +447,22 @@ function confirmDelete(row) {
                 <Column header="Produit" style="min-width:18rem">
                     <template #body="{ data: row }">
                         <div class="flex items-center gap-3">
-                            <Avatar
-                                v-if="imageUrl(row.imageUrl)"
-                                :image="imageUrl(row.imageUrl)"
-                                shape="square"
-                                size="normal"
-                            />
+                            <!-- Image avec fallback sur erreur (404 / fichier manquant) -->
+                            <template v-if="imageUrl(row.imageUrl)">
+                                <img
+                                    :src="imageUrl(row.imageUrl)"
+                                    class="w-9 h-9 rounded-lg object-contain bg-surface-100 dark:bg-surface-800"
+                                    style="flex-shrink:0"
+                                    @error="(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }"
+                                />
+                                <!-- Fallback affiché si l'image échoue -->
+                                <div
+                                    class="w-9 h-9 rounded-lg hidden items-center justify-center text-sm font-bold shrink-0"
+                                    :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', display: 'none' }"
+                                >
+                                    {{ getInitials(row.name) }}
+                                </div>
+                            </template>
                             <Avatar
                                 v-else
                                 :label="getInitials(row.name)"
@@ -572,7 +582,17 @@ function confirmDelete(row) {
                             :class="row.isRecommended ? 'border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-900/10' : 'border-surface-200 dark:border-surface-700'"
                         >
                             <div class="flex items-center gap-3">
-                                <Avatar v-if="imageUrl(row.imageUrl)" :image="imageUrl(row.imageUrl)" shape="square" size="large" class="rounded-xl shrink-0" />
+                                <template v-if="imageUrl(row.imageUrl)">
+                                    <img
+                                        :src="imageUrl(row.imageUrl)"
+                                        class="w-12 h-12 rounded-xl object-contain bg-surface-100 dark:bg-surface-800 shrink-0"
+                                        @error="(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }"
+                                    />
+                                    <div class="w-12 h-12 rounded-xl items-center justify-center text-base font-bold shrink-0"
+                                         :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', display: 'none' }">
+                                        {{ (row.name ?? '?')[0].toUpperCase() }}
+                                    </div>
+                                </template>
                                 <Avatar v-else :label="(row.name ?? '?')[0].toUpperCase()" shape="square" size="large" :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }" class="shrink-0" />
                                 <div class="min-w-0">
                                     <p class="font-bold text-surface-900 dark:text-surface-0 truncate text-sm">{{ row.name }}</p>
@@ -637,7 +657,17 @@ function confirmDelete(row) {
                             :class="row.isUpselling ? 'border-primary/50 bg-primary/5 dark:bg-primary/10' : 'border-surface-200 dark:border-surface-700'"
                         >
                             <div class="flex items-center gap-3">
-                                <Avatar v-if="imageUrl(row.imageUrl)" :image="imageUrl(row.imageUrl)" shape="square" size="large" class="rounded-xl shrink-0" />
+                                <template v-if="imageUrl(row.imageUrl)">
+                                    <img
+                                        :src="imageUrl(row.imageUrl)"
+                                        class="w-12 h-12 rounded-xl object-contain bg-surface-100 dark:bg-surface-800 shrink-0"
+                                        @error="(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }"
+                                    />
+                                    <div class="w-12 h-12 rounded-xl items-center justify-center text-base font-bold shrink-0"
+                                         :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', display: 'none' }">
+                                        {{ (row.name ?? '?')[0].toUpperCase() }}
+                                    </div>
+                                </template>
                                 <Avatar v-else :label="(row.name ?? '?')[0].toUpperCase()" shape="square" size="large" :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }" class="shrink-0" />
                                 <div class="min-w-0">
                                     <p class="font-bold text-surface-900 dark:text-surface-0 truncate text-sm">{{ row.name }}</p>
