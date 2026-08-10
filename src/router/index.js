@@ -38,6 +38,10 @@ const router = createRouter({
 
                 // Commandes
                 { path: '/orders', name: 'orders', component: () => import('@/views/orders/Orders.vue') },
+                { path: '/orders/:id', name: 'orderDetail', component: () => import('@/views/orders/OrderDetail.vue') },
+
+                // Livreurs (BIM super admin)
+                { path: '/livreurs', name: 'livreurs', component: () => import('@/views/livreurs/Livreurs.vue') },
 
                 // Transactions & Finance
                 { path: '/transactions', name: 'transactions', component: () => import('@/views/transactions/Transactions.vue') },

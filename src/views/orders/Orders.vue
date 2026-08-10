@@ -1,10 +1,13 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { refDebounced } from '@vueuse/core';
+import { useRouter } from 'vue-router';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useOrdersQuery, useAllCompaniesForOrderQuery } from '@/modules/orders/queries/orders.queries';
 import { useUpdateOrderMutation, useDeleteOrderMutation } from '@/modules/orders/mutations/orders.mutations';
+
+const router = useRouter();
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -263,11 +266,14 @@ function formatAmount(amount, currency) {
                     </div>
                 </template>
 
-                <!-- N° commande -->
+                <!-- N° commande — cliquable → detail -->
                 <Column header="N° Commande" style="min-width:12rem">
                     <template #body="{ data: row }">
-                        <div>
-                            <div class="font-mono font-semibold text-surface-900 dark:text-surface-0 text-sm">
+                        <div
+                            class="cursor-pointer hover:text-primary transition-colors"
+                            @click="router.push(`/orders/${row.orderId}`)"
+                        >
+                            <div class="font-mono font-semibold text-surface-900 dark:text-surface-0 text-sm hover:text-primary">
                                 {{ row.orderNumber }}
                             </div>
                             <div class="text-xs text-muted-color">{{ formatDate(row.createdAt) }}</div>
@@ -326,10 +332,34 @@ function formatAmount(amount, currency) {
                     </template>
                 </Column>
 
+                <!-- Livreur -->
+                <Column header="Livreur" style="min-width:10rem">
+                    <template #body="{ data: row }">
+                        <div v-if="row.livreur?.user" class="flex items-center gap-2">
+                            <span
+                                class="w-2 h-2 rounded-full shrink-0"
+                                :class="row.livreur.isOnline ? 'bg-green-500' : 'bg-gray-400'"
+                            />
+                            <span class="text-sm">{{ row.livreur.user.username }}</span>
+                        </div>
+                        <span v-else class="text-muted-color text-sm">—</span>
+                    </template>
+                </Column>
+
                 <!-- Actions -->
                 <Column header="Actions" style="min-width:9rem" alignHeader="right">
                     <template #body="{ data: row }">
                         <div class="flex gap-1 justify-end">
+                            <!-- Voir détails -->
+                            <Button
+                                v-tooltip.top="'Voir détails'"
+                                icon="pi pi-eye"
+                                severity="info"
+                                outlined
+                                rounded
+                                size="small"
+                                @click="router.push(`/orders/${row.orderId}`)"
+                            />
                             <!-- Quick confirm -->
                             <Button
                                 v-if="row.status === 'pending'"

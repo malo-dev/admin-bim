@@ -60,9 +60,10 @@ const model = computed(() => [
         ]
     },
     {
-        label: 'Commandes',
+        label: 'Commandes & Livraisons',
         items: [
-            { label: 'Commandes', icon: 'pi pi-fw pi-shopping-cart', to: '/orders' }
+            { label: 'Commandes',  icon: 'pi pi-fw pi-shopping-cart', to: '/orders' },
+            { label: 'Livreurs',   icon: 'pi pi-fw pi-truck',         to: '/livreurs' },
         ]
     },
     {

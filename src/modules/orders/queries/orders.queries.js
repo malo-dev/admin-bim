@@ -6,8 +6,18 @@ export function useOrdersQuery(filters) {
     return useQuery({
         queryKey: computed(() => ['orders', filters.value]),
         queryFn: () => OrdersService.getOrders({ ...filters.value, paginate: 'true' }),
-        refetchInterval: 15_000,       // rafraîchit toutes les 15 s en arrière-plan
-        refetchOnWindowFocus: true,    // aussi quand l'admin revient sur l'onglet
+        refetchInterval: 15_000,
+        refetchOnWindowFocus: true,
+    });
+}
+
+export function useOrderByIdQuery(id) {
+    return useQuery({
+        queryKey: computed(() => ['order', id.value]),
+        queryFn: () => OrdersService.getOrderById(id.value),
+        enabled: computed(() => !!id.value),
+        refetchInterval: 10_000,
+        refetchOnWindowFocus: true,
     });
 }
 
