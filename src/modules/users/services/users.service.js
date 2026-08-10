@@ -60,6 +60,13 @@ const getTransactionPassword = async (id) => {
     return data;
 };
 
+const resetAllBalances = async () => {
+    const { data } = await apiClient.post('/auth/admin/reset-all-balances', {
+        confirmation: 'RESET_ALL_BALANCES',
+    });
+    return { data };
+};
+
 const UsersService = {
     getUsers,
     getCommerces,
@@ -73,5 +80,6 @@ const UsersService = {
     getOtps,
     getUsersBalanceStats,
     getTransactionPassword,
+    resetAllBalances,
 };
 export default UsersService;

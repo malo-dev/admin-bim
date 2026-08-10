@@ -328,6 +328,46 @@ function fmtBig(val) {
     if (val === undefined || val === null) return '—';
     return Number(val).toLocaleString('fr-FR');
 }
+
+// ── ⚠️ Zone dangereuse : réinitialisation de tous les soldes ──────────────────
+const resetDone       = ref(false);   // désactive le bouton après usage
+const resetConfDialog = ref(false);
+const resetTyped      = ref('');
+const resetLoading    = ref(false);
+const RESET_KEYWORD   = 'CONFIRMER';
+
+function openResetConfirm() {
+    resetTyped.value = '';
+    resetConfDialog.value = true;
+}
+
+async function executeResetAll() {
+    if (resetTyped.value !== RESET_KEYWORD) {
+        toast.add({ severity: 'warn', summary: 'Mot de confirmation incorrect', detail: `Tapez exactement : ${RESET_KEYWORD}`, life: 3000 });
+        return;
+    }
+    resetLoading.value = true;
+    try {
+        const { data } = await UsersService.resetAllBalances();
+        toast.add({
+            severity: 'success',
+            summary: '✅ Réinitialisation effectuée',
+            detail: data?.message ?? `${data?.affectedRows ?? '?'} solde(s) remis à 0`,
+            life: 6000,
+        });
+        resetDone.value       = true;   // désactive définitivement pour cette session
+        resetConfDialog.value = false;
+    } catch (err) {
+        toast.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: err?.response?.data?.message ?? 'Erreur serveur',
+            life: 5000,
+        });
+    } finally {
+        resetLoading.value = false;
+    }
+}
 </script>
 
 <template>
@@ -896,6 +936,78 @@ function fmtBig(val) {
                     severity="warning"
                     :loading="resetPending"
                     @click="submitReset"
+                />
+            </template>
+        </Dialog>
+
+        <!-- ── ⚠️ Zone dangereuse ───────────────────────────────────────────── -->
+        <div class="card border border-red-200 dark:border-red-900/40 bg-red-50/40 dark:bg-red-900/10">
+            <div class="flex items-start gap-3 mb-4">
+                <div class="w-9 h-9 rounded-lg bg-red-100 dark:bg-red-900/40 flex items-center justify-center shrink-0">
+                    <i class="pi pi-exclamation-triangle text-red-500" />
+                </div>
+                <div>
+                    <h3 class="font-bold text-red-600 dark:text-red-400">Zone dangereuse</h3>
+                    <p class="text-sm text-muted-color mt-0.5">Ces actions sont irréversibles. Utilisez-les avec précaution.</p>
+                </div>
+            </div>
+
+            <div class="flex items-center justify-between flex-wrap gap-4 rounded-xl border border-red-200 dark:border-red-800/40 bg-white dark:bg-surface-900 p-4">
+                <div>
+                    <div class="font-semibold text-surface-900 dark:text-surface-0 text-sm">
+                        Réinitialiser tous les soldes à 0 EC
+                    </div>
+                    <div class="text-xs text-muted-color mt-1">
+                        Remet le solde de <strong>tous</strong> les utilisateurs BIM NEXT à 0. À utiliser uniquement lors d'un nouveau départ.
+                    </div>
+                    <div v-if="resetDone" class="text-xs text-green-600 dark:text-green-400 mt-1 font-medium">
+                        <i class="pi pi-check mr-1" />Réinitialisation effectuée pour cette session.
+                    </div>
+                </div>
+                <Button
+                    label="Réinitialiser tous les soldes"
+                    icon="pi pi-refresh"
+                    severity="danger"
+                    :disabled="resetDone"
+                    @click="openResetConfirm"
+                />
+            </div>
+        </div>
+
+        <!-- ── Dialog confirmation reset ────────────────────────────────────── -->
+        <Dialog
+            v-model:visible="resetConfDialog"
+            header="⚠️ Confirmation requise"
+            modal
+            style="width:30rem"
+            :draggable="false"
+        >
+            <div class="flex flex-col gap-4">
+                <div class="rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 text-sm text-red-700 dark:text-red-300">
+                    <strong>Attention :</strong> Cette action va remettre le solde de <strong>tous</strong> les utilisateurs BIM NEXT à <strong>0 EC</strong>. Cette opération est <strong>irréversible</strong>.
+                </div>
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium text-sm">
+                        Tapez <code class="bg-surface-100 dark:bg-surface-800 px-1.5 py-0.5 rounded text-red-600 dark:text-red-400 font-mono text-xs">{{ RESET_KEYWORD }}</code> pour confirmer
+                    </label>
+                    <InputText
+                        v-model="resetTyped"
+                        :placeholder="RESET_KEYWORD"
+                        class="w-full font-mono"
+                        autofocus
+                        @keyup.enter="executeResetAll"
+                    />
+                </div>
+            </div>
+            <template #footer>
+                <Button label="Annuler" severity="secondary" outlined @click="resetConfDialog = false" :disabled="resetLoading" />
+                <Button
+                    label="Réinitialiser tous les soldes"
+                    icon="pi pi-exclamation-triangle"
+                    severity="danger"
+                    :loading="resetLoading"
+                    :disabled="resetTyped !== RESET_KEYWORD"
+                    @click="executeResetAll"
                 />
             </template>
         </Dialog>
