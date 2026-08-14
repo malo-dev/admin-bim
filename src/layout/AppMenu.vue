@@ -44,6 +44,12 @@ const model = computed(() => [
         ]
     },
     {
+        label: 'Formation',
+        items: [
+            { label: 'Tutoriels vidéo', icon: 'pi pi-fw pi-play-circle', to: '/tutorials' },
+        ]
+    },
+    {
         label: 'Utilisateurs & Accès',
         items: [
             { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' },

@@ -46,6 +46,9 @@ const router = createRouter({
                 // Agents BIM
                 { path: '/agents', name: 'agents', component: () => import('@/views/agents/Agents.vue') },
 
+                // Formation
+                { path: '/tutorials', name: 'tutorials', component: () => import('@/views/tutorials/Tutorials.vue') },
+
                 // Transactions & Finance
                 { path: '/transactions', name: 'transactions', component: () => import('@/views/transactions/Transactions.vue') },
                 { path: '/recharges', name: 'recharges', component: () => import('@/views/recharges/Recharges.vue') },
