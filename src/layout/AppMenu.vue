@@ -34,8 +34,13 @@ const model = computed(() => [
         label: 'Comptes',
         items: [
             { label: 'Créer un compte', icon: 'pi pi-fw pi-user-plus', to: '/accounts/create' },
-            { label: 'Compte entreprise', icon: 'pi pi-fw pi-building', to: '/accounts/create-company' },
             { label: 'Liste des comptes', icon: 'pi pi-fw pi-list', to: '/accounts/list' }
+        ]
+    },
+    {
+        label: 'Agents BIM',
+        items: [
+            { label: 'Agents de retrait', icon: 'pi pi-fw pi-id-card', to: '/agents' },
         ]
     },
     {
