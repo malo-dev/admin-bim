@@ -24,3 +24,19 @@ export function useDeleteProductMutation() {
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
     });
 }
+
+export function useAddProductImagesMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, files }) => ProductsService.addProductImages(id, files),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+    });
+}
+
+export function useRemoveProductImageMutation() {
+    const queryClient = useQueryClient();
+    return useMutation({
+        mutationFn: ({ id, url }) => ProductsService.removeProductImage(id, url),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['products'] }),
+    });
+}

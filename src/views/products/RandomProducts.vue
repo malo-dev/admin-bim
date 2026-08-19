@@ -8,6 +8,8 @@ import {
     useCreateProductsMutation,
     useUpdateProductMutation,
     useDeleteProductMutation,
+    useAddProductImagesMutation,
+    useRemoveProductImageMutation,
 } from '@/modules/products/mutations/products.mutations';
 
 const toast = useToast();
@@ -91,9 +93,11 @@ async function compressImage(file, maxBytes = 300 * 1024) {
 const { mutate: createProducts, isPending: createPending } = useCreateProductsMutation();
 const { mutate: updateProduct, isPending: updatePending } = useUpdateProductMutation();
 const { mutate: deleteProduct, isPending: deletePending } = useDeleteProductMutation();
+const { mutate: addProductImages, isPending: addingImages } = useAddProductImagesMutation();
+const { mutate: removeProductImage } = useRemoveProductImageMutation();
 
 function emptyForm() {
-    return { name: '', price: null, description: '', currencyId: null, unityMesure: '' };
+    return { name: '', price: null, priceOnRequest: false, description: '', currencyId: null, unityMesure: '' };
 }
 
 // ── Create dialog ────────────────────────────────────────────────────────────
@@ -103,10 +107,17 @@ const createImageFile = ref(null);
 const createImagePreview = ref(null);
 const createFileInputRef = ref(null);
 
+// Galerie (images supplémentaires), uploadées juste après la création du produit
+const createGalleryFiles = ref([]);
+const createGalleryPreviews = ref([]);
+const createGalleryInputRef = ref(null);
+
 function openCreate() {
     createForm.value = emptyForm();
     createImageFile.value = null;
     createImagePreview.value = null;
+    createGalleryFiles.value = [];
+    createGalleryPreviews.value = [];
     createDialog.value = true;
 }
 
@@ -117,9 +128,24 @@ async function onCreateFileChange(event) {
     createImagePreview.value = URL.createObjectURL(createImageFile.value);
 }
 
+async function onCreateGalleryChange(event) {
+    const files = Array.from(event.target.files || []);
+    for (const file of files) {
+        const compressed = await compressImage(file);
+        createGalleryFiles.value.push(compressed);
+        createGalleryPreviews.value.push(URL.createObjectURL(compressed));
+    }
+    event.target.value = '';
+}
+
+function removeCreateGalleryFile(index) {
+    createGalleryFiles.value.splice(index, 1);
+    createGalleryPreviews.value.splice(index, 1);
+}
+
 const canCreate = computed(() =>
     !!createForm.value.name &&
-    createForm.value.price !== null && createForm.value.price !== '' &&
+    (createForm.value.priceOnRequest || (createForm.value.price !== null && createForm.value.price !== '')) &&
     !!createForm.value.description
 );
 
@@ -129,7 +155,8 @@ function submitCreate() {
     // indépendamment de toute entreprise.
     const payload = {
         name: f.name,
-        price: f.price,
+        price: f.priceOnRequest ? 0 : f.price,
+        priceOnRequest: f.priceOnRequest,
         description: f.description,
         ...(f.currencyId && { currencyId: f.currencyId }),
         ...(f.unityMesure && { unityMesure: f.unityMesure }),
@@ -146,6 +173,9 @@ function submitCreate() {
             } else {
                 toast.add({ severity: 'success', summary: 'Créé', detail: 'Produit ajouté', life: 3000 });
             }
+            if (createGalleryFiles.value.length && newId) {
+                addProductImages({ id: newId, files: createGalleryFiles.value });
+            }
             createDialog.value = false;
         },
         onError: (err) =>
@@ -158,18 +188,22 @@ const editDialog = ref(false);
 const editForm = ref({ id: null, ...emptyForm(), image: null });
 const imagePreview = ref(null);
 const fileInputRef = ref(null);
+const editGallery = ref([]); // URLs déjà en base, gérées en direct (upload/suppression immédiats)
+const editGalleryInputRef = ref(null);
 
 function openEdit(row) {
     editForm.value = {
         id: row.productId,
         name: row.name ?? '',
         price: row.price ?? null,
+        priceOnRequest: !!row.priceOnRequest,
         description: row.description ?? '',
         currencyId: row.currencyId ?? null,
         unityMesure: row.unityMesure ?? '',
         image: null,
     };
     imagePreview.value = imageUrl(row.imageUrl);
+    editGallery.value = Array.isArray(row.images) ? row.images : [];
     editDialog.value = true;
 }
 
@@ -180,9 +214,40 @@ async function onFileChange(event) {
     imagePreview.value = URL.createObjectURL(editForm.value.image);
 }
 
+async function onEditGalleryChange(event) {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+    const compressed = await Promise.all(files.map((f) => compressImage(f)));
+    addProductImages(
+        { id: editForm.value.id, files: compressed },
+        {
+            onSuccess: (res) => {
+                editGallery.value = Array.isArray(res.data?.images) ? res.data.images : editGallery.value;
+                toast.add({ severity: 'success', summary: 'Ajoutées', detail: 'Image(s) ajoutée(s) à la galerie', life: 2500 });
+            },
+            onError: (err) =>
+                toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
+        }
+    );
+    event.target.value = '';
+}
+
+function removeEditGalleryImage(url) {
+    removeProductImage(
+        { id: editForm.value.id, url },
+        {
+            onSuccess: (res) => {
+                editGallery.value = Array.isArray(res.data?.images) ? res.data.images : editGallery.value.filter((u) => u !== url);
+            },
+            onError: (err) =>
+                toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
+        }
+    );
+}
+
 const canEdit = computed(() =>
     !!editForm.value.name &&
-    editForm.value.price !== null && editForm.value.price !== '' &&
+    (editForm.value.priceOnRequest || (editForm.value.price !== null && editForm.value.price !== '')) &&
     !!editForm.value.description
 );
 
@@ -190,7 +255,8 @@ function submitEdit() {
     const f = editForm.value;
     const payload = {
         name: f.name,
-        price: f.price,
+        price: f.priceOnRequest ? 0 : f.price,
+        priceOnRequest: f.priceOnRequest,
         description: f.description,
         currencyId: f.currencyId,
         unityMesure: f.unityMesure || '',
@@ -216,6 +282,8 @@ function confirmDelete(row) {
         accept: () =>
             deleteProduct(row.productId, {
                 onSuccess: () => toast.add({ severity: 'success', summary: 'Supprimé', detail: 'Produit supprimé', life: 3000 }),
+                onError: (err) =>
+                    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 5000 }),
             }),
     });
 }
@@ -288,8 +356,11 @@ function confirmDelete(row) {
 
                 <Column header="Prix" style="min-width:8rem">
                     <template #body="{ data: row }">
-                        <span class="font-semibold">{{ row.price }}</span>
-                        <span class="text-xs text-muted-color ml-1">{{ row.currency?.code ?? currencySymbol(row.currencyId) }}</span>
+                        <Tag v-if="row.priceOnRequest" value="À discuter" severity="info" />
+                        <template v-else>
+                            <span class="font-semibold">{{ row.price }}</span>
+                            <span class="text-xs text-muted-color ml-1">{{ row.currency?.code ?? currencySymbol(row.currencyId) }}</span>
+                        </template>
                     </template>
                 </Column>
 
@@ -328,10 +399,17 @@ function confirmDelete(row) {
                     <label class="font-medium text-sm">Nom du produit <span class="text-red-400">*</span></label>
                     <InputText v-model="createForm.name" placeholder="Ex: Forfait Starlink 50 Go" />
                 </div>
+                <div class="flex items-center justify-between border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3">
+                    <div>
+                        <p class="font-medium text-sm">Prix à discuter</p>
+                        <p class="text-xs text-muted-color">L'app affiche « Prix à discuter » à la place du montant</p>
+                    </div>
+                    <ToggleSwitch v-model="createForm.priceOnRequest" />
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-2">
-                        <label class="font-medium text-sm">Prix <span class="text-red-400">*</span></label>
-                        <InputText v-model.number="createForm.price" type="number" placeholder="0" />
+                        <label class="font-medium text-sm">Prix <span v-if="!createForm.priceOnRequest" class="text-red-400">*</span></label>
+                        <InputText v-model.number="createForm.price" type="number" placeholder="0" :disabled="createForm.priceOnRequest" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="font-medium text-sm">Devise</label>
@@ -341,6 +419,24 @@ function confirmDelete(row) {
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">Description <span class="text-red-400">*</span></label>
                     <Textarea v-model="createForm.description" rows="3" autoResize placeholder="Description du produit…" />
+                </div>
+
+                <!-- Galerie -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium text-sm">Galerie (photos supplémentaires)</label>
+                    <div class="flex flex-wrap gap-3">
+                        <div v-for="(src, i) in createGalleryPreviews" :key="i" class="relative">
+                            <img :src="src" class="w-16 h-16 rounded-lg object-cover border border-surface-200 dark:border-surface-700" />
+                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeCreateGalleryFile(i)">×</button>
+                        </div>
+                        <button
+                            class="w-16 h-16 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-600 flex items-center justify-center text-muted-color"
+                            @click="createGalleryInputRef.click()"
+                        >
+                            <i class="pi pi-plus" />
+                        </button>
+                        <input ref="createGalleryInputRef" type="file" accept="image/*" multiple class="hidden" @change="onCreateGalleryChange" />
+                    </div>
                 </div>
             </div>
             <template #footer>
@@ -369,10 +465,17 @@ function confirmDelete(row) {
                     <label class="font-medium text-sm">Nom du produit <span class="text-red-400">*</span></label>
                     <InputText v-model="editForm.name" />
                 </div>
+                <div class="flex items-center justify-between border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3">
+                    <div>
+                        <p class="font-medium text-sm">Prix à discuter</p>
+                        <p class="text-xs text-muted-color">L'app affiche « Prix à discuter » à la place du montant</p>
+                    </div>
+                    <ToggleSwitch v-model="editForm.priceOnRequest" />
+                </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div class="flex flex-col gap-2">
-                        <label class="font-medium text-sm">Prix <span class="text-red-400">*</span></label>
-                        <InputText v-model.number="editForm.price" type="number" />
+                        <label class="font-medium text-sm">Prix <span v-if="!editForm.priceOnRequest" class="text-red-400">*</span></label>
+                        <InputText v-model.number="editForm.price" type="number" :disabled="editForm.priceOnRequest" />
                     </div>
                     <div class="flex flex-col gap-2">
                         <label class="font-medium text-sm">Devise</label>
@@ -382,6 +485,25 @@ function confirmDelete(row) {
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">Description <span class="text-red-400">*</span></label>
                     <Textarea v-model="editForm.description" rows="3" autoResize />
+                </div>
+
+                <!-- Galerie -->
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium text-sm">Galerie (photos supplémentaires)</label>
+                    <div class="flex flex-wrap gap-3">
+                        <div v-for="src in editGallery" :key="src" class="relative">
+                            <img :src="imageUrl(src)" class="w-16 h-16 rounded-lg object-cover border border-surface-200 dark:border-surface-700" />
+                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeEditGalleryImage(src)">×</button>
+                        </div>
+                        <button
+                            class="w-16 h-16 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-600 flex items-center justify-center text-muted-color"
+                            :disabled="addingImages"
+                            @click="editGalleryInputRef.click()"
+                        >
+                            <i :class="['pi', addingImages ? 'pi-spin pi-spinner' : 'pi-plus']" />
+                        </button>
+                        <input ref="editGalleryInputRef" type="file" accept="image/*" multiple class="hidden" @change="onEditGalleryChange" />
+                    </div>
                 </div>
             </div>
             <template #footer>

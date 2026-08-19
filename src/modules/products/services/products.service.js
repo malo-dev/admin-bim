@@ -29,5 +29,20 @@ const getAllCompanies = () =>
 const getAllCurrencies = () =>
     apiClient.get('/currency', { params: { paginate: 'false' } }).then((r) => r.data);
 
-const ProductsService = { getAllProducts, createProducts, updateProduct, deleteProduct, getAllCompanies, getAllCurrencies };
+// Galerie d'images supplémentaires (en plus de l'image de couverture).
+const addProductImages = (id, files) => {
+    const form = new FormData();
+    files.forEach((f) => form.append('images', f));
+    return apiClient.post(`/product/${id}/images`, form, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    }).then((r) => r.data);
+};
+
+const removeProductImage = (id, url) =>
+    apiClient.delete(`/product/${id}/images`, { data: { url } }).then((r) => r.data);
+
+const ProductsService = {
+    getAllProducts, createProducts, updateProduct, deleteProduct,
+    getAllCompanies, getAllCurrencies, addProductImages, removeProductImage,
+};
 export default ProductsService;

@@ -125,6 +125,8 @@ function confirmDelete(row) {
         accept: () =>
             deleteBanner(row.bannerId, {
                 onSuccess: () => toast.add({ severity: 'success', summary: 'Supprimée', detail: 'Bannière supprimée', life: 3000 }),
+                onError: (err) =>
+                    toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 5000 }),
             }),
     });
 }
