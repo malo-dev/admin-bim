@@ -33,12 +33,18 @@ const router = createRouter({
 
                 // Catalogue Produits
                 { path: '/products', name: 'products', component: () => import('@/views/products/Products.vue') },
+                { path: '/products-random', name: 'productsRandom', component: () => import('@/views/products/RandomProducts.vue') },
                 { path: '/product-categories', name: 'productCategories', component: () => import('@/views/product-categories/ProductCategories.vue') },
                 { path: '/products-sold', name: 'productsSold', component: () => import('@/views/products-sold/ProductsSold.vue') },
+
+                // Accueil app (BIM mobile)
+                { path: '/banners', name: 'banners', component: () => import('@/views/banners/Banners.vue') },
+                { path: '/app-version', name: 'appVersion', component: () => import('@/views/app-version/AppVersionSettings.vue') },
 
                 // Commandes
                 { path: '/orders', name: 'orders', component: () => import('@/views/orders/Orders.vue') },
                 { path: '/orders/:id', name: 'orderDetail', component: () => import('@/views/orders/OrderDetail.vue') },
+                { path: '/consumption', name: 'consumption', component: () => import('@/views/consumption/Consumption.vue') },
 
                 // Livreurs (BIM super admin)
                 { path: '/livreurs', name: 'livreurs', component: () => import('@/views/livreurs/Livreurs.vue') },

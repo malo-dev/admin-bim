@@ -67,13 +67,22 @@ const model = computed(() => [
         label: 'Catalogue Produits',
         items: [
             { label: 'Produits', icon: 'pi pi-fw pi-box', to: '/products' },
+            { label: 'Produits aléatoires', icon: 'pi pi-fw pi-sparkles', to: '/products-random' },
             { label: 'Catégories Produits', icon: 'pi pi-fw pi-tags', to: '/product-categories' },
+        ]
+    },
+    {
+        label: 'Accueil app (BIM mobile)',
+        items: [
+            { label: 'Bannières', icon: 'pi pi-fw pi-images', to: '/banners' },
+            { label: "Version de l'app", icon: 'pi pi-fw pi-mobile', to: '/app-version' },
         ]
     },
     {
         label: 'Commandes & Livraisons',
         items: [
             { label: 'Commandes',  icon: 'pi pi-fw pi-shopping-cart', to: '/orders' },
+            { label: 'Fiches de consommation & Fidélité', icon: 'pi pi-fw pi-verified', to: '/consumption' },
             { label: 'Livreurs',   icon: 'pi pi-fw pi-truck',         to: '/livreurs' },
         ]
     },
