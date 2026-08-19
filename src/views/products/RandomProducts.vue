@@ -165,16 +165,28 @@ function submitCreate() {
         onSuccess: (res) => {
             const newId = res.data?.[0]?.productId;
             if (createImageFile.value && newId) {
-                const fd = new FormData();
-                fd.append('image', createImageFile.value);
-                updateProduct({ id: newId, payload: fd }, {
+                updateProduct({ id: newId, payload: { image: createImageFile.value } }, {
                     onSuccess: () => toast.add({ severity: 'success', summary: 'Créé', detail: 'Produit ajouté avec image', life: 3000 }),
+                    onError: (err) => toast.add({
+                        severity: 'warn', summary: 'Produit créé, image non enregistrée',
+                        detail: err?.response?.data?.message ?? "L'image n'a pas pu être envoyée, réessayez depuis « Modifier »",
+                        life: 6000,
+                    }),
                 });
             } else {
                 toast.add({ severity: 'success', summary: 'Créé', detail: 'Produit ajouté', life: 3000 });
             }
             if (createGalleryFiles.value.length && newId) {
-                addProductImages({ id: newId, files: createGalleryFiles.value });
+                addProductImages(
+                    { id: newId, files: createGalleryFiles.value },
+                    {
+                        onError: (err) => toast.add({
+                            severity: 'warn', summary: 'Galerie non enregistrée',
+                            detail: err?.response?.data?.message ?? "Réessayez d'ajouter les photos depuis « Modifier »",
+                            life: 6000,
+                        }),
+                    }
+                );
             }
             createDialog.value = false;
         },
