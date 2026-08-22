@@ -11,7 +11,7 @@ const versions = computed(() => data.value?.data ?? []);
 const { mutate: upsertVersion, isPending } = useUpsertAppVersionMutation();
 
 function emptyForm(platform) {
-    return { platform, latestVersion: '', minSupportedVersion: '', storeUrl: '', releaseNotes: '', forceUpdate: false };
+    return { platform, latestVersion: '', minSupportedVersion: '', storeUrl: '', releaseNotes: '', forceUpdate: false, promptEnabled: true };
 }
 
 const android = ref(emptyForm('android'));
@@ -77,6 +77,10 @@ function save(form) {
                     <Textarea v-model="android.releaseNotes" rows="2" autoResize placeholder="Ex: Correctifs recharge Android, suivi des commandes" />
                 </div>
                 <div class="flex items-center justify-between">
+                    <span class="text-sm">Afficher la bannière de mise à jour</span>
+                    <ToggleSwitch v-model="android.promptEnabled" />
+                </div>
+                <div class="flex items-center justify-between">
                     <span class="text-sm">Mise à jour obligatoire</span>
                     <ToggleSwitch v-model="android.forceUpdate" />
                 </div>
@@ -104,6 +108,10 @@ function save(form) {
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">Notes de version</label>
                     <Textarea v-model="ios.releaseNotes" rows="2" autoResize />
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm">Afficher la bannière de mise à jour</span>
+                    <ToggleSwitch v-model="ios.promptEnabled" />
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-sm">Mise à jour obligatoire</span>
