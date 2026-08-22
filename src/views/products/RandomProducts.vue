@@ -439,9 +439,10 @@ function confirmDelete(row) {
                     <div class="flex flex-wrap gap-3">
                         <div v-for="(src, i) in createGalleryPreviews" :key="i" class="relative">
                             <img :src="src" class="w-16 h-16 rounded-lg object-cover border border-surface-200 dark:border-surface-700" />
-                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeCreateGalleryFile(i)">×</button>
+                            <button type="button" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeCreateGalleryFile(i)">×</button>
                         </div>
                         <button
+                            type="button"
                             class="w-16 h-16 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-600 flex items-center justify-center text-muted-color"
                             @click="createGalleryInputRef.click()"
                         >
@@ -505,9 +506,10 @@ function confirmDelete(row) {
                     <div class="flex flex-wrap gap-3">
                         <div v-for="src in editGallery" :key="src" class="relative">
                             <img :src="imageUrl(src)" class="w-16 h-16 rounded-lg object-cover border border-surface-200 dark:border-surface-700" />
-                            <button class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeEditGalleryImage(src)">×</button>
+                            <button type="button" class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs" @click="removeEditGalleryImage(src)">×</button>
                         </div>
                         <button
+                            type="button"
                             class="w-16 h-16 rounded-lg border-2 border-dashed border-surface-300 dark:border-surface-600 flex items-center justify-center text-muted-color"
                             :disabled="addingImages"
                             @click="editGalleryInputRef.click()"
