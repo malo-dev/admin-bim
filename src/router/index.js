@@ -41,6 +41,9 @@ const router = createRouter({
                 { path: '/banners', name: 'banners', component: () => import('@/views/banners/Banners.vue') },
                 { path: '/app-version', name: 'appVersion', component: () => import('@/views/app-version/AppVersionSettings.vue') },
 
+                // BIM Transport
+                { path: '/chauffeurs', name: 'chauffeurs', component: () => import('@/views/chauffeurs/Chauffeurs.vue') },
+
                 // Commandes
                 { path: '/orders', name: 'orders', component: () => import('@/views/orders/Orders.vue') },
                 { path: '/orders/:id', name: 'orderDetail', component: () => import('@/views/orders/OrderDetail.vue') },

@@ -79,6 +79,12 @@ const model = computed(() => [
         ]
     },
     {
+        label: 'BIM Transport',
+        items: [
+            { label: 'Chauffeurs', icon: 'pi pi-fw pi-car', to: '/chauffeurs' },
+        ]
+    },
+    {
         label: 'Commandes & Livraisons',
         items: [
             { label: 'Commandes',  icon: 'pi pi-fw pi-shopping-cart', to: '/orders' },
