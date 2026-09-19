@@ -43,6 +43,7 @@ const router = createRouter({
 
                 // BIM Transport
                 { path: '/chauffeurs', name: 'chauffeurs', component: () => import('@/views/chauffeurs/Chauffeurs.vue') },
+                { path: '/tarifs-transport', name: 'tarifsTransport', component: () => import('@/views/tarifs/Tarifs.vue') },
 
                 // Commandes
                 { path: '/orders', name: 'orders', component: () => import('@/views/orders/Orders.vue') },
