@@ -12,6 +12,12 @@ import {
 const toast = useToast();
 const confirm = useConfirm();
 
+const SERVER_ROOT = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
+function imageUrl(path) {
+    if (!path) return null;
+    return path.startsWith('http') ? path : SERVER_ROOT + path;
+}
+
 const currentPage = ref(1);
 const pageSize = ref(20);
 const filters = computed(() => ({ page: currentPage.value, pageSize: pageSize.value }));
@@ -38,16 +44,29 @@ function emptyForm() {
 
 const createDialog = ref(false);
 const form = ref(emptyForm());
+const imageFile = ref(null);
+const imagePreview = ref(null);
+const fileInputRef = ref(null);
 
 function openCreate() {
     form.value = emptyForm();
+    imageFile.value = null;
+    imagePreview.value = null;
     createDialog.value = true;
+}
+
+function onFileChange(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    imageFile.value = file;
+    imagePreview.value = URL.createObjectURL(file);
 }
 
 const canCreate = computed(() => !!form.value.userId && !!form.value.plateNumber);
 
 function submitCreate() {
-    createChauffeur(form.value, {
+    const payload = { ...form.value, ...(imageFile.value && { image: imageFile.value }) };
+    createChauffeur(payload, {
         onSuccess: () => {
             toast.add({ severity: 'success', summary: 'Créé', detail: 'Chauffeur ajouté', life: 3000 });
             createDialog.value = false;
@@ -110,11 +129,17 @@ function onPage(event) {
                     </div>
                 </template>
 
-                <Column header="Chauffeur" style="min-width:14rem">
+                <Column header="Chauffeur" style="min-width:16rem">
                     <template #body="{ data: row }">
-                        <div>
-                            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.user?.username ?? `User #${row.userId}` }}</div>
-                            <div class="text-xs text-muted-color">{{ row.telephone }}</div>
+                        <div class="flex items-center gap-3">
+                            <img v-if="imageUrl(row.avatarUrl)" :src="imageUrl(row.avatarUrl)" class="w-10 h-10 rounded-full object-cover" />
+                            <div v-else class="w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color">
+                                <i class="pi pi-user" />
+                            </div>
+                            <div>
+                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.user?.username ?? `User #${row.userId}` }}</div>
+                                <div class="text-xs text-muted-color">{{ row.telephone }}</div>
+                            </div>
                         </div>
                     </template>
                 </Column>
@@ -162,6 +187,17 @@ function onPage(event) {
 
         <Dialog v-model:visible="createDialog" header="Nouveau chauffeur" modal style="width:32rem" :draggable="false">
             <div class="flex flex-col gap-4 pt-1">
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium text-sm">Photo du véhicule / chauffeur</label>
+                    <div class="flex items-center gap-3">
+                        <img v-if="imagePreview" :src="imagePreview" class="w-20 h-20 rounded-lg object-cover" />
+                        <div v-else class="w-20 h-20 rounded-lg bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color">
+                            <i class="pi pi-image text-2xl opacity-40" />
+                        </div>
+                        <input ref="fileInputRef" type="file" accept="image/*" class="hidden" @change="onFileChange" />
+                        <Button label="Choisir une image" icon="pi pi-upload" severity="secondary" outlined size="small" @click="fileInputRef.click()" />
+                    </div>
+                </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">ID Utilisateur (compte BIM existant) <span class="text-red-400">*</span></label>
                     <InputText v-model.number="form.userId" type="number" placeholder="Ex: 42 (voir page Utilisateurs)" />
