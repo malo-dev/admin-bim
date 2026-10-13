@@ -808,6 +808,10 @@ async function executeResetAll() {
                         fluid
                     />
                 </div>
+
+                <Message severity="info" :closable="false" class="text-xs">
+                    Cette recharge fonctionne comme une vraie recharge FlexPay : à la <strong>première recharge</strong> d'un utilisateur, 1 EC de frais d'abonnement est automatiquement prélevé (ce qui active son abonnement — nécessaire pour les transferts). Un montant d'exactement <strong>1 EC</strong> est donc refusé (le net crédité serait 0) ; utilisez au moins <strong>2 EC</strong> pour une première recharge.
+                </Message>
             </div>
 
             <template #footer>

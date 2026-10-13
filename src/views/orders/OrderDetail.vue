@@ -1,18 +1,42 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQueryClient } from '@tanstack/vue-query';
 import { useToast } from 'primevue/usetoast';
 import { useOrderByIdQuery } from '@/modules/orders/queries/orders.queries';
 import { useUpdateOrderMutation } from '@/modules/orders/mutations/orders.mutations';
+import { useSocketStore } from '@/modules/socket/store/socket.store';
 
 const route = useRoute();
 const router = useRouter();
 const toast  = useToast();
 const qc     = useQueryClient();
+const socketStore = useSocketStore();
 
 const orderId = computed(() => route.params.id);
 const { data: order, isLoading, isError } = useOrderByIdQuery(orderId);
+
+// ── Mise à jour en direct (même mécanisme que le suivi côté client mobile) ──
+// Sans ça, cet écran ne se rafraîchissait qu'au polling (jusqu'à 10s de délai).
+const onOrderStatusUpdated = (payload) => {
+    if (payload?.orderNumber && payload.orderNumber === order.value?.orderNumber) {
+        qc.invalidateQueries({ queryKey: ['order', orderId.value] });
+    }
+};
+
+onMounted(() => {
+    socketStore.connect();
+    socketStore.socket?.on('order:status_updated', onOrderStatusUpdated);
+});
+
+onUnmounted(() => {
+    socketStore.socket?.off('order:status_updated', onOrderStatusUpdated);
+});
+
+watch(() => order.value?.orderNumber, (orderNumber, prevOrderNumber) => {
+    if (!orderNumber || orderNumber === prevOrderNumber) return;
+    socketStore.socket?.emit('track_order', orderNumber);
+}, { immediate: true });
 
 // ── Status config ──────────────────────────────────────────────────────────────
 const STATUS_OPTIONS = [
@@ -41,7 +65,6 @@ const editNotes   = ref('');
 const editAddress = ref('');
 
 // Sync form when data loads
-import { watch } from 'vue';
 watch(order, (o) => {
     if (!o) return;
     editStatus.value  = o.status  ?? null;
