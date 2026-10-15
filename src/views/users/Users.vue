@@ -9,6 +9,8 @@ import {
     useUsersBalanceStatsQuery,
 } from '@/modules/users/queries/users.queries';
 import UsersService from '@/modules/users/services/users.service';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
     useToggleUserActiveMutation,
     useToggleUserBlockMutation,
@@ -110,8 +112,64 @@ const balanceStatsParams = computed(() => ({
     createdAtTo: toLocalDateStr(dateTo.value),
 }));
 const { data: periodStats, isLoading: statsLoading } = useUsersBalanceStatsQuery(balanceStatsParams);
-const periodNewUsers    = computed(() => periodStats.value?.newUsers ?? totalRecords.value);
-const periodTotalBalance = computed(() => periodStats.value?.totalBalance ?? null);
+const periodNewUsers      = computed(() => periodStats.value?.newUsers ?? totalRecords.value);
+const periodTotalBalance  = computed(() => periodStats.value?.totalBalance ?? null);
+const periodTotalRecharged = computed(() => periodStats.value?.totalRecharged ?? null);
+
+// ── Export PDF (liste complète filtrée, pas seulement la page affichée) ──────
+const exporting = ref(false);
+
+async function exportPdf() {
+    exporting.value = true;
+    try {
+        const periodLabel = QUICK_PERIODS.find((p) => p.value === selectedQuickPeriod.value)?.label
+            ?? `${toLocalDateStr(dateFrom.value) ?? ''} → ${toLocalDateStr(dateTo.value) ?? ''}`;
+
+        const res = await UsersService.getUsers({
+            search: search.value || undefined,
+            commerceId: selectedCommerceId.value || undefined,
+            createdAtFrom: toLocalDateStr(dateFrom.value),
+            createdAtTo: toLocalDateStr(dateTo.value),
+            paginate: 'true',
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? [];
+
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Utilisateurs', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel}`, 14, 23);
+        doc.text(
+            `${rows.length} utilisateur(s) · Solde total (tous comptes) : ${fmtEC(periodTotalBalance.value)} · Rechargé sur la période : ${fmtEC(periodTotalRecharged.value)}`,
+            14, 29
+        );
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Utilisateur', 'Email', 'N° compte', 'Solde', 'Statut', 'Créé le']],
+            body: rows.map((u) => [
+                u.fullname || u.username || '—',
+                u.email || '—',
+                u.accountNumber || '—',
+                fmtEC(u.soldNumber),
+                u.isActive ? 'Actif' : 'Inactif',
+                formatDate(u.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`utilisateurs_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        exporting.value = false;
+    }
+}
 
 function onPage(event) {
     currentPage.value = event.page + 1;
@@ -412,7 +470,7 @@ async function executeResetAll() {
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                 <div class="flex items-start gap-3 p-4 rounded-xl bg-primary/5">
                     <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
                         <i class="pi pi-user-plus text-primary" />
@@ -438,6 +496,31 @@ async function executeResetAll() {
                         </p>
                     </div>
                 </div>
+
+                <div class="flex items-start gap-3 p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20">
+                    <div class="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center shrink-0">
+                        <i class="pi pi-arrow-up-right text-violet-600 dark:text-violet-400" />
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-muted-color">Rechargé sur la période</p>
+                        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">
+                            <span v-if="statsLoading" class="text-surface-300 text-base">Chargement…</span>
+                            <span v-else>{{ fmtEC(periodTotalRecharged) }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <Button
+                    label="Exporter en PDF"
+                    icon="pi pi-file-pdf"
+                    severity="secondary"
+                    outlined
+                    size="small"
+                    :loading="exporting"
+                    @click="exportPdf"
+                />
             </div>
         </div>
 

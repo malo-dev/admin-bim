@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue';
 import { refDebounced } from '@vueuse/core';
+import { useToast } from 'primevue/usetoast';
 import {
     useTransactionsQuery,
     useRechargesQuery,
@@ -8,17 +9,51 @@ import {
     usePaiementsQuery,
     useAllCompaniesForTsxQuery,
 } from '@/modules/transactions/queries/transactions.queries';
+import TransactionsService from '@/modules/transactions/services/transactions.service';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
+const toast = useToast();
 const activeTab = ref(0);
 
-const PERIOD_OPTIONS = [
-    { label: "Aujourd'hui", value: 'daily' },
-    { label: 'Cette semaine', value: 'weekly' },
-    { label: 'Ce mois', value: 'monthly' },
-    { label: 'Ce trimestre', value: 'quarterly' },
-    { label: 'Ce semestre', value: 'semiannual' },
-    { label: 'Cette année', value: 'annual' },
+// ── Filtres rapides par période (communs aux 4 onglets) ─────────────────────
+const QUICK_PERIODS = [
+    { label: "Aujourd'hui", value: 'today' },
+    { label: 'Hier',        value: 'yesterday' },
+    { label: 'Semaine',     value: 'week' },
+    { label: 'Mois',        value: 'month' },
 ];
+
+// `.toISOString()` convertit en UTC avant de découper la date — avec un
+// fuseau local en avance sur UTC, minuit local devenait la veille en UTC et
+// décalait tous les filtres "un jour" d'une journée. On formate donc la date
+// telle qu'affichée localement, sans passer par l'UTC.
+function toLocalDateStr(d) {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function quickPeriodRange(period) {
+    const today = new Date();
+    if (period === 'today') {
+        return { from: today, to: today };
+    } else if (period === 'yesterday') {
+        const y = new Date(today);
+        y.setDate(y.getDate() - 1);
+        return { from: y, to: y };
+    } else if (period === 'week') {
+        const start = new Date(today);
+        const dow = (start.getDay() + 6) % 7; // lundi = 0
+        start.setDate(start.getDate() - dow);
+        return { from: start, to: today };
+    } else if (period === 'month') {
+        return { from: new Date(today.getFullYear(), today.getMonth(), 1), to: today };
+    }
+    return { from: null, to: null };
+}
 
 const TRX_TYPE_OPTIONS = [
     { label: 'Retrait', value: 'retrait' },
@@ -55,93 +90,337 @@ function fmt(amount) {
 }
 
 // ── Tab 1 : Transactions générales ────────────────────────────────────────────
-const trxSearchInput = ref('');
-const trxSearch      = refDebounced(trxSearchInput, 400);
-const trxType        = ref(null);
-const trxStatus      = ref(null);
-const trxPeriod      = ref(null);
-const trxPage        = ref(1);
-const trxPageSize    = ref(20);
+const trxSearchInput   = ref('');
+const trxSearch        = refDebounced(trxSearchInput, 400);
+const trxType          = ref(null);
+const trxStatus        = ref(null);
+const trxQuickPeriod   = ref(null);
+const trxDateFrom      = ref(null);
+const trxDateTo        = ref(null);
+const trxPage          = ref(1);
+const trxPageSize      = ref(20);
+const trxExporting     = ref(false);
 
-watch([trxSearch, trxType, trxStatus, trxPeriod], () => { trxPage.value = 1; });
+function applyTrxQuickPeriod(period) {
+    trxQuickPeriod.value = period;
+    const { from, to } = quickPeriodRange(period);
+    trxDateFrom.value = from;
+    trxDateTo.value = to;
+}
+
+watch([trxSearch, trxType, trxStatus, trxDateFrom, trxDateTo], () => { trxPage.value = 1; });
 
 const trxFilters = computed(() => ({
     search: trxSearch.value || undefined,
     transactionType: trxType.value || undefined,
     status: trxStatus.value || undefined,
-    period: trxPeriod.value || undefined,
+    createdAtFrom: toLocalDateStr(trxDateFrom.value),
+    createdAtTo: toLocalDateStr(trxDateTo.value),
     page: trxPage.value,
     pageSize: trxPageSize.value,
 }));
 
 const { data: trxData, isLoading: trxLoading, isFetching: trxFetching } = useTransactionsQuery(trxFilters);
-const transactions = computed(() => trxData.value?.data ?? []);
-const trxTotal     = computed(() => trxData.value?.total ?? 0);
+const transactions   = computed(() => trxData.value?.data ?? []);
+const trxTotal       = computed(() => trxData.value?.total ?? 0);
+const trxTotalAmount = computed(() => trxData.value?.totalAmount ?? null);
 function onTrxPage(e) { trxPage.value = e.page + 1; trxPageSize.value = e.rows; }
 
-// ── Tab 2 : Recharges ─────────────────────────────────────────────────────────
-const rechSearchInput = ref('');
-const rechSearch      = refDebounced(rechSearchInput, 400);
-const rechStatus      = ref(null);
-const rechPeriod      = ref(null);
-const rechPage        = ref(1);
-const rechPageSize    = ref(20);
+function periodLabelFor(quickPeriod, dateFrom, dateTo) {
+    const found = QUICK_PERIODS.find((p) => p.value === quickPeriod)?.label;
+    if (found) return found;
+    const from = toLocalDateStr(dateFrom);
+    const to = toLocalDateStr(dateTo);
+    if (from || to) return `${from ?? ''} → ${to ?? ''}`;
+    return 'Toutes dates';
+}
 
-watch([rechSearch, rechStatus, rechPeriod], () => { rechPage.value = 1; });
+async function exportTrxPdf() {
+    trxExporting.value = true;
+    try {
+        const periodLabel = periodLabelFor(trxQuickPeriod.value, trxDateFrom.value, trxDateTo.value);
+        const res = await TransactionsService.getTransactions({
+            search: trxSearch.value || undefined,
+            transactionType: trxType.value || undefined,
+            status: trxStatus.value || undefined,
+            createdAtFrom: toLocalDateStr(trxDateFrom.value),
+            createdAtTo: toLocalDateStr(trxDateTo.value),
+            paginate: 'true',
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? [];
+
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Transactions', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel}`, 14, 23);
+        doc.text(`${rows.length} transaction(s) · Montant total : ${fmt(res?.totalAmount)} EC`, 14, 29);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Utilisateur', 'Email', 'Type', 'Statut', 'Montant', 'Description', 'Date']],
+            body: rows.map((r) => [
+                r.user?.username || '—',
+                r.user?.email || '—',
+                r.transactionType || '—',
+                r.status || '—',
+                fmt(r.amount) + ' EC',
+                r.description || '—',
+                formatDate(r.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`transactions_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        trxExporting.value = false;
+    }
+}
+
+// ── Tab 2 : Recharges ─────────────────────────────────────────────────────────
+const rechSearchInput  = ref('');
+const rechSearch       = refDebounced(rechSearchInput, 400);
+const rechStatus       = ref(null);
+const rechQuickPeriod  = ref(null);
+const rechDateFrom     = ref(null);
+const rechDateTo       = ref(null);
+const rechPage         = ref(1);
+const rechPageSize     = ref(20);
+const rechExporting    = ref(false);
+
+function applyRechQuickPeriod(period) {
+    rechQuickPeriod.value = period;
+    const { from, to } = quickPeriodRange(period);
+    rechDateFrom.value = from;
+    rechDateTo.value = to;
+}
+
+watch([rechSearch, rechStatus, rechDateFrom, rechDateTo], () => { rechPage.value = 1; });
 
 const rechFilters = computed(() => ({
     search: rechSearch.value || undefined,
     status: rechStatus.value || undefined,
-    period: rechPeriod.value || undefined,
+    startDate: toLocalDateStr(rechDateFrom.value),
+    endDate: toLocalDateStr(rechDateTo.value),
     page: rechPage.value,
     pageSize: rechPageSize.value,
 }));
 
 const { data: rechData, isLoading: rechLoading, isFetching: rechFetching } = useRechargesQuery(rechFilters);
-const recharges = computed(() => rechData.value?.data ?? []);
-const rechTotal = computed(() => rechData.value?.total ?? 0);
+const recharges       = computed(() => rechData.value?.data ?? []);
+const rechTotal       = computed(() => rechData.value?.total ?? 0);
+const rechTotalAmount = computed(() => rechData.value?.totalAmount ?? null);
 function onRechPage(e) { rechPage.value = e.page + 1; rechPageSize.value = e.rows; }
 
-// ── Tab 3 : Retraits ──────────────────────────────────────────────────────────
-const retPeriod   = ref(null);
-const retPage     = ref(1);
-const retPageSize = ref(20);
+async function exportRechPdf() {
+    rechExporting.value = true;
+    try {
+        const periodLabel = periodLabelFor(rechQuickPeriod.value, rechDateFrom.value, rechDateTo.value);
+        const res = await TransactionsService.getRecharges({
+            search: rechSearch.value || undefined,
+            status: rechStatus.value || undefined,
+            startDate: toLocalDateStr(rechDateFrom.value),
+            endDate: toLocalDateStr(rechDateTo.value),
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? (Array.isArray(res) ? res : []);
 
-watch([retPeriod], () => { retPage.value = 1; });
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Recharges', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel}`, 14, 23);
+        doc.text(`${rows.length} recharge(s) · Montant total : ${fmt(res?.totalAmount)} EC`, 14, 29);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Utilisateur', 'Email', 'Téléphone', 'Montant', 'Référence', 'Statut', 'Date']],
+            body: rows.map((r) => [
+                r.user?.username || '—',
+                r.user?.email || '—',
+                r.telephone || '—',
+                fmt(r.amount) + ' EC',
+                r.reference || '—',
+                RECH_LABEL[r.status] ?? r.status ?? '—',
+                formatDate(r.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`recharges_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        rechExporting.value = false;
+    }
+}
+
+// ── Tab 3 : Retraits ──────────────────────────────────────────────────────────
+const retQuickPeriod = ref(null);
+const retDateFrom    = ref(null);
+const retDateTo      = ref(null);
+const retPage        = ref(1);
+const retPageSize    = ref(20);
+const retExporting   = ref(false);
+
+function applyRetQuickPeriod(period) {
+    retQuickPeriod.value = period;
+    const { from, to } = quickPeriodRange(period);
+    retDateFrom.value = from;
+    retDateTo.value = to;
+}
+
+watch([retDateFrom, retDateTo], () => { retPage.value = 1; });
 
 const retFilters = computed(() => ({
-    period: retPeriod.value || undefined,
+    startDate: toLocalDateStr(retDateFrom.value),
+    endDate: toLocalDateStr(retDateTo.value),
     page: retPage.value,
     pageSize: retPageSize.value,
 }));
 
 const { data: retData, isLoading: retLoading, isFetching: retFetching } = useRetraitsQuery(retFilters);
-const retraits = computed(() => retData.value?.data ?? []);
-const retTotal = computed(() => retData.value?.total ?? 0);
+const retraits       = computed(() => retData.value?.data ?? []);
+const retTotal       = computed(() => retData.value?.total ?? 0);
+const retTotalAmount = computed(() => retData.value?.totalAmount ?? null);
 function onRetPage(e) { retPage.value = e.page + 1; retPageSize.value = e.rows; }
 
-// ── Tab 4 : Paiements ─────────────────────────────────────────────────────────
-const paiSearchInput = ref('');
-const paiSearch      = refDebounced(paiSearchInput, 400);
-const paiCompany     = ref(null);
-const paiPeriod      = ref(null);
-const paiPage        = ref(1);
-const paiPageSize    = ref(20);
+async function exportRetPdf() {
+    retExporting.value = true;
+    try {
+        const periodLabel = periodLabelFor(retQuickPeriod.value, retDateFrom.value, retDateTo.value);
+        const res = await TransactionsService.getRetraits({
+            startDate: toLocalDateStr(retDateFrom.value),
+            endDate: toLocalDateStr(retDateTo.value),
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? (Array.isArray(res) ? res : []);
 
-watch([paiSearch, paiCompany, paiPeriod], () => { paiPage.value = 1; });
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Retraits', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel}`, 14, 23);
+        doc.text(`${rows.length} retrait(s) · Montant total : ${fmt(res?.totalAmount)} EC`, 14, 29);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Utilisateur / ID', 'Montant', 'Frais total', 'Frais agent', 'Agent (ID)', 'Date']],
+            body: rows.map((r) => [
+                r.sender?.username || `ID: ${r.id}`,
+                fmt(r.amount) + ' EC',
+                fmt(r.fraisTransaction) + ' EC',
+                fmt(r.fraisAgent) + ' EC',
+                r.targetId ?? '—',
+                formatDate(r.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`retraits_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        retExporting.value = false;
+    }
+}
+
+// ── Tab 4 : Paiements ─────────────────────────────────────────────────────────
+const paiSearchInput  = ref('');
+const paiSearch       = refDebounced(paiSearchInput, 400);
+const paiCompany      = ref(null);
+const paiQuickPeriod  = ref(null);
+const paiDateFrom     = ref(null);
+const paiDateTo       = ref(null);
+const paiPage         = ref(1);
+const paiPageSize     = ref(20);
+const paiExporting    = ref(false);
+
+function applyPaiQuickPeriod(period) {
+    paiQuickPeriod.value = period;
+    const { from, to } = quickPeriodRange(period);
+    paiDateFrom.value = from;
+    paiDateTo.value = to;
+}
+
+watch([paiSearch, paiCompany, paiDateFrom, paiDateTo], () => { paiPage.value = 1; });
 
 const paiFilters = computed(() => ({
     search: paiSearch.value || undefined,
     companyId: paiCompany.value || undefined,
-    period: paiPeriod.value || undefined,
+    startDate: toLocalDateStr(paiDateFrom.value),
+    endDate: toLocalDateStr(paiDateTo.value),
     page: paiPage.value,
     pageSize: paiPageSize.value,
 }));
 
 const { data: paiData, isLoading: paiLoading, isFetching: paiFetching } = usePaiementsQuery(paiFilters);
-const paiements = computed(() => paiData.value?.data ?? []);
-const paiTotal  = computed(() => paiData.value?.total ?? 0);
+const paiements       = computed(() => paiData.value?.data ?? []);
+const paiTotal        = computed(() => paiData.value?.total ?? 0);
+const paiTotalAmount  = computed(() => paiData.value?.totalAmount ?? null);
 function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; }
+
+async function exportPaiPdf() {
+    paiExporting.value = true;
+    try {
+        const periodLabel = periodLabelFor(paiQuickPeriod.value, paiDateFrom.value, paiDateTo.value);
+        const res = await TransactionsService.getPaiements({
+            search: paiSearch.value || undefined,
+            companyId: paiCompany.value || undefined,
+            startDate: toLocalDateStr(paiDateFrom.value),
+            endDate: toLocalDateStr(paiDateTo.value),
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? (Array.isArray(res) ? res : []);
+
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Paiements', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel}`, 14, 23);
+        doc.text(`${rows.length} paiement(s) · Montant total : ${fmt(res?.totalAmount)} EC`, 14, 29);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Payeur', 'Email', 'Entreprise', 'Produit', 'Montant', 'Description', 'Date']],
+            body: rows.map((r) => [
+                r.payer?.username || '—',
+                r.payer?.email || '—',
+                r.company?.name || '—',
+                r.product?.name || '—',
+                fmt(r.amount) + ' EC',
+                r.description || '—',
+                formatDate(r.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`paiements_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        paiExporting.value = false;
+    }
+}
 </script>
 
 <template>
@@ -189,12 +468,49 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                             placeholder="Tous les types" showClear class="min-w-40" />
                         <Select v-model="trxStatus" :options="TRX_STATUS_OPTIONS" optionLabel="label" optionValue="value"
                             placeholder="Tous les statuts" showClear class="min-w-40" />
-                        <Select v-model="trxPeriod" :options="PERIOD_OPTIONS" optionLabel="label" optionValue="value"
-                            placeholder="Toute période" showClear class="min-w-40" />
                         <span class="text-sm text-muted-color whitespace-nowrap ml-auto">
                             <i v-if="trxFetching && !trxLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                             {{ trxTotal }} résultat(s)
+                            <template v-if="trxTotalAmount != null"> · {{ fmt(trxTotalAmount) }} EC</template>
                         </span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 mb-5">
+                        <Button
+                            v-for="opt in QUICK_PERIODS"
+                            :key="opt.value"
+                            :label="opt.label"
+                            size="small"
+                            :severity="trxQuickPeriod === opt.value ? 'primary' : 'secondary'"
+                            :outlined="trxQuickPeriod !== opt.value"
+                            @click="applyTrxQuickPeriod(opt.value)"
+                        />
+                        <DatePicker
+                            v-model="trxDateFrom"
+                            placeholder="Du"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="trxQuickPeriod = null"
+                        />
+                        <DatePicker
+                            v-model="trxDateTo"
+                            placeholder="Au"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="trxQuickPeriod = null"
+                        />
+                        <Button
+                            label="Exporter en PDF"
+                            icon="pi pi-file-pdf"
+                            severity="secondary"
+                            outlined
+                            size="small"
+                            class="ml-auto"
+                            :loading="trxExporting"
+                            @click="exportTrxPdf"
+                        />
                     </div>
 
                     <!-- Chargement -->
@@ -262,12 +578,49 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </IconField>
                         <Select v-model="rechStatus" :options="RECHARGE_STATUS_OPTIONS" optionLabel="label" optionValue="value"
                             placeholder="Tous les statuts" showClear class="min-w-40" />
-                        <Select v-model="rechPeriod" :options="PERIOD_OPTIONS" optionLabel="label" optionValue="value"
-                            placeholder="Toute période" showClear class="min-w-40" />
                         <span class="text-sm text-muted-color whitespace-nowrap ml-auto">
                             <i v-if="rechFetching && !rechLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                             {{ rechTotal }} recharge(s)
+                            <template v-if="rechTotalAmount != null"> · {{ fmt(rechTotalAmount) }} EC</template>
                         </span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 mb-5">
+                        <Button
+                            v-for="opt in QUICK_PERIODS"
+                            :key="opt.value"
+                            :label="opt.label"
+                            size="small"
+                            :severity="rechQuickPeriod === opt.value ? 'primary' : 'secondary'"
+                            :outlined="rechQuickPeriod !== opt.value"
+                            @click="applyRechQuickPeriod(opt.value)"
+                        />
+                        <DatePicker
+                            v-model="rechDateFrom"
+                            placeholder="Du"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="rechQuickPeriod = null"
+                        />
+                        <DatePicker
+                            v-model="rechDateTo"
+                            placeholder="Au"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="rechQuickPeriod = null"
+                        />
+                        <Button
+                            label="Exporter en PDF"
+                            icon="pi pi-file-pdf"
+                            severity="secondary"
+                            outlined
+                            size="small"
+                            class="ml-auto"
+                            :loading="rechExporting"
+                            @click="exportRechPdf"
+                        />
                     </div>
 
                     <!-- Chargement -->
@@ -332,12 +685,49 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
             <TabPanel :value="2">
                 <div class="card mt-4">
                     <div class="flex flex-wrap items-center gap-3 mb-5">
-                        <Select v-model="retPeriod" :options="PERIOD_OPTIONS" optionLabel="label" optionValue="value"
-                            placeholder="Toute période" showClear class="min-w-44" />
                         <span class="text-sm text-muted-color whitespace-nowrap ml-auto">
                             <i v-if="retFetching && !retLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                             {{ retTotal }} retrait(s)
+                            <template v-if="retTotalAmount != null"> · {{ fmt(retTotalAmount) }} EC</template>
                         </span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 mb-5">
+                        <Button
+                            v-for="opt in QUICK_PERIODS"
+                            :key="opt.value"
+                            :label="opt.label"
+                            size="small"
+                            :severity="retQuickPeriod === opt.value ? 'primary' : 'secondary'"
+                            :outlined="retQuickPeriod !== opt.value"
+                            @click="applyRetQuickPeriod(opt.value)"
+                        />
+                        <DatePicker
+                            v-model="retDateFrom"
+                            placeholder="Du"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="retQuickPeriod = null"
+                        />
+                        <DatePicker
+                            v-model="retDateTo"
+                            placeholder="Au"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="retQuickPeriod = null"
+                        />
+                        <Button
+                            label="Exporter en PDF"
+                            icon="pi pi-file-pdf"
+                            severity="secondary"
+                            outlined
+                            size="small"
+                            class="ml-auto"
+                            :loading="retExporting"
+                            @click="exportRetPdf"
+                        />
                     </div>
 
                     <!-- Chargement -->
@@ -411,12 +801,49 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </IconField>
                         <Select v-model="paiCompany" :options="companyOptions ?? []" optionLabel="label" optionValue="value"
                             placeholder="Toutes les entreprises" showClear class="min-w-48" filter />
-                        <Select v-model="paiPeriod" :options="PERIOD_OPTIONS" optionLabel="label" optionValue="value"
-                            placeholder="Toute période" showClear class="min-w-40" />
                         <span class="text-sm text-muted-color whitespace-nowrap ml-auto">
                             <i v-if="paiFetching && !paiLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                             {{ paiTotal }} paiement(s)
+                            <template v-if="paiTotalAmount != null"> · {{ fmt(paiTotalAmount) }} EC</template>
                         </span>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-2 mb-5">
+                        <Button
+                            v-for="opt in QUICK_PERIODS"
+                            :key="opt.value"
+                            :label="opt.label"
+                            size="small"
+                            :severity="paiQuickPeriod === opt.value ? 'primary' : 'secondary'"
+                            :outlined="paiQuickPeriod !== opt.value"
+                            @click="applyPaiQuickPeriod(opt.value)"
+                        />
+                        <DatePicker
+                            v-model="paiDateFrom"
+                            placeholder="Du"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="paiQuickPeriod = null"
+                        />
+                        <DatePicker
+                            v-model="paiDateTo"
+                            placeholder="Au"
+                            dateFormat="dd/mm/yy"
+                            showButtonBar
+                            style="min-width:8rem"
+                            @update:modelValue="paiQuickPeriod = null"
+                        />
+                        <Button
+                            label="Exporter en PDF"
+                            icon="pi pi-file-pdf"
+                            severity="secondary"
+                            outlined
+                            size="small"
+                            class="ml-auto"
+                            :loading="paiExporting"
+                            @click="exportPaiPdf"
+                        />
                     </div>
 
                     <!-- Chargement -->

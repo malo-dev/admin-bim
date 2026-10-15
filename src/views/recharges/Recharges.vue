@@ -4,6 +4,9 @@ import { refDebounced } from '@vueuse/core';
 import { useToast } from 'primevue/usetoast';
 import { useConfirm } from 'primevue/useconfirm';
 import { useRechargesQuery } from '@/modules/transactions/queries/transactions.queries';
+import TransactionsService from '@/modules/transactions/services/transactions.service';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
     useApproveRechargeMutation,
     useRejectRechargeMutation,
@@ -20,20 +23,129 @@ const statusFilter = ref('pending');
 const currentPage  = ref(1);
 const pageSize     = ref(20);
 
-watch([search, statusFilter], () => { currentPage.value = 1; });
+// ── Filtres rapides par période ──────────────────────────────────────────────
+const QUICK_PERIODS = [
+    { label: "Aujourd'hui", value: 'today' },
+    { label: 'Hier',        value: 'yesterday' },
+    { label: 'Semaine',     value: 'week' },
+    { label: 'Mois',        value: 'month' },
+];
+const quickPeriod = ref(null);
+const dateFrom     = ref(null);
+const dateTo       = ref(null);
+
+// `.toISOString()` convertit en UTC avant de découper la date — avec un
+// fuseau local en avance sur UTC, minuit local devenait la veille en UTC et
+// décalait tous les filtres "un jour" d'une journée. On formate donc la date
+// telle qu'affichée localement, sans passer par l'UTC.
+function toLocalDateStr(d) {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+function applyQuickPeriod(period) {
+    quickPeriod.value = period;
+    const today = new Date();
+    if (period === 'today') {
+        dateFrom.value = today;
+        dateTo.value = today;
+    } else if (period === 'yesterday') {
+        const y = new Date(today);
+        y.setDate(y.getDate() - 1);
+        dateFrom.value = y;
+        dateTo.value = y;
+    } else if (period === 'week') {
+        const start = new Date(today);
+        const dow = (start.getDay() + 6) % 7; // lundi = 0
+        start.setDate(start.getDate() - dow);
+        dateFrom.value = start;
+        dateTo.value = today;
+    } else if (period === 'month') {
+        dateFrom.value = new Date(today.getFullYear(), today.getMonth(), 1);
+        dateTo.value = today;
+    }
+}
+
+watch([search, statusFilter, dateFrom, dateTo], () => { currentPage.value = 1; });
 
 const filters = computed(() => ({
-    search:   search.value || undefined,
-    status:   statusFilter.value || undefined,
-    page:     currentPage.value,
-    pageSize: pageSize.value,
+    search:    search.value || undefined,
+    status:    statusFilter.value || undefined,
+    startDate: toLocalDateStr(dateFrom.value),
+    endDate:   toLocalDateStr(dateTo.value),
+    page:      currentPage.value,
+    pageSize:  pageSize.value,
 }));
 
 const { data, isLoading, isFetching, refetch } = useRechargesQuery(filters);
 
 const recharges    = computed(() => data.value?.data ?? (Array.isArray(data.value) ? data.value : []));
 const totalRecords = computed(() => data.value?.total ?? recharges.value.length);
+const totalAmount  = computed(() => data.value?.totalAmount ?? null);
 const pendingCount = computed(() => recharges.value.filter(r => r.status === 'pending').length);
+
+/* ── Export PDF (liste complète filtrée, pas seulement la page affichée) ── */
+const exporting = ref(false);
+const STATUS_FILTER_LABELS = { pending: 'En attente', success: 'Approuvées', failed: 'Rejetées', '': 'Toutes' };
+
+function fmtEC(val) {
+    if (val === undefined || val === null) return '—';
+    return Number(val).toLocaleString('fr-FR') + ' EC';
+}
+
+async function exportPdf() {
+    exporting.value = true;
+    try {
+        const periodLabel = QUICK_PERIODS.find((p) => p.value === quickPeriod.value)?.label
+            ?? ((toLocalDateStr(dateFrom.value) || toLocalDateStr(dateTo.value))
+                ? `${toLocalDateStr(dateFrom.value) ?? ''} → ${toLocalDateStr(dateTo.value) ?? ''}`
+                : 'Toutes dates');
+
+        const res = await TransactionsService.getRecharges({
+            search:    search.value || undefined,
+            status:    statusFilter.value || undefined,
+            startDate: toLocalDateStr(dateFrom.value),
+            endDate:   toLocalDateStr(dateTo.value),
+            page: 1,
+            pageSize: 1000,
+        });
+        const rows = res?.data ?? (Array.isArray(res) ? res : []);
+
+        const doc = new jsPDF();
+        doc.setFontSize(15);
+        doc.text('BIM NEXT — Demandes de recharge', 14, 16);
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        doc.text(`Période : ${periodLabel} · Statut : ${STATUS_FILTER_LABELS[statusFilter.value ?? ''] ?? 'Toutes'}`, 14, 23);
+        doc.text(`${rows.length} demande(s) · Montant total : ${fmtEC(res?.totalAmount)}`, 14, 29);
+
+        autoTable(doc, {
+            startY: 35,
+            head: [['Utilisateur', 'Email', 'Téléphone', 'Montant', 'Référence', 'Statut', 'Date']],
+            body: rows.map((r) => [
+                r.user?.username ?? '—',
+                r.user?.email ?? '—',
+                r.telephone ?? r.paymentMethod ?? '—',
+                fmtAmount(r),
+                r.reference ?? '—',
+                statusLabel(r),
+                fmtDate(r.createdAt),
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [0, 53, 197] },
+        });
+
+        doc.save(`recharges_${toLocalDateStr(new Date())}.pdf`);
+    } catch (err) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: "Impossible d'exporter le PDF", life: 4000 });
+        console.error(err);
+    } finally {
+        exporting.value = false;
+    }
+}
 
 function onPage(event) {
     currentPage.value = event.page + 1;
@@ -190,6 +302,45 @@ function confirmReverse(row) {
             />
         </div>
 
+        <!-- Quick period filters -->
+        <div class="flex gap-2 flex-wrap items-center">
+            <Button
+                v-for="opt in QUICK_PERIODS"
+                :key="opt.value"
+                :label="opt.label"
+                size="small"
+                :severity="quickPeriod === opt.value ? 'primary' : 'secondary'"
+                :outlined="quickPeriod !== opt.value"
+                @click="applyQuickPeriod(opt.value)"
+            />
+            <DatePicker
+                v-model="dateFrom"
+                placeholder="Du"
+                dateFormat="dd/mm/yy"
+                showButtonBar
+                style="min-width:8rem"
+                @update:modelValue="quickPeriod = null"
+            />
+            <DatePicker
+                v-model="dateTo"
+                placeholder="Au"
+                dateFormat="dd/mm/yy"
+                showButtonBar
+                style="min-width:8rem"
+                @update:modelValue="quickPeriod = null"
+            />
+            <Button
+                label="Exporter en PDF"
+                icon="pi pi-file-pdf"
+                severity="secondary"
+                outlined
+                size="small"
+                class="ml-auto"
+                :loading="exporting"
+                @click="exportPdf"
+            />
+        </div>
+
         <div class="card">
             <!-- Toolbar -->
             <div class="flex items-center gap-3 mb-5 flex-wrap">
@@ -200,6 +351,7 @@ function confirmReverse(row) {
                 <span class="text-sm text-muted-color ml-auto whitespace-nowrap">
                     <i v-if="isFetching && !isLoading" class="pi pi-spin pi-spinner text-xs mr-1" />
                     {{ totalRecords }} résultat(s)
+                    <template v-if="totalAmount != null"> · {{ fmtEC(totalAmount) }}</template>
                 </span>
             </div>
 
