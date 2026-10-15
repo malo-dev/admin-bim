@@ -57,6 +57,18 @@ const STATUS_LABEL = {
     processing: 'En traitement', shipped: 'Expédiée', delivered: 'Livrée', cancelled: 'Annulée',
 };
 
+// ── Suivi par étapes (même esprit que le tracking côté app mobile) ─────────
+const PROGRESS_STEPS = [
+    { value: 'pending',    label: 'En attente' },
+    { value: 'confirmed',  label: 'Confirmée' },
+    { value: 'paid',       label: 'Payée' },
+    { value: 'processing', label: 'En préparation' },
+    { value: 'shipped',    label: 'Expédiée' },
+    { value: 'delivered',  label: 'Livrée' },
+];
+const isCancelled = computed(() => order.value?.status === 'cancelled');
+const currentStepIndex = computed(() => PROGRESS_STEPS.findIndex((s) => s.value === order.value?.status));
+
 // ── Mutation ───────────────────────────────────────────────────────────────────
 const { mutate: updateOrder, isPending: saving } = useUpdateOrderMutation();
 
@@ -165,6 +177,41 @@ function formatAmount(amount, currency) {
                                 :severity="STATUS_SEVERITY[order.status] ?? 'secondary'"
                                 class="text-sm"
                             />
+                        </div>
+
+                        <!-- Suivi par étapes -->
+                        <div v-if="isCancelled" class="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 mb-4">
+                            <i class="pi pi-times-circle text-red-500" />
+                            <span class="text-sm font-medium text-red-600 dark:text-red-400">Commande annulée</span>
+                        </div>
+                        <div v-else class="flex items-center mb-5 overflow-x-auto pb-1">
+                            <template v-for="(step, i) in PROGRESS_STEPS" :key="step.value">
+                                <div class="flex flex-col items-center gap-1.5 shrink-0" style="min-width:4.5rem">
+                                    <div
+                                        class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                                        :class="i < currentStepIndex
+                                            ? 'bg-primary text-white'
+                                            : i === currentStepIndex
+                                                ? 'bg-primary text-white ring-4 ring-primary/20'
+                                                : 'bg-surface-100 dark:bg-surface-800 text-muted-color'"
+                                    >
+                                        <i v-if="i < currentStepIndex" class="pi pi-check text-xs" />
+                                        <span v-else>{{ i + 1 }}</span>
+                                    </div>
+                                    <span
+                                        class="text-[11px] text-center leading-tight"
+                                        :class="i <= currentStepIndex ? 'font-semibold text-surface-900 dark:text-surface-0' : 'text-muted-color'"
+                                    >
+                                        {{ step.label }}
+                                    </span>
+                                </div>
+                                <div
+                                    v-if="i < PROGRESS_STEPS.length - 1"
+                                    class="h-0.5 flex-1 mx-1 mb-5 shrink-0"
+                                    style="min-width:1.25rem"
+                                    :class="i < currentStepIndex ? 'bg-primary' : 'bg-surface-200 dark:bg-surface-700'"
+                                />
+                            </template>
                         </div>
 
                         <!-- Info grid -->
