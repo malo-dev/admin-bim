@@ -121,68 +121,77 @@ function onPage(event) {
         </div>
 
         <div class="card">
-            <DataTable :value="chauffeurs" :loading="isLoading" lazy paginator :rows="pageSize" :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]" stripedRows scrollable>
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-car text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun chauffeur — le matching des courses ne trouvera personne</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="13rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Chauffeur" style="min-width:16rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <img v-if="imageUrl(row.avatarUrl)" :src="imageUrl(row.avatarUrl)" class="w-10 h-10 rounded-full object-cover" />
-                            <div v-else class="w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color">
-                                <i class="pi pi-user" />
-                            </div>
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.user?.username ?? `User #${row.userId}` }}</div>
-                                <div class="text-xs text-muted-color">{{ row.telephone }}</div>
-                            </div>
+            <!-- Vide -->
+            <div v-else-if="chauffeurs.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-car text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun chauffeur — le matching des courses ne trouvera personne</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in chauffeurs"
+                    :key="row.chauffeurId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <img v-if="imageUrl(row.avatarUrl)" :src="imageUrl(row.avatarUrl)" class="w-10 h-10 rounded-full object-cover shrink-0" />
+                        <div v-else class="w-10 h-10 rounded-full bg-surface-100 dark:bg-surface-800 flex items-center justify-center text-muted-color shrink-0">
+                            <i class="pi pi-user" />
                         </div>
-                    </template>
-                </Column>
-
-                <Column header="Véhicule" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div class="text-sm">{{ row.vehicleMake }} {{ row.vehicleModel }} <span class="text-muted-color">· {{ row.vehicleColor }}</span></div>
-                        <Tag :value="row.plateNumber" severity="secondary" class="mt-1" />
-                    </template>
-                </Column>
-
-                <Column header="Gamme" style="min-width:8rem">
-                    <template #body="{ data: row }">
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.user?.username ?? `User #${row.userId}` }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.telephone }}</div>
+                        </div>
                         <Tag :value="TIER_OPTIONS.find(t => t.value === row.vehicleTier)?.label ?? row.vehicleTier" />
-                    </template>
-                </Column>
+                    </div>
 
-                <Column header="Note" style="min-width:7rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm">⭐ {{ Number(row.rating ?? 5).toFixed(2) }} <span class="text-muted-color">({{ row.totalRides }})</span></span>
-                    </template>
-                </Column>
+                    <!-- Véhicule -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="text-sm">{{ row.vehicleMake }} {{ row.vehicleModel }} <span class="text-muted-color">· {{ row.vehicleColor }}</span></div>
+                        <Tag :value="row.plateNumber" severity="secondary" />
+                    </div>
 
-                <Column header="En ligne" style="min-width:6rem">
-                    <template #body="{ data: row }">
-                        <ToggleSwitch :modelValue="!!row.isOnline" @update:modelValue="toggleOnline(row)" />
-                    </template>
-                </Column>
+                    <!-- Note -->
+                    <div class="text-sm text-muted-color">
+                        ⭐ {{ Number(row.rating ?? 5).toFixed(2) }} <span>({{ row.totalRides }} courses)</span>
+                    </div>
 
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <ToggleSwitch :modelValue="row.status === 'active'" @update:modelValue="toggleActive(row)" />
-                    </template>
-                </Column>
-
-                <Column header="Actions" style="min-width:5rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded size="small" :loading="deleting" @click="confirmDelete(row)" />
+                    <!-- En ligne / Statut -->
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-muted-color">En ligne</span>
+                            <ToggleSwitch :modelValue="!!row.isOnline" @update:modelValue="toggleOnline(row)" />
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs text-muted-color">Actif</span>
+                            <ToggleSwitch :modelValue="row.status === 'active'" @update:modelValue="toggleActive(row)" />
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end">
+                        <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded size="small" :loading="deleting" @click="confirmDelete(row)" />
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <Dialog v-model:visible="createDialog" header="Nouveau chauffeur" modal style="width:32rem" :draggable="false">

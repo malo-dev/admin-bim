@@ -255,54 +255,54 @@ const periodLabel = computed(() => {
                 Récapitulatif — {{ periodLabel }}
             </h2>
 
-            <DataTable
-                :value="[
-                    { type: 'Recharges',  icon: 'pi pi-plus-circle',   color: 'text-blue-600',   amount: totalRecharges,  count: countRecharges,  severity: 'info' },
-                    { type: 'Retraits',   icon: 'pi pi-minus-circle',  color: 'text-orange-600', amount: totalRetraits,   count: countRetraits,   severity: 'warn' },
-                    { type: 'Paiements',  icon: 'pi pi-shopping-cart', color: 'text-violet-600', amount: totalPaiements,  count: countPaiements,  severity: 'secondary' },
-                ]"
-                :loading="isLoading"
-                stripedRows
-            >
-                <Column header="Type">
-                    <template #body="{ data: row }">
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 3" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in [
+                        { type: 'Recharges',  icon: 'pi pi-plus-circle',   color: 'text-blue-600',   amount: totalRecharges,  count: countRecharges,  severity: 'info' },
+                        { type: 'Retraits',   icon: 'pi pi-minus-circle',  color: 'text-orange-600', amount: totalRetraits,   count: countRetraits,   severity: 'warn' },
+                        { type: 'Paiements',  icon: 'pi pi-shopping-cart', color: 'text-violet-600', amount: totalPaiements,  count: countPaiements,  severity: 'secondary' },
+                    ]"
+                    :key="row.type"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2">
                             <i :class="[row.icon, row.color, 'text-lg']" />
                             <span class="font-semibold">{{ row.type }}</span>
                         </div>
-                    </template>
-                </Column>
-                <Column header="Nombre d'opérations">
-                    <template #body="{ data: row }">
                         <Badge :value="row.count" :severity="row.severity" />
-                    </template>
-                </Column>
-                <Column header="Montant total">
-                    <template #body="{ data: row }">
-                        <span class="font-bold text-lg">{{ fmt(row.amount) }} EC</span>
-                    </template>
-                </Column>
-                <Column header="% du flux">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-2">
-                            <ProgressBar
-                                :value="totalRecharges + totalRetraits + totalPaiements > 0
+                    </div>
+
+                    <!-- Montant -->
+                    <span class="font-bold text-lg">{{ fmt(row.amount) }} EC</span>
+
+                    <!-- % du flux -->
+                    <div class="flex items-center gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <ProgressBar
+                            :value="totalRecharges + totalRetraits + totalPaiements > 0
+                                ? Math.round((row.amount / (totalRecharges + totalRetraits + totalPaiements)) * 100)
+                                : 0"
+                            style="height: 6px; min-width: 80px"
+                            class="flex-1"
+                            :showValue="false"
+                        />
+                        <span class="text-sm text-muted-color whitespace-nowrap">
+                            {{
+                                totalRecharges + totalRetraits + totalPaiements > 0
                                     ? Math.round((row.amount / (totalRecharges + totalRetraits + totalPaiements)) * 100)
-                                    : 0"
-                                style="height: 6px; min-width: 80px"
-                                :showValue="false"
-                            />
-                            <span class="text-sm text-muted-color">
-                                {{
-                                    totalRecharges + totalRetraits + totalPaiements > 0
-                                        ? Math.round((row.amount / (totalRecharges + totalRetraits + totalPaiements)) * 100)
-                                        : 0
-                                }}%
-                            </span>
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                                    : 0
+                            }}%
+                        </span>
+                    </div>
+                </div>
+            </div>
 
             <!-- Ligne total net -->
             <div class="flex items-center justify-between px-4 py-3 mt-3 rounded-xl"

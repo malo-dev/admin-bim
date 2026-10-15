@@ -254,125 +254,103 @@ const stats = computed(() => {
                 </span>
             </div>
 
-            <!-- Table -->
-            <DataTable
-                :value="livreurs"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-truck text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun livreur trouvé</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Livreur -->
-                <Column header="Livreur" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <div class="relative">
-                                <img
-                                    v-if="row.user?.imageUrl"
-                                    :src="row.user.imageUrl"
-                                    class="w-9 h-9 rounded-full object-cover"
-                                />
-                                <div
-                                    v-else
-                                    class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold"
-                                >
-                                    {{ row.user?.username?.charAt(0)?.toUpperCase() ?? '?' }}
-                                </div>
-                                <!-- Online dot -->
-                                <span
-                                    v-if="row.isOnline"
-                                    class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white dark:border-surface-900"
-                                />
+            <!-- Vide -->
+            <div v-else-if="livreurs.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-truck text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun livreur trouvé</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in livreurs"
+                    :key="row.livreurId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <img
+                                v-if="row.user?.imageUrl"
+                                :src="row.user.imageUrl"
+                                class="w-9 h-9 rounded-full object-cover"
+                            />
+                            <div
+                                v-else
+                                class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold"
+                            >
+                                {{ row.user?.username?.charAt(0)?.toUpperCase() ?? '?' }}
                             </div>
-                            <div>
-                                <div class="font-semibold text-sm text-surface-900 dark:text-surface-0">
-                                    {{ row.user?.username ?? '—' }}
-                                </div>
-                                <div class="text-xs text-muted-color">{{ row.user?.email ?? '' }}</div>
-                            </div>
+                            <!-- Online dot -->
+                            <span
+                                v-if="row.isOnline"
+                                class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-white dark:border-surface-900"
+                            />
                         </div>
-                    </template>
-                </Column>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">
+                                {{ row.user?.username ?? '—' }}
+                            </div>
+                            <div class="text-xs text-muted-color truncate">{{ row.user?.email ?? '' }}</div>
+                        </div>
+                        <Tag
+                            :value="STATUS_LABEL[row.status] ?? row.status"
+                            :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
+                        />
+                    </div>
 
-                <!-- Téléphone -->
-                <Column header="Téléphone" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm">{{ row.telephone ?? '—' }}</span>
-                    </template>
-                </Column>
-
-                <!-- Entreprise -->
-                <Column header="Entreprise" style="min-width:10rem">
-                    <template #body="{ data: row }">
+                    <!-- Téléphone + entreprise -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm text-muted-color">{{ row.telephone ?? '—' }}</span>
                         <Tag v-if="row.company?.name" :value="row.company.name" severity="secondary" />
                         <span v-else class="text-muted-color text-sm">BIM (tous)</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Note -->
-                <Column header="Note" style="min-width:8rem">
-                    <template #body="{ data: row }">
+                    <!-- Note + candidature -->
+                    <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-1 text-sm">
                             <i class="pi pi-star-fill text-yellow-400 text-xs" />
                             <span class="font-medium">{{ row.rating ?? '0.00' }}</span>
                             <span class="text-muted-color text-xs">({{ row.ratingCount ?? 0 }})</span>
                         </div>
-                    </template>
-                </Column>
-
-                <!-- Statut -->
-                <Column header="Statut" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <Tag
-                            :value="STATUS_LABEL[row.status] ?? row.status"
-                            :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
-                        />
-                    </template>
-                </Column>
-
-                <!-- Candidature le -->
-                <Column header="Candidature" style="min-width:10rem">
-                    <template #body="{ data: row }">
                         <span class="text-xs text-muted-color">{{ formatDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:14rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end flex-wrap">
-                            <Button
-                                v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
-                                :key="action.status"
-                                :label="action.label"
-                                :icon="action.icon"
-                                :severity="action.severity"
-                                outlined
-                                size="small"
-                                :loading="updating"
-                                @click="changeStatus(row, action.status)"
-                            />
-                            <span v-if="!NEXT_ACTIONS[row.status]?.length" class="text-xs text-muted-color italic">
-                                Aucune action
-                            </span>
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
+                            :key="action.status"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :severity="action.severity"
+                            outlined
+                            size="small"
+                            :loading="updating"
+                            @click="changeStatus(row, action.status)"
+                        />
+                        <span v-if="!NEXT_ACTIONS[row.status]?.length" class="text-xs text-muted-color italic">
+                            Aucune action
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- ── Dialog création ──────────────────────────────────────────────── -->

@@ -73,19 +73,12 @@ function formatDate(d) {
             </div>
         </div>
 
-        <!-- Cards sur mobile, tableau sur tablette+ -->
-        <div v-if="isLoading" class="flex flex-col gap-3">
-            <div v-for="i in 3" :key="i" class="card py-4! animate-pulse">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-surface-200 dark:bg-surface-700" />
-                    <div class="flex-1 flex flex-col gap-2">
-                        <div class="h-4 w-32 bg-surface-200 dark:bg-surface-700 rounded" />
-                        <div class="h-3 w-48 bg-surface-200 dark:bg-surface-700 rounded" />
-                    </div>
-                </div>
-            </div>
+        <!-- Chargement -->
+        <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Skeleton v-for="n in 3" :key="n" height="9rem" borderRadius="1rem" />
         </div>
 
+        <!-- Vide -->
         <div v-else-if="!admins?.length" class="card">
             <div class="text-center py-12 text-muted-color">
                 <i class="pi pi-users text-4xl mb-3 block opacity-30" />
@@ -93,82 +86,43 @@ function formatDate(d) {
             </div>
         </div>
 
-        <template v-else>
-            <!-- Vue carte (mobile) -->
-            <div class="flex flex-col gap-3 sm:hidden">
-                <div v-for="row in admins" :key="row.id"
-                    class="card py-4!">
-                    <div class="flex items-start gap-3">
-                        <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                            <i class="pi pi-user text-primary" />
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 flex-wrap">
-                                <span class="font-semibold text-sm text-surface-900 dark:text-surface-0">{{ row.username }}</span>
-                                <Tag v-if="row.id === authStore.user?.userId" value="Vous" severity="info" class="text-xs!" />
-                                <Tag :value="row.isActive ? 'Actif' : 'Inactif'"
-                                    :severity="row.isActive ? 'success' : 'secondary'"
-                                    class="text-xs!" />
-                            </div>
-                            <p class="text-xs text-muted-color mt-0.5 truncate">{{ row.email }}</p>
-                            <p class="text-xs text-muted-color mt-1">Créé le {{ formatDate(row.createdAt) }}</p>
-                        </div>
-                        <div class="flex gap-1 shrink-0">
-                            <Button icon="pi pi-pencil" severity="info" outlined rounded size="small" @click="openEdit(row)" />
-                            <Button icon="pi pi-trash" severity="danger" outlined rounded size="small"
-                                :loading="deletePending"
-                                :disabled="row.id === authStore.user?.userId"
-                                @click="confirmDelete(row)" />
-                        </div>
+        <!-- Cards -->
+        <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+                v-for="row in admins"
+                :key="row.id"
+                class="card mb-0! p-4! flex flex-col gap-3"
+            >
+                <!-- En-tête -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <i class="pi pi-user text-primary" />
                     </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">{{ row.username }}</span>
+                            <Tag v-if="row.id === authStore.user?.userId" value="Vous" severity="info" class="text-xs!" />
+                        </div>
+                        <p class="text-xs text-muted-color mt-0.5 truncate">{{ row.email }}</p>
+                    </div>
+                    <Tag :value="row.isActive ? 'Actif' : 'Inactif'"
+                        :severity="row.isActive ? 'success' : 'secondary'" />
+                </div>
+
+                <!-- Date -->
+                <p class="text-xs text-muted-color">Créé le {{ formatDate(row.createdAt) }}</p>
+
+                <!-- Actions -->
+                <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                    <Button v-tooltip.top="'Modifier'" icon="pi pi-pencil" severity="info" outlined rounded
+                        size="small" @click="openEdit(row)" />
+                    <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
+                        size="small" :loading="deletePending"
+                        :disabled="row.id === authStore.user?.userId"
+                        @click="confirmDelete(row)" />
                 </div>
             </div>
-
-            <!-- Vue tableau (tablette+) -->
-            <div class="card hidden sm:block">
-                <DataTable :value="admins" stripedRows size="small">
-                    <Column header="Administrateur" style="min-width:14rem">
-                        <template #body="{ data: row }">
-                            <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                    <i class="pi pi-user text-primary text-sm" />
-                                </div>
-                                <div>
-                                    <div class="font-semibold text-sm flex items-center gap-2">
-                                        {{ row.username }}
-                                        <Tag v-if="row.id === authStore.user?.userId" value="Vous" severity="info" class="text-xs!" />
-                                    </div>
-                                    <div class="text-xs text-muted-color">{{ row.email }}</div>
-                                </div>
-                            </div>
-                        </template>
-                    </Column>
-                    <Column header="Créé le" style="min-width:9rem">
-                        <template #body="{ data: row }">
-                            <span class="text-sm">{{ formatDate(row.createdAt) }}</span>
-                        </template>
-                    </Column>
-                    <Column header="Statut" style="min-width:8rem">
-                        <template #body="{ data: row }">
-                            <Tag :value="row.isActive ? 'Actif' : 'Inactif'"
-                                :severity="row.isActive ? 'success' : 'secondary'" />
-                        </template>
-                    </Column>
-                    <Column header="Actions" style="min-width:9rem" alignHeader="right">
-                        <template #body="{ data: row }">
-                            <div class="flex gap-1 justify-end">
-                                <Button v-tooltip.top="'Modifier'" icon="pi pi-pencil" severity="info" outlined rounded
-                                    size="small" @click="openEdit(row)" />
-                                <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
-                                    size="small" :loading="deletePending"
-                                    :disabled="row.id === authStore.user?.userId"
-                                    @click="confirmDelete(row)" />
-                            </div>
-                        </template>
-                    </Column>
-                </DataTable>
-            </div>
-        </template>
+        </div>
 
         <!-- Dialog édition — fullscreen sur mobile -->
         <Dialog v-model:visible="editDialog" header="Modifier le compte" modal

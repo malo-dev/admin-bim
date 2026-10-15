@@ -43,14 +43,27 @@ const balanceCustomFrom = ref(null);
 const balanceCustomTo = ref(null);
 
 const isBalanceCustom = computed(() => selectedBalancePeriod.value === 'custom');
-const balancePeriodParam = computed(() => (isBalanceCustom.value ? '' : selectedBalancePeriod.value));
+
+function toLocalDateStr(d) {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+const balanceStatsParams = computed(() =>
+    isBalanceCustom.value
+        ? { createdAtFrom: toLocalDateStr(balanceCustomFrom.value), createdAtTo: toLocalDateStr(balanceCustomTo.value) }
+        : { period: selectedBalancePeriod.value }
+);
 
 const {
     data: balanceStats,
     isLoading: balanceLoading,
     isError: balanceError,
     refetch: balanceRefetch,
-} = useUsersBalanceStatsQuery(balancePeriodParam);
+} = useUsersBalanceStatsQuery(balanceStatsParams);
 
 const totalBalance     = computed(() => balanceStats.value?.totalBalance ?? null);
 const totalUsers       = computed(() => balanceStats.value?.totalUsers   ?? users.value.length);
@@ -162,28 +175,42 @@ const balancePeriodLabel = computed(() => {
                 </IconField>
             </div>
 
-            <DataTable :value="users" :loading="isLoading" paginator :rows="20" stripedRows class="text-sm">
-                <Column header="Utilisateur" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div>
-                            <div class="font-semibold text-sm">{{ row.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.email }}</div>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="8rem" borderRadius="1rem" />
+            </div>
+
+            <!-- Vide -->
+            <div v-else-if="users.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-wallet text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun utilisateur trouvé</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in users"
+                    :key="row.id"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">{{ row.username }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.email }}</div>
                         </div>
-                    </template>
-                </Column>
-                <Column header="Solde" style="min-width:8rem">
-                    <template #body="{ data: row }">
+                        <Tag :value="row.isActive ? 'Actif' : 'Inactif'" :severity="row.isActive ? 'success' : 'secondary'" />
+                    </div>
+
+                    <!-- Solde -->
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <span class="text-xs text-muted-color">Solde</span>
                         <span class="font-semibold text-sm" :class="Number(row.soldNumber) > 0 ? 'text-green-600 dark:text-green-400' : 'text-muted-color'">
                             {{ fmtEC(row.soldNumber) }}
                         </span>
-                    </template>
-                </Column>
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <Tag :value="row.isActive ? 'Actif' : 'Inactif'" :severity="row.isActive ? 'success' : 'secondary'" />
-                    </template>
-                </Column>
-            </DataTable>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

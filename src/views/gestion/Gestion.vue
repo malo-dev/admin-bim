@@ -2,9 +2,7 @@
 import { ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
-import CreateAccount from '@/views/accounts/CreateAccount.vue';
 import AccountsList from '@/views/accounts/AccountsList.vue';
-import CreateCompanyAccount from '@/views/accounts/CreateCompanyAccount.vue';
 import Users from '@/views/users/Users.vue';
 import Roles from '@/views/roles/Roles.vue';
 import UserRoles from '@/views/user-roles/UserRoles.vue';
@@ -70,9 +68,7 @@ watch(activeTab, (v) => router.replace({ query: { ...route.query, tab: v } }));
 
             <TabPanel :value="0">
                 <div class="flex flex-col gap-6 mt-4">
-                    <CreateAccount />
                     <AccountsList />
-                    <CreateCompanyAccount />
                 </div>
             </TabPanel>
 

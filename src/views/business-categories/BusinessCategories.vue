@@ -145,96 +145,91 @@ function getInitials(name) {
                 </span>
             </div>
 
-            <!-- DataTable -->
-            <DataTable
-                :value="sectors"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-tag text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun secteur trouvé</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Secteur -->
-                <Column header="Secteur" style="min-width:16rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <Avatar
-                                v-if="row.logo"
-                                :image="row.logo"
-                                shape="circle"
-                            />
-                            <Avatar
-                                v-else
-                                :label="getInitials(row.name)"
-                                shape="circle"
-                                :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }"
-                            />
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.name }}</div>
-                                <div v-if="row.description" class="text-xs text-muted-color line-clamp-1 max-w-xs">
-                                    {{ row.description }}
-                                </div>
+            <!-- Vide -->
+            <div v-else-if="sectors.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-tag text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun secteur trouvé</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in sectors"
+                    :key="row.businessId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <Avatar
+                            v-if="row.logo"
+                            :image="row.logo"
+                            shape="circle"
+                        />
+                        <Avatar
+                            v-else
+                            :label="getInitials(row.name)"
+                            shape="circle"
+                            :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }"
+                        />
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.name }}</div>
+                            <div v-if="row.description" class="text-xs text-muted-color line-clamp-1">
+                                {{ row.description }}
                             </div>
                         </div>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Entreprises liées -->
-                <Column header="Entreprises" style="min-width:9rem">
-                    <template #body="{ data: row }">
+                    <!-- Entreprises liées + date -->
+                    <div class="flex items-center justify-between gap-2">
                         <Tag
                             v-if="row.companies?.length"
                             :value="`${row.companies.length} entreprise(s)`"
                             severity="info"
                         />
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                        <span v-else class="text-muted-color text-sm">Aucune entreprise</span>
+                        <span class="text-xs text-muted-color whitespace-nowrap">Créé le {{ formatDate(row.createdAt) }}</span>
+                    </div>
 
-                <!-- Date -->
-                <Column header="Créé le" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                </Column>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-tooltip.top="'Modifier'"
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openEdit(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Supprimer'"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="deletePending"
+                            @click="confirmDelete(row)"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:8rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button
-                                v-tooltip.top="'Modifier'"
-                                icon="pi pi-pencil"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openEdit(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Supprimer'"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="deletePending"
-                                @click="confirmDelete(row)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- Create Dialog -->

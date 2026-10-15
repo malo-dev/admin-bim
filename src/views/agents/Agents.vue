@@ -184,122 +184,98 @@ function doConfirm() {
                 </div>
             </div>
 
-            <DataTable
-                :value="agents"
-                :loading="isLoading"
-                stripedRows
-                showGridlines
-                dataKey="id"
-                class="text-sm"
-            >
-                <!-- Nom & email -->
-                <Column header="Agent" style="min-width:180px">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <i class="pi pi-user text-primary text-sm" />
-                            </div>
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.username }}</div>
-                                <div class="text-xs text-muted-color">{{ row.email }}</div>
-                            </div>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
+
+            <!-- Vide -->
+            <div v-else-if="agents.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-id-card text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun agent trouvé</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in agents"
+                    :key="row.id"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="pi pi-user text-primary text-sm" />
                         </div>
-                    </template>
-                </Column>
-
-                <!-- Téléphone -->
-                <Column header="Téléphone" field="telephone" style="min-width:130px" />
-
-                <!-- Numéro de compte -->
-                <Column header="N° Compte" style="min-width:160px">
-                    <template #body="{ data: row }">
-                        <code class="text-xs bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded">{{ row.accountNumber ?? '—' }}</code>
-                    </template>
-                </Column>
-
-                <!-- Commission cumulée -->
-                <Column header="Commission (EC)" style="min-width:140px">
-                    <template #body="{ data: row }">
-                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">
-                            {{ Number(row.soldNumber ?? 0).toFixed(2) }} EC
-                        </span>
-                    </template>
-                </Column>
-
-                <!-- Retraits aujourd'hui -->
-                <Column header="Aujourd'hui" style="min-width:130px">
-                    <template #body="{ data: row }">
-                        <div class="text-xs">
-                            <span class="font-semibold">{{ row.todayCount ?? 0 }}</span>
-                            <span class="text-muted-color"> retrait{{ (row.todayCount ?? 0) !== 1 ? 's' : '' }}</span><br />
-                            <span class="text-emerald-600 dark:text-emerald-400">{{ Number(row.todaySum ?? 0).toFixed(2) }} EC</span>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.username }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.email }}</div>
                         </div>
-                    </template>
-                </Column>
-
-                <!-- Statut -->
-                <Column header="Statut" style="min-width:110px">
-                    <template #body="{ data: row }">
                         <Tag
                             :value="row.isBlocked ? 'Bloqué' : 'Actif'"
                             :severity="row.isBlocked ? 'danger' : 'success'"
                         />
-                    </template>
-                </Column>
-
-                <!-- Date création -->
-                <Column header="Créé le" style="min-width:120px">
-                    <template #body="{ data: row }">
-                        <span class="text-xs text-muted-color">
-                            {{ new Date(row.createdAt).toLocaleDateString('fr-FR') }}
-                        </span>
-                    </template>
-                </Column>
-
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:160px">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-2">
-                            <Button
-                                v-if="!row.isBlocked"
-                                icon="pi pi-ban"
-                                label="Bloquer"
-                                severity="danger"
-                                size="small"
-                                outlined
-                                :loading="toggling"
-                                @click="askConfirm(row, 'block')"
-                            />
-                            <Button
-                                v-else
-                                icon="pi pi-check"
-                                label="Débloquer"
-                                severity="success"
-                                size="small"
-                                outlined
-                                :loading="toggling"
-                                @click="askConfirm(row, 'unblock')"
-                            />
-                            <Button
-                                icon="pi pi-user-minus"
-                                severity="secondary"
-                                size="small"
-                                outlined
-                                v-tooltip.top="'Retirer statut agent'"
-                                :loading="toggling"
-                                @click="askConfirm(row, 'remove')"
-                            />
-                        </div>
-                    </template>
-                </Column>
-
-                <template #empty>
-                    <div class="text-center py-8 text-muted-color">
-                        <i class="pi pi-id-card text-4xl mb-3 block opacity-30" />
-                        Aucun agent trouvé
                     </div>
-                </template>
-            </DataTable>
+
+                    <!-- Téléphone + N° compte -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm text-muted-color">{{ row.telephone ?? '—' }}</span>
+                        <code class="text-xs bg-surface-100 dark:bg-surface-700 px-2 py-0.5 rounded">{{ row.accountNumber ?? '—' }}</code>
+                    </div>
+
+                    <!-- Commission + aujourd'hui -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs text-muted-color">Commission cumulée</span>
+                        <span class="font-semibold text-emerald-600 dark:text-emerald-400">
+                            {{ Number(row.soldNumber ?? 0).toFixed(2) }} EC
+                        </span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-xs text-muted-color">
+                            Aujourd'hui · {{ row.todayCount ?? 0 }} retrait{{ (row.todayCount ?? 0) !== 1 ? 's' : '' }}
+                        </span>
+                        <span class="text-sm text-emerald-600 dark:text-emerald-400">{{ Number(row.todaySum ?? 0).toFixed(2) }} EC</span>
+                    </div>
+
+                    <!-- Date création -->
+                    <div class="text-xs text-muted-color">
+                        Créé le {{ new Date(row.createdAt).toLocaleDateString('fr-FR') }}
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-if="!row.isBlocked"
+                            icon="pi pi-ban"
+                            label="Bloquer"
+                            severity="danger"
+                            size="small"
+                            outlined
+                            :loading="toggling"
+                            @click="askConfirm(row, 'block')"
+                        />
+                        <Button
+                            v-else
+                            icon="pi pi-check"
+                            label="Débloquer"
+                            severity="success"
+                            size="small"
+                            outlined
+                            :loading="toggling"
+                            @click="askConfirm(row, 'unblock')"
+                        />
+                        <Button
+                            icon="pi pi-user-minus"
+                            severity="secondary"
+                            size="small"
+                            outlined
+                            v-tooltip.top="'Retirer statut agent'"
+                            :loading="toggling"
+                            @click="askConfirm(row, 'remove')"
+                        />
+                    </div>
+                </div>
+            </div>
 
             <!-- Pagination -->
             <Paginator

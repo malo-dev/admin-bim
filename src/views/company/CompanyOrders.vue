@@ -180,95 +180,94 @@ function clearFilters() {
                 </span>
             </div>
 
-            <DataTable :value="orders" :loading="isLoading" lazy paginator :rows="pageSize"
-                :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                currentPageReportTemplate="{first}-{last}/{totalRecords}" stripedRows scrollable
-                size="small">
-                <template #empty>
-                    <div class="text-center py-10 text-muted-color">
-                        <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium text-sm">Aucune commande trouvée</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Date" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs sm:text-sm whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="orders.length === 0" class="text-center py-10 text-muted-color">
+                <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
+                <p class="font-medium text-sm">Aucune commande trouvée</p>
+            </div>
 
-                <Column header="N°" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="font-mono text-xs font-semibold">{{ row.orderNumber || '—' }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Client" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-xs sm:text-sm">{{ row.user.username }}</div>
-                            <div class="text-xs text-muted-color hidden sm:block">{{ row.user.email }}</div>
-                            <a v-if="row.clientPhone"
-                               :href="`tel:${row.clientPhone}`"
-                               class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 hover:underline">
-                                <i class="pi pi-phone text-xs" />
-                                {{ row.clientPhone }}
-                            </a>
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in orders"
+                    :key="row.orderId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête : N° + date + statut -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <div class="font-mono text-xs font-semibold">{{ row.orderNumber || '—' }}</div>
+                            <div class="text-xs text-muted-color whitespace-nowrap">{{ formatDate(row.createdAt) }}</div>
                         </div>
-                        <span v-else class="text-muted-color text-xs">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Produit" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs sm:text-sm">{{ row.product?.name || '—' }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Montant" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs sm:text-sm font-semibold whitespace-nowrap">
-                            {{ formatAmount(row.totalAmount) }} EC
-                        </span>
-                    </template>
-                </Column>
-
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
                         <Tag :value="STATUS_LABEL[row.status] ?? row.status"
                             :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
                             class="text-xs!" />
-                    </template>
-                </Column>
+                    </div>
 
-                <Column header="Paiement" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <Tag :value="PAY_LABEL[row.paymentStatus] ?? row.paymentStatus ?? 'En attente'"
-                            :severity="PAY_SEVERITY[row.paymentStatus] ?? 'warn'"
-                            class="text-xs!" />
-                    </template>
-                </Column>
+                    <!-- Client -->
+                    <div v-if="row.user">
+                        <div class="font-semibold text-sm">{{ row.user.username }}</div>
+                        <div class="text-xs text-muted-color">{{ row.user.email }}</div>
+                        <a v-if="row.clientPhone"
+                           :href="`tel:${row.clientPhone}`"
+                           class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 hover:underline">
+                            <i class="pi pi-phone text-xs" />
+                            {{ row.clientPhone }}
+                        </a>
+                    </div>
+                    <span v-else class="text-muted-color text-xs">Client inconnu</span>
 
-                <Column header="Actions" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 flex-wrap">
-                            <Button
-                                v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
-                                :key="action.status"
-                                :label="action.label"
-                                :icon="action.icon"
-                                :severity="action.severity"
-                                size="small"
-                                outlined
-                                :loading="updatingStatus"
-                                @click="handleStatusChange(row, action.status)"
-                            />
-                            <span v-if="!NEXT_ACTIONS[row.status]" class="text-xs text-muted-color italic">—</span>
+                    <!-- Produit + montant + paiement -->
+                    <div class="flex flex-col gap-1 text-xs pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Produit</span>
+                            <span class="text-right">{{ row.product?.name || '—' }}</span>
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Montant</span>
+                            <span class="font-semibold">{{ formatAmount(row.totalAmount) }} EC</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Paiement</span>
+                            <Tag :value="PAY_LABEL[row.paymentStatus] ?? row.paymentStatus ?? 'En attente'"
+                                :severity="PAY_SEVERITY[row.paymentStatus] ?? 'warn'"
+                                class="text-xs!" />
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
+                            :key="action.status"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :severity="action.severity"
+                            size="small"
+                            outlined
+                            :loading="updatingStatus"
+                            @click="handleStatusChange(row, action.status)"
+                        />
+                        <span v-if="!NEXT_ACTIONS[row.status]" class="text-xs text-muted-color italic">—</span>
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
     </div>
 </template>

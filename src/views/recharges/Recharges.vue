@@ -203,83 +203,55 @@ function confirmReverse(row) {
                 </span>
             </div>
 
-            <!-- DataTable -->
-            <DataTable
-                :value="recharges"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-inbox text-4xl mb-3 block opacity-25" />
-                        <p class="font-medium">Aucune demande trouvée</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Utilisateur -->
-                <Column header="Utilisateur" style="min-width:16rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 font-bold text-primary text-sm">
-                                {{ (row.user?.username ?? '?')[0]?.toUpperCase() }}
-                            </div>
-                            <div class="min-w-0">
-                                <p class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.user?.username ?? '—' }}</p>
-                                <p class="text-xs text-muted-color truncate">{{ row.user?.email ?? '—' }}</p>
-                            </div>
+            <!-- Vide -->
+            <div v-else-if="recharges.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-inbox text-4xl mb-3 block opacity-25" />
+                <p class="font-medium">Aucune demande trouvée</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in recharges"
+                    :key="rowId(row)"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête : utilisateur + statut -->
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0 font-bold text-primary text-sm">
+                            {{ (row.user?.username ?? '?')[0]?.toUpperCase() }}
                         </div>
-                    </template>
-                </Column>
-
-                <!-- Montant -->
-                <Column header="Montant" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="font-bold text-xl text-surface-900 dark:text-surface-0">{{ fmtAmount(row) }}</span>
-                    </template>
-                </Column>
-
-                <!-- Méthode -->
-                <Column header="Méthode" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <Tag :value="row.telephone ?? row.paymentMethod ?? '—'" severity="secondary" />
-                    </template>
-                </Column>
-
-                <!-- Référence -->
-                <Column header="Référence" style="min-width:11rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs font-mono text-muted-color">{{ row.reference ?? '—' }}</span>
-                    </template>
-                </Column>
-
-                <!-- Date -->
-                <Column header="Date" style="min-width:11rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm text-muted-color">{{ fmtDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
-
-                <!-- Statut -->
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.user?.username ?? '—' }}</p>
+                            <p class="text-xs text-muted-color truncate">{{ row.user?.email ?? '—' }}</p>
+                        </div>
                         <Tag :value="statusLabel(row)" :severity="statusSeverity(row)" />
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:14rem" alignHeader="right">
-                    <template #body="{ data: row }">
+                    <!-- Montant — mis en avant -->
+                    <div class="flex items-center justify-between gap-2 rounded-xl bg-surface-50 dark:bg-surface-800 px-3 py-2">
+                        <span class="text-xs text-muted-color">Montant</span>
+                        <span class="font-bold text-xl text-surface-900 dark:text-surface-0">{{ fmtAmount(row) }}</span>
+                    </div>
+
+                    <!-- Méthode + référence -->
+                    <div class="flex items-center justify-between gap-2">
+                        <Tag :value="row.telephone ?? row.paymentMethod ?? '—'" severity="secondary" />
+                        <span class="text-xs font-mono text-muted-color truncate">{{ row.reference ?? '—' }}</span>
+                    </div>
+
+                    <!-- Date -->
+                    <div class="text-xs text-muted-color">{{ fmtDate(row.createdAt) }}</div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
                         <!-- En attente → Approuver + Rejeter -->
-                        <div v-if="isPending(row)" class="flex gap-2 justify-end">
+                        <template v-if="isPending(row)">
                             <Button
                                 v-tooltip.top="'Approuver'"
                                 icon="pi pi-check"
@@ -299,30 +271,34 @@ function confirmReverse(row) {
                                 :loading="actionId === rowId(row) && rejecting"
                                 @click="openReject(row)"
                             />
-                        </div>
+                        </template>
 
                         <!-- Approuvée → Désapprouver -->
-                        <div v-else-if="isApproved(row)" class="flex gap-2 justify-end items-center">
-                            <Tag value="Approuvée" severity="success" />
-                            <Button
-                                v-tooltip.top="'Désapprouver (retire le montant du compte)'"
-                                icon="pi pi-undo"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="actionId === rowId(row) && reversing"
-                                @click="confirmReverse(row)"
-                            />
-                        </div>
+                        <Button
+                            v-else-if="isApproved(row)"
+                            v-tooltip.top="'Désapprouver (retire le montant du compte)'"
+                            icon="pi pi-undo"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="actionId === rowId(row) && reversing"
+                            @click="confirmReverse(row)"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Rejetée → statut uniquement -->
-                        <div v-else class="flex justify-end">
-                            <Tag value="Rejetée" severity="danger" />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- ── Reject Dialog ─────────────────────────────────────────── -->

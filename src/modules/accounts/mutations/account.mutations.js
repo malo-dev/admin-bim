@@ -2,8 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/vue-query';
 import AccountService from '../services/account.service';
 
 export function useCreateBimAdminMutation() {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (payload) => AccountService.createBimAdmin(payload),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: ['adminAccounts'] }),
     });
 }
 

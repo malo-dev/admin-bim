@@ -197,49 +197,58 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </span>
                     </div>
 
-                    <DataTable :value="transactions" :loading="trxLoading" lazy paginator :rows="trxPageSize"
-                        :totalRecords="trxTotal" @page="onTrxPage" :rowsPerPageOptions="[10, 20, 50]"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                        <template #empty>
-                            <div class="text-center py-10 text-muted-color">
-                                <i class="pi pi-arrows-h text-4xl mb-3 block opacity-30" />
-                                <p>Aucune transaction trouvée</p>
-                            </div>
-                        </template>
-                        <Column header="Date" style="min-width:10rem">
-                            <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                        </Column>
-                        <Column header="Utilisateur" style="min-width:12rem">
-                            <template #body="{ data: row }">
-                                <div v-if="row.user">
-                                    <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                                    <div class="text-xs text-muted-color">{{ row.user.email }}</div>
+                    <!-- Chargement -->
+                    <div v-if="trxLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+                    </div>
+
+                    <!-- Vide -->
+                    <div v-else-if="transactions.length === 0" class="text-center py-10 text-muted-color">
+                        <i class="pi pi-arrows-h text-4xl mb-3 block opacity-30" />
+                        <p>Aucune transaction trouvée</p>
+                    </div>
+
+                    <!-- Cards -->
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div
+                            v-for="row in transactions"
+                            :key="row.id"
+                            class="card mb-0! p-4! flex flex-col gap-3"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div v-if="row.user" class="min-w-0">
+                                        <div class="font-semibold text-sm truncate">{{ row.user.username }}</div>
+                                        <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                                    </div>
+                                    <span v-else class="text-muted-color text-sm">—</span>
                                 </div>
-                                <span v-else class="text-muted-color text-sm">—</span>
-                            </template>
-                        </Column>
-                        <Column header="Type" style="min-width:9rem">
-                            <template #body="{ data: row }">
-                                <Tag :value="row.transactionType" :severity="TRX_TYPE_SEV[row.transactionType] ?? 'secondary'" />
-                            </template>
-                        </Column>
-                        <Column header="Montant" style="min-width:9rem">
-                            <template #body="{ data: row }">
-                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Statut" style="min-width:9rem">
-                            <template #body="{ data: row }">
                                 <Tag :value="row.status" :severity="TRX_SEVERITY[row.status] ?? 'secondary'" />
-                            </template>
-                        </Column>
-                        <Column header="Description" style="min-width:14rem">
-                            <template #body="{ data: row }">
-                                <span class="text-sm text-muted-color line-clamp-1">{{ row.description || '—' }}</span>
-                            </template>
-                        </Column>
-                    </DataTable>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <Tag :value="row.transactionType" :severity="TRX_TYPE_SEV[row.transactionType] ?? 'secondary'" />
+                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
+                            </div>
+
+                            <p class="text-sm text-muted-color line-clamp-2">{{ row.description || '—' }}</p>
+
+                            <div class="text-xs text-muted-color pt-2 border-t border-surface-100 dark:border-surface-800">
+                                {{ formatDate(row.createdAt) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Paginator
+                        v-if="trxTotal > 0"
+                        class="mt-4"
+                        :rows="trxPageSize"
+                        :totalRecords="trxTotal"
+                        :rowsPerPageOptions="[10, 20, 50]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                        @page="onTrxPage"
+                    />
                 </div>
             </TabPanel>
 
@@ -261,48 +270,61 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </span>
                     </div>
 
-                    <DataTable :value="recharges" :loading="rechLoading" lazy paginator :rows="rechPageSize"
-                        :totalRecords="rechTotal" @page="onRechPage" :rowsPerPageOptions="[10, 20, 50]"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                        <template #empty>
-                            <div class="text-center py-10 text-muted-color">
-                                <i class="pi pi-plus-circle text-4xl mb-3 block opacity-30" />
-                                <p>Aucune recharge trouvée</p>
-                            </div>
-                        </template>
-                        <Column header="Date" style="min-width:10rem">
-                            <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                        </Column>
-                        <Column header="Utilisateur" style="min-width:12rem">
-                            <template #body="{ data: row }">
-                                <div v-if="row.user">
-                                    <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                                    <div class="text-xs text-muted-color">{{ row.user.email }}</div>
+                    <!-- Chargement -->
+                    <div v-if="rechLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+                    </div>
+
+                    <!-- Vide -->
+                    <div v-else-if="recharges.length === 0" class="text-center py-10 text-muted-color">
+                        <i class="pi pi-plus-circle text-4xl mb-3 block opacity-30" />
+                        <p>Aucune recharge trouvée</p>
+                    </div>
+
+                    <!-- Cards -->
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div
+                            v-for="row in recharges"
+                            :key="row.id"
+                            class="card mb-0! p-4! flex flex-col gap-3"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div v-if="row.user" class="min-w-0">
+                                        <div class="font-semibold text-sm truncate">{{ row.user.username }}</div>
+                                        <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                                    </div>
+                                    <span v-else class="text-muted-color text-sm">—</span>
                                 </div>
-                                <span v-else class="text-muted-color text-sm">—</span>
-                            </template>
-                        </Column>
-                        <Column header="Montant" style="min-width:9rem">
-                            <template #body="{ data: row }">
-                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Téléphone" style="min-width:10rem">
-                            <template #body="{ data: row }">{{ row.telephone || '—' }}</template>
-                        </Column>
-                        <Column header="Référence" style="min-width:13rem">
-                            <template #body="{ data: row }">
-                                <span class="font-mono text-xs">{{ row.reference }}</span>
-                            </template>
-                        </Column>
-                        <Column header="Statut" style="min-width:9rem">
-                            <template #body="{ data: row }">
                                 <Tag :value="RECH_LABEL[row.status] ?? row.status"
                                     :severity="RECH_SEVERITY[row.status] ?? 'secondary'" />
-                            </template>
-                        </Column>
-                    </DataTable>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-sm text-muted-color">{{ row.telephone || '—' }}</span>
+                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="font-mono text-xs text-muted-color truncate">{{ row.reference }}</span>
+                            </div>
+
+                            <div class="text-xs text-muted-color pt-2 border-t border-surface-100 dark:border-surface-800">
+                                {{ formatDate(row.createdAt) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Paginator
+                        v-if="rechTotal > 0"
+                        class="mt-4"
+                        :rows="rechPageSize"
+                        :totalRecords="rechTotal"
+                        :rowsPerPageOptions="[10, 20, 50]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                        @page="onRechPage"
+                    />
                 </div>
             </TabPanel>
 
@@ -318,49 +340,64 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </span>
                     </div>
 
-                    <DataTable :value="retraits" :loading="retLoading" lazy paginator :rows="retPageSize"
-                        :totalRecords="retTotal" @page="onRetPage" :rowsPerPageOptions="[10, 20, 50]"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                        <template #empty>
-                            <div class="text-center py-10 text-muted-color">
-                                <i class="pi pi-minus-circle text-4xl mb-3 block opacity-30" />
-                                <p>Aucun retrait trouvé</p>
-                            </div>
-                        </template>
-                        <Column header="Date" style="min-width:10rem">
-                            <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                        </Column>
-                        <Column header="Utilisateur" style="min-width:12rem">
-                            <template #body="{ data: row }">
-                                <div v-if="row.sender">
-                                    <div class="font-semibold text-sm">{{ row.sender.username }}</div>
-                                    <div class="text-xs text-muted-color">{{ row.sender.email }}</div>
+                    <!-- Chargement -->
+                    <div v-if="retLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+                    </div>
+
+                    <!-- Vide -->
+                    <div v-else-if="retraits.length === 0" class="text-center py-10 text-muted-color">
+                        <i class="pi pi-minus-circle text-4xl mb-3 block opacity-30" />
+                        <p>Aucun retrait trouvé</p>
+                    </div>
+
+                    <!-- Cards -->
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div
+                            v-for="row in retraits"
+                            :key="row.id"
+                            class="card mb-0! p-4! flex flex-col gap-3"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div v-if="row.sender" class="min-w-0">
+                                        <div class="font-semibold text-sm truncate">{{ row.sender.username }}</div>
+                                        <div class="text-xs text-muted-color truncate">{{ row.sender.email }}</div>
+                                    </div>
+                                    <span v-else class="text-muted-color text-sm">ID: {{ row.id }}</span>
                                 </div>
-                                <span v-else class="text-muted-color text-sm">ID: {{ row.id }}</span>
-                            </template>
-                        </Column>
-                        <Column header="Montant" style="min-width:9rem">
-                            <template #body="{ data: row }">
                                 <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Frais total" style="min-width:8rem">
-                            <template #body="{ data: row }">
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs text-muted-color">Frais total</span>
                                 <span class="text-sm text-muted-color">{{ fmt(row.fraisTransaction) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Frais agent" style="min-width:8rem">
-                            <template #body="{ data: row }">
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs text-muted-color">Frais agent</span>
                                 <span class="text-sm text-muted-color">{{ fmt(row.fraisAgent) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Agent (ID)" style="min-width:8rem">
-                            <template #body="{ data: row }">
+                            </div>
+                            <div class="flex items-center justify-between gap-2">
+                                <span class="text-xs text-muted-color">Agent (ID)</span>
                                 <span class="text-sm font-mono">{{ row.targetId }}</span>
-                            </template>
-                        </Column>
-                    </DataTable>
+                            </div>
+
+                            <div class="text-xs text-muted-color pt-2 border-t border-surface-100 dark:border-surface-800">
+                                {{ formatDate(row.createdAt) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Paginator
+                        v-if="retTotal > 0"
+                        class="mt-4"
+                        :rows="retPageSize"
+                        :totalRecords="retTotal"
+                        :rowsPerPageOptions="[10, 20, 50]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                        @page="onRetPage"
+                    />
                 </div>
             </TabPanel>
 
@@ -382,51 +419,60 @@ function onPaiPage(e) { paiPage.value = e.page + 1; paiPageSize.value = e.rows; 
                         </span>
                     </div>
 
-                    <DataTable :value="paiements" :loading="paiLoading" lazy paginator :rows="paiPageSize"
-                        :totalRecords="paiTotal" @page="onPaiPage" :rowsPerPageOptions="[10, 20, 50]"
-                        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                        <template #empty>
-                            <div class="text-center py-10 text-muted-color">
-                                <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
-                                <p>Aucun paiement trouvé</p>
-                            </div>
-                        </template>
-                        <Column header="Date" style="min-width:10rem">
-                            <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                        </Column>
-                        <Column header="Payeur" style="min-width:12rem">
-                            <template #body="{ data: row }">
-                                <div v-if="row.payer">
-                                    <div class="font-semibold text-sm">{{ row.payer.username }}</div>
-                                    <div class="text-xs text-muted-color">{{ row.payer.email }}</div>
+                    <!-- Chargement -->
+                    <div v-if="paiLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+                    </div>
+
+                    <!-- Vide -->
+                    <div v-else-if="paiements.length === 0" class="text-center py-10 text-muted-color">
+                        <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
+                        <p>Aucun paiement trouvé</p>
+                    </div>
+
+                    <!-- Cards -->
+                    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div
+                            v-for="row in paiements"
+                            :key="row.id"
+                            class="card mb-0! p-4! flex flex-col gap-3"
+                        >
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1 min-w-0">
+                                    <div v-if="row.payer" class="min-w-0">
+                                        <div class="font-semibold text-sm truncate">{{ row.payer.username }}</div>
+                                        <div class="text-xs text-muted-color truncate">{{ row.payer.email }}</div>
+                                    </div>
+                                    <span v-else class="text-muted-color text-sm">—</span>
                                 </div>
-                                <span v-else class="text-muted-color text-sm">—</span>
-                            </template>
-                        </Column>
-                        <Column header="Entreprise" style="min-width:11rem">
-                            <template #body="{ data: row }">
+                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
+                            </div>
+
+                            <div class="flex items-center justify-between gap-2">
                                 <Tag v-if="row.company?.name" :value="row.company.name" severity="secondary" />
                                 <span v-else class="text-muted-color text-sm">—</span>
-                            </template>
-                        </Column>
-                        <Column header="Produit" style="min-width:11rem">
-                            <template #body="{ data: row }">
                                 <span v-if="row.product?.name" class="text-sm">{{ row.product.name }}</span>
                                 <span v-else class="text-muted-color text-sm">—</span>
-                            </template>
-                        </Column>
-                        <Column header="Montant" style="min-width:9rem">
-                            <template #body="{ data: row }">
-                                <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
-                            </template>
-                        </Column>
-                        <Column header="Description" style="min-width:14rem">
-                            <template #body="{ data: row }">
-                                <span class="text-sm text-muted-color line-clamp-1">{{ row.description || '—' }}</span>
-                            </template>
-                        </Column>
-                    </DataTable>
+                            </div>
+
+                            <p class="text-sm text-muted-color line-clamp-2">{{ row.description || '—' }}</p>
+
+                            <div class="text-xs text-muted-color pt-2 border-t border-surface-100 dark:border-surface-800">
+                                {{ formatDate(row.createdAt) }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <Paginator
+                        v-if="paiTotal > 0"
+                        class="mt-4"
+                        :rows="paiPageSize"
+                        :totalRecords="paiTotal"
+                        :rowsPerPageOptions="[10, 20, 50]"
+                        template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                        currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                        @page="onPaiPage"
+                    />
                 </div>
             </TabPanel>
         </Tabs>

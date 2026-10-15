@@ -25,10 +25,11 @@ export function useOtpsQuery(filters) {
     });
 }
 
-export function useUsersBalanceStatsQuery(period) {
+// `params` est un ref/computed d'objet : { period } ou { createdAtFrom, createdAtTo }.
+export function useUsersBalanceStatsQuery(params) {
     return useQuery({
-        queryKey: computed(() => ['users-balance-stats', period.value]),
-        queryFn: () => UsersService.getUsersBalanceStats(period.value ? { period: period.value } : {}),
+        queryKey: computed(() => ['users-balance-stats', params.value]),
+        queryFn: () => UsersService.getUsersBalanceStats(params.value ?? {}),
         retry: false,
         staleTime: 1000 * 30,
     });

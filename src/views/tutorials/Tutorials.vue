@@ -51,103 +51,87 @@
       </span>
     </div>
 
-    <!-- ── Table ───────────────────────────────────────────────── -->
-    <div class="table-card">
-      <DataTable
-        :value="filtered"
-        :loading="isLoading"
-        responsiveLayout="scroll"
-        dataKey="id"
-        rowHover
-        stripedRows
-        :paginator="filtered.length > 10"
-        :rows="10"
-        paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink"
-        class="tuto-table"
-      >
-        <template #empty>
-          <div class="empty-state">
-            <i class="pi pi-play-circle" style="font-size:2.5rem;color:#CBD5E1;margin-bottom:12px"></i>
-            <p>Aucun tutoriel trouvé.</p>
-          </div>
-        </template>
+    <!-- ── Cards ───────────────────────────────────────────────── -->
+    <div class="table-card" style="padding:20px">
+      <!-- Chargement -->
+      <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+      </div>
 
-        <!-- Ordre -->
-        <Column field="order" header="Ordre" style="width:70px" sortable>
-          <template #body="{ data }">
-            <span class="order-badge">{{ data.order }}</span>
-          </template>
-        </Column>
+      <!-- Vide -->
+      <div v-else-if="filtered.length === 0" class="empty-state">
+        <i class="pi pi-play-circle" style="font-size:2.5rem;color:#CBD5E1;margin-bottom:12px"></i>
+        <p>Aucun tutoriel trouvé.</p>
+      </div>
 
-        <!-- Miniature + Titre -->
-        <Column header="Vidéo" style="min-width:280px">
-          <template #body="{ data }">
-            <div class="video-cell">
-              <img
-                :src="data.thumbnailUrl || '/placeholder.png'"
-                class="thumb"
-                @error="(e) => (e.target.src = '/placeholder.png')"
-              />
-              <div class="video-info">
-                <span class="video-title">{{ data.title }}</span>
-                <span v-if="data.description" class="video-desc">{{ truncate(data.description, 60) }}</span>
-              </div>
+      <!-- Cards -->
+      <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div
+          v-for="tuto in filtered"
+          :key="tuto.id"
+          class="card mb-0! p-4! flex flex-col gap-3"
+        >
+          <!-- En-tête : miniature + titre -->
+          <div class="flex items-center gap-3">
+            <img
+              :src="tuto.thumbnailUrl || '/placeholder.png'"
+              class="thumb"
+              @error="(e) => (e.target.src = '/placeholder.png')"
+            />
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ tuto.title }}</div>
+              <div v-if="tuto.description" class="text-xs text-muted-color truncate">{{ truncate(tuto.description, 60) }}</div>
             </div>
-          </template>
-        </Column>
+            <Tag
+              :value="tuto.isActive ? 'Active' : 'Masquée'"
+              :severity="tuto.isActive ? 'success' : 'warning'"
+            />
+          </div>
 
-        <!-- URL YouTube -->
-        <Column header="Lien YouTube" style="min-width:200px">
-          <template #body="{ data }">
-            <a :href="data.youtubeUrl" target="_blank" rel="noopener" class="yt-link">
+          <!-- Ordre + lien YouTube -->
+          <div class="flex items-center justify-between gap-2">
+            <span class="order-badge">#{{ tuto.order }}</span>
+            <a :href="tuto.youtubeUrl" target="_blank" rel="noopener" class="yt-link">
               <i class="pi pi-external-link" style="margin-right:5px"></i>
               Ouvrir
             </a>
-          </template>
-        </Column>
+          </div>
 
-        <!-- Statut -->
-        <Column header="Statut" style="width:110px">
-          <template #body="{ data }">
-            <span :class="['status-badge', data.isActive ? 'active' : 'hidden']">
-              {{ data.isActive ? 'Active' : 'Masquée' }}
-            </span>
-          </template>
-        </Column>
+          <!-- Date -->
+          <div class="date-txt">Créé le {{ formatDate(tuto.createdAt) }}</div>
 
-        <!-- Date -->
-        <Column field="createdAt" header="Créé le" style="width:130px" sortable>
-          <template #body="{ data }">
-            <span class="date-txt">{{ formatDate(data.createdAt) }}</span>
-          </template>
-        </Column>
-
-        <!-- Actions -->
-        <Column header="Actions" style="width:120px">
-          <template #body="{ data }">
-            <div class="action-btns">
-              <Button
-                icon="pi pi-pencil"
-                class="p-button-rounded p-button-text p-button-sm btn-edit"
-                v-tooltip.top="'Modifier'"
-                @click="openEdit(data)"
-              />
-              <Button
-                :icon="data.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                class="p-button-rounded p-button-text p-button-sm btn-toggle"
-                v-tooltip.top="data.isActive ? 'Masquer' : 'Afficher'"
-                @click="toggleActive(data)"
-              />
-              <Button
-                icon="pi pi-trash"
-                class="p-button-rounded p-button-text p-button-sm btn-delete"
-                v-tooltip.top="'Supprimer'"
-                @click="confirmDelete(data)"
-              />
-            </div>
-          </template>
-        </Column>
-      </DataTable>
+          <!-- Actions -->
+          <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+            <Button
+              icon="pi pi-pencil"
+              severity="info"
+              outlined
+              rounded
+              size="small"
+              v-tooltip.top="'Modifier'"
+              @click="openEdit(tuto)"
+            />
+            <Button
+              :icon="tuto.isActive ? 'pi pi-eye-slash' : 'pi pi-eye'"
+              severity="warning"
+              outlined
+              rounded
+              size="small"
+              v-tooltip.top="tuto.isActive ? 'Masquer' : 'Afficher'"
+              @click="toggleActive(tuto)"
+            />
+            <Button
+              icon="pi pi-trash"
+              severity="danger"
+              outlined
+              rounded
+              size="small"
+              v-tooltip.top="'Supprimer'"
+              @click="confirmDelete(tuto)"
+            />
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ── Create / Edit Dialog ────────────────────────────────── -->

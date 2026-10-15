@@ -76,67 +76,62 @@ function onPage(event) {
                 </span>
             </div>
 
-            <DataTable
-                :value="rows"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-verified text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucune fiche de consommation pour le moment</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Date" style="min-width:11rem">
-                    <template #body="{ data: row }">{{ formatDate(row.consumedAt) }}</template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="rows.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-verified text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucune fiche de consommation pour le moment</p>
+            </div>
 
-                <Column header="Utilisateur (signature)" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-2">
-                            <Avatar :label="(row.signatureName ?? row.user?.username ?? '?')[0]?.toUpperCase()" shape="circle" size="small" :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }" />
-                            <span class="text-sm font-medium">{{ row.signatureName ?? row.user?.username ?? '—' }}</span>
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in rows"
+                    :key="row.id"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- Utilisateur + type -->
+                    <div class="flex items-center gap-3">
+                        <Avatar :label="(row.signatureName ?? row.user?.username ?? '?')[0]?.toUpperCase()" shape="circle" :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }" />
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.signatureName ?? row.user?.username ?? '—' }}</div>
+                            <div class="text-xs text-muted-color">{{ formatDate(row.consumedAt) }}</div>
                         </div>
-                    </template>
-                </Column>
-
-                <Column header="Produit" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <img v-if="imageUrl(row.product?.imageUrl)" :src="imageUrl(row.product?.imageUrl)" class="w-8 h-8 rounded-lg object-contain bg-surface-100 dark:bg-surface-800" />
-                            <div>
-                                <div class="font-medium text-sm">{{ row.product?.name ?? '—' }}</div>
-                                <div v-if="row.company?.name" class="text-xs text-muted-color">{{ row.company.name }}</div>
-                            </div>
-                        </div>
-                    </template>
-                </Column>
-
-                <Column header="Quantité" style="min-width:8rem">
-                    <template #body="{ data: row }">{{ row.quantity }} {{ row.unityMesure || '' }}</template>
-                </Column>
-
-                <Column header="Prix payé" style="min-width:8rem">
-                    <template #body="{ data: row }">{{ Number(row.totalPaid ?? 0).toFixed(2) }} EC</template>
-                </Column>
-
-                <Column header="Type" style="min-width:8rem">
-                    <template #body="{ data: row }">
                         <Tag v-if="row.isBonus" value="Offert (bonus)" severity="warn" />
                         <Tag v-else value="Achat payant" severity="secondary" />
-                    </template>
-                </Column>
-            </DataTable>
+                    </div>
+
+                    <!-- Produit -->
+                    <div class="flex items-center gap-3">
+                        <img v-if="imageUrl(row.product?.imageUrl)" :src="imageUrl(row.product?.imageUrl)" class="w-9 h-9 rounded-lg object-contain bg-surface-100 dark:bg-surface-800" />
+                        <div class="min-w-0">
+                            <div class="font-medium text-sm truncate">{{ row.product?.name ?? '—' }}</div>
+                            <div v-if="row.company?.name" class="text-xs text-muted-color truncate">{{ row.company.name }}</div>
+                        </div>
+                    </div>
+
+                    <!-- Quantité + prix -->
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <span class="text-sm text-muted-color">{{ row.quantity }} {{ row.unityMesure || '' }}</span>
+                        <span class="font-semibold text-sm">{{ Number(row.totalPaid ?? 0).toFixed(2) }} EC</span>
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
     </div>
 </template>

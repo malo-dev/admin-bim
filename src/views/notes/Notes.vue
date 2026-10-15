@@ -107,71 +107,68 @@ function starsArray(n) {
                 </span>
             </div>
 
-            <DataTable :value="notes" :loading="isLoading" lazy paginator :rows="pageSize"
-                :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-star text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucune note trouvée</p>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="12rem" borderRadius="1rem" />
+            </div>
+
+            <!-- Vide -->
+            <div v-else-if="notes.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-star text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucune note trouvée</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in notes"
+                    :key="row.noteId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- Utilisateur + date -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div v-if="row.user" class="min-w-0">
+                            <div class="font-semibold text-sm truncate">{{ row.user.username }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                        </div>
+                        <span v-else class="text-muted-color text-sm">—</span>
+                        <span class="text-xs text-muted-color whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
                     </div>
-                </template>
 
-                <Column header="Date" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                </Column>
-
-                <Column header="Utilisateur" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.user.email }}</div>
-                        </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Entreprise" style="min-width:11rem">
-                    <template #body="{ data: row }">
+                    <!-- Entreprise + produit -->
+                    <div class="flex items-center gap-2 flex-wrap">
                         <Tag v-if="row.company?.name" :value="row.company.name" severity="secondary" />
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Produit" style="min-width:10rem">
-                    <template #body="{ data: row }">
                         <span v-if="row.product?.name" class="text-sm">{{ row.product.name }}</span>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <Column header="Note" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.totalStars" class="flex items-center gap-1">
-                            <i v-for="(filled, i) in starsArray(row.totalStars)" :key="i"
-                                :class="['pi text-sm', filled ? 'pi-star-fill text-yellow-400' : 'pi-star text-surface-300']" />
-                            <span class="text-xs text-muted-color ml-1">{{ row.totalStars }}/5</span>
-                        </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    <!-- Note (étoiles) -->
+                    <div v-if="row.totalStars" class="flex items-center gap-1">
+                        <i v-for="(filled, i) in starsArray(row.totalStars)" :key="i"
+                            :class="['pi text-sm', filled ? 'pi-star-fill text-yellow-400' : 'pi-star text-surface-300']" />
+                        <span class="text-xs text-muted-color ml-1">{{ row.totalStars }}/5</span>
+                    </div>
 
-                <Column header="Commentaire" style="min-width:16rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm line-clamp-2">{{ row.notes || '—' }}</span>
-                    </template>
-                </Column>
+                    <!-- Commentaire -->
+                    <p class="text-sm line-clamp-2 text-surface-700 dark:text-surface-300">{{ row.notes || '—' }}</p>
 
-                <Column header="Actions" style="min-width:7rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
-                                size="small" :loading="deletePending" @click="confirmDelete(row)" />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
+                            size="small" :loading="deletePending" @click="confirmDelete(row)" />
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
     </div>
 </template>

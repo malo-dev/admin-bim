@@ -105,64 +105,67 @@ function formatDate(d) {
                 </span>
             </div>
 
-            <DataTable :value="tickets" :loading="isLoading" lazy paginator :rows="pageSize"
-                :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}" stripedRows scrollable>
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-headphones text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun ticket trouvé</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Date" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm">{{ formatDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="tickets.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-headphones text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun ticket trouvé</p>
+            </div>
 
-                <Column header="Utilisateur" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.user.email }}</div>
-                        </div>
-                        <span v-else class="text-sm text-muted-color">{{ row.email }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Sujet" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <span class="font-medium text-sm">{{ row.sujet || '—' }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Description" style="min-width:18rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm text-muted-color line-clamp-2">{{ row.description }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Image" style="min-width:6rem">
-                    <template #body="{ data: row }">
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in tickets"
+                    :key="row.supportTrackId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
                         <img v-if="imgUrl(row.imageUrl)" :src="imgUrl(row.imageUrl)" alt="ticket"
-                            class="w-10 h-10 rounded object-cover cursor-pointer" @click="openDetail(row)" />
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Actions" style="min-width:8rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button v-tooltip.top="'Voir le détail'" icon="pi pi-eye" severity="info" outlined rounded
-                                size="small" @click="openDetail(row)" />
-                            <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
-                                size="small" :loading="deletePending" @click="confirmDelete(row)" />
+                            class="w-12 h-12 rounded-lg object-cover cursor-pointer shrink-0" @click="openDetail(row)" />
+                        <div v-else class="w-12 h-12 rounded-lg bg-surface-100 dark:bg-surface-800 flex items-center justify-center shrink-0 text-muted-color">
+                            <i class="pi pi-headphones opacity-40" />
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                        <div class="flex-1 min-w-0">
+                            <div v-if="row.user" class="min-w-0">
+                                <div class="font-semibold text-sm truncate">{{ row.user.username }}</div>
+                                <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                            </div>
+                            <span v-else class="text-sm text-muted-color truncate block">{{ row.email }}</span>
+                        </div>
+                        <span class="text-xs text-muted-color whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
+                    </div>
+
+                    <!-- Sujet -->
+                    <div class="font-medium text-sm">{{ row.sujet || '—' }}</div>
+
+                    <!-- Description -->
+                    <p class="text-sm text-muted-color line-clamp-2">{{ row.description }}</p>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button v-tooltip.top="'Voir le détail'" icon="pi pi-eye" severity="info" outlined rounded
+                            size="small" @click="openDetail(row)" />
+                        <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded
+                            size="small" :loading="deletePending" @click="confirmDelete(row)" />
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- Detail Dialog -->

@@ -421,129 +421,107 @@ function confirmDelete(row) {
                 </span>
             </div>
 
-            <!-- DataTable -->
-            <DataTable
-                :value="products"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-box text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun produit trouvé</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="14rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Image + Nom -->
-                <Column header="Produit" style="min-width:18rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <!-- Image avec fallback sur erreur (404 / fichier manquant) -->
-                            <template v-if="imageUrl(row.imageUrl)">
-                                <img
-                                    :src="imageUrl(row.imageUrl)"
-                                    class="w-9 h-9 rounded-lg object-contain bg-surface-100 dark:bg-surface-800"
-                                    style="flex-shrink:0"
-                                    @error="(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }"
-                                />
-                                <!-- Fallback affiché si l'image échoue -->
-                                <div
-                                    class="w-9 h-9 rounded-lg hidden items-center justify-center text-sm font-bold shrink-0"
-                                    :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', display: 'none' }"
-                                >
-                                    {{ getInitials(row.name) }}
-                                </div>
-                            </template>
-                            <Avatar
-                                v-else
-                                :label="getInitials(row.name)"
-                                shape="square"
-                                :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }"
-                            />
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.name }}</div>
-                                <div v-if="row.description" class="text-xs text-muted-color line-clamp-1 max-w-xs">
-                                    {{ row.description }}
-                                </div>
-                            </div>
+            <!-- Vide -->
+            <div v-else-if="products.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-box text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun produit trouvé</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in products"
+                    :key="row.productId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- Image -->
+                    <template v-if="imageUrl(row.imageUrl)">
+                        <img
+                            :src="imageUrl(row.imageUrl)"
+                            class="h-32 w-full rounded-lg object-contain bg-surface-100 dark:bg-surface-800"
+                            @error="(e) => { e.target.style.display='none'; e.target.nextElementSibling.style.display='flex'; }"
+                        />
+                        <div
+                            class="h-32 w-full rounded-lg hidden items-center justify-center text-2xl font-bold shrink-0"
+                            :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', display: 'none' }"
+                        >
+                            {{ getInitials(row.name) }}
                         </div>
                     </template>
-                </Column>
+                    <div
+                        v-else
+                        class="h-32 w-full rounded-lg flex items-center justify-center text-2xl font-bold shrink-0"
+                        :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)' }"
+                    >
+                        {{ getInitials(row.name) }}
+                    </div>
 
-                <!-- Entreprise -->
-                <Column header="Entreprise" style="min-width:11rem">
-                    <template #body="{ data: row }">
+                    <!-- Nom + entreprise -->
+                    <div>
+                        <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.name }}</div>
+                        <div v-if="row.description" class="text-xs text-muted-color line-clamp-1">
+                            {{ row.description }}
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-2 flex-wrap">
                         <Tag v-if="row.company?.name" :value="row.company.name" severity="secondary" />
                         <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <!-- Prix -->
-                <Column header="Prix" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="font-semibold">{{ row.price }}</span>
-                        <span class="text-xs text-muted-color ml-1">{{ row.currency?.code ?? currencySymbol(row.currencyId) }}</span>
-                    </template>
-                </Column>
-
-                <!-- Stock -->
-                <Column header="Stock" style="min-width:7rem">
-                    <template #body="{ data: row }">
                         <Tag
                             :value="`${row.qty} ${row.unityMesure || 'u.'}`"
                             :severity="row.qty === 0 ? 'danger' : row.qty <= (row.threshold ?? 5) ? 'warn' : 'success'"
                         />
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Unité -->
-                <Column header="Unité" style="min-width:7rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm">{{ row.unityMesure || '—' }}</span>
-                    </template>
-                </Column>
+                    <!-- Prix + expiration -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="font-semibold">
+                            {{ row.price }}
+                            <span class="text-xs text-muted-color ml-1">{{ row.currency?.code ?? currencySymbol(row.currencyId) }}</span>
+                        </span>
+                        <span class="text-xs text-muted-color whitespace-nowrap">Expire le {{ formatDate(row.expiredAt) }}</span>
+                    </div>
 
-                <!-- Expiration -->
-                <Column header="Expire le" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ formatDate(row.expiredAt) }}</template>
-                </Column>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-tooltip.top="'Modifier'"
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openEdit(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Supprimer'"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="deletePending"
+                            @click="confirmDelete(row)"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:8rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button
-                                v-tooltip.top="'Modifier'"
-                                icon="pi pi-pencil"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openEdit(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Supprimer'"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="deletePending"
-                                @click="confirmDelete(row)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div><!-- end tab-0 card -->
 
         <!-- ──────────────────────────────────────────────────────────── -->

@@ -99,49 +99,56 @@ function confirmDelete(row) {
         </div>
 
         <div class="card">
-            <DataTable :value="tiers" :loading="isLoading" stripedRows scrollable>
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-dollar text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucune gamme — l'estimation de course ne pourra rien afficher</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <Column field="label" header="Gamme" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.label }}</div>
-                        <div class="text-xs text-muted-color">{{ row.tierKey }}</div>
-                    </template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="tiers.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-dollar text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucune gamme — l'estimation de course ne pourra rien afficher</p>
+            </div>
 
-                <Column header="Prix de base" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ Number(row.base).toFixed(2) }} EC</template>
-                </Column>
-
-                <Column header="Prix / km" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ Number(row.perKm).toFixed(2) }} EC</template>
-                </Column>
-
-                <Column field="seats" header="Places" style="min-width:6rem" />
-                <Column header="ETA (min)" style="min-width:7rem">
-                    <template #body="{ data: row }">{{ row.etaMin }} min</template>
-                </Column>
-
-                <Column header="Actif" style="min-width:6rem">
-                    <template #body="{ data: row }">
-                        <ToggleSwitch :modelValue="!!row.active" @update:modelValue="toggleActive(row)" />
-                    </template>
-                </Column>
-
-                <Column header="Actions" style="min-width:8rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button v-tooltip.top="'Modifier'" icon="pi pi-pencil" severity="secondary" outlined rounded size="small" @click="openEdit(row)" />
-                            <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded size="small" :loading="deleting" @click="confirmDelete(row)" />
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in tiers"
+                    :key="row.tierKey"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div>
+                            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.label }}</div>
+                            <div class="text-xs text-muted-color">{{ row.tierKey }}</div>
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                        <ToggleSwitch :modelValue="!!row.active" @update:modelValue="toggleActive(row)" />
+                    </div>
+
+                    <!-- Prix -->
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm text-muted-color">Prix de base</span>
+                        <span class="font-semibold text-sm">{{ Number(row.base).toFixed(2) }} EC</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2">
+                        <span class="text-sm text-muted-color">Prix / km</span>
+                        <span class="font-semibold text-sm">{{ Number(row.perKm).toFixed(2) }} EC</span>
+                    </div>
+
+                    <!-- Places + ETA -->
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <Tag :value="`${row.seats} places`" severity="secondary" />
+                        <Tag :value="`${row.etaMin} min ETA`" severity="secondary" />
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button v-tooltip.top="'Modifier'" icon="pi pi-pencil" severity="secondary" outlined rounded size="small" @click="openEdit(row)" />
+                        <Button v-tooltip.top="'Supprimer'" icon="pi pi-trash" severity="danger" outlined rounded size="small" :loading="deleting" @click="confirmDelete(row)" />
+                    </div>
+                </div>
+            </div>
         </div>
 
         <Dialog v-model:visible="dialogVisible" :header="editing ? 'Modifier la gamme' : 'Nouvelle gamme'" modal style="width:28rem" :draggable="false">

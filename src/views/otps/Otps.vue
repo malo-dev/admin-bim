@@ -180,83 +180,85 @@ router.get('/otps', authMiddleware, async (req, res) => {
                 </span>
             </div>
 
-            <DataTable
-                :value="otps"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-shield text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun OTP trouvé</p>
-                        <p v-if="hasActiveFilters" class="text-sm mt-1">Essayez de modifier les filtres</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Utilisateur" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-sm">{{ row.user.username ?? row.user.email }}</div>
-                            <div class="text-xs text-muted-color">{{ row.user.email }}</div>
+            <!-- Vide -->
+            <div v-else-if="otps.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-shield text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun OTP trouvé</p>
+                <p v-if="hasActiveFilters" class="text-sm mt-1">Essayez de modifier les filtres</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="(row, idx) in otps"
+                    :key="row.id ?? idx"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête : utilisateur + statut -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0">
+                            <div v-if="row.user">
+                                <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">{{ row.user.username ?? row.user.email }}</div>
+                                <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                            </div>
+                            <div v-else-if="row.email">
+                                <div class="text-sm truncate">{{ row.email }}</div>
+                            </div>
+                            <span v-else class="text-muted-color text-sm">—</span>
                         </div>
-                        <div v-else-if="row.email">
-                            <div class="text-sm">{{ row.email }}</div>
-                        </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Code OTP" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <code
-                            class="text-base font-mono font-bold px-2 py-1 rounded tracking-widest"
-                            style="background: var(--p-surface-100); color: var(--p-primary-color)"
-                        >
-                            {{ row.otp ?? row.code ?? '••••••' }}
-                        </code>
-                    </template>
-                </Column>
-
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
                         <Tag
                             :value="STATUS_LABEL[getOtpStatus(row)] ?? getOtpStatus(row)"
                             :severity="STATUS_SEVERITY[getOtpStatus(row)] ?? 'secondary'"
                         />
-                    </template>
-                </Column>
+                    </div>
 
-                <Column header="Type" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="text-sm text-muted-color capitalize">{{ row.type ?? row.purpose ?? '—' }}</span>
-                    </template>
-                </Column>
+                    <!-- Code OTP -->
+                    <code
+                        class="text-base font-mono font-bold px-2 py-1 rounded tracking-widest text-center"
+                        style="background: var(--p-surface-100); color: var(--p-primary-color)"
+                    >
+                        {{ row.otp ?? row.code ?? '••••••' }}
+                    </code>
 
-                <Column header="Créé le" style="min-width:10rem">
-                    <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                </Column>
+                    <!-- Type -->
+                    <div class="flex items-center justify-between text-xs">
+                        <span class="text-muted-color">Type</span>
+                        <span class="text-muted-color capitalize">{{ row.type ?? row.purpose ?? '—' }}</span>
+                    </div>
 
-                <Column header="Expire le" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <span :class="isExpired(row) ? 'text-red-500 text-sm' : 'text-sm'">
-                            {{ formatDate(row.expiresAt) }}
-                        </span>
-                    </template>
-                </Column>
+                    <!-- Dates -->
+                    <div class="flex flex-col gap-1 text-xs pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Créé le</span>
+                            <span>{{ formatDate(row.createdAt) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Expire le</span>
+                            <span :class="isExpired(row) ? 'text-red-500' : ''">{{ formatDate(row.expiresAt) }}</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-muted-color">Utilisé le</span>
+                            <span>{{ formatDate(row.usedAt) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                <Column header="Utilisé le" style="min-width:10rem">
-                    <template #body="{ data: row }">{{ formatDate(row.usedAt) }}</template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
     </div>
 </template>

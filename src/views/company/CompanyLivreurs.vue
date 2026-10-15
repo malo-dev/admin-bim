@@ -134,117 +134,109 @@ function formatDate(d) {
                 </span>
             </div>
 
-            <DataTable :value="livreurs" :loading="isLoading" stripedRows size="small"
-                :paginator="livreurs.length > 10" :rows="10">
-                <template #empty>
-                    <div class="text-center py-10 text-muted-color">
-                        <i class="pi pi-truck text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium text-sm">Aucune candidature</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="14rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Date" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="livreurs.length === 0" class="text-center py-10 text-muted-color">
+                <i class="pi pi-truck text-4xl mb-3 block opacity-30" />
+                <p class="font-medium text-sm">Aucune candidature</p>
+            </div>
 
-                <Column header="Livreur" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.user.email }}</div>
-                            <a v-if="row.telephone" :href="`tel:${row.telephone}`"
-                                class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 hover:underline">
-                                <i class="pi pi-phone text-xs" /> {{ row.telephone }}
-                            </a>
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in livreurs"
+                    :key="row.livreurId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-start gap-3">
+                        <div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/20 flex items-center justify-center shrink-0">
+                            <i class="pi pi-user text-green-600 dark:text-green-400" />
                         </div>
-                        <span v-else class="text-muted-color text-xs">—</span>
-                    </template>
-                </Column>
-
-                <Column header="Motivation" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs text-muted-color line-clamp-2">{{ row.motivation || '—' }}</span>
-                    </template>
-                </Column>
-
-                <Column header="Pièce d'identité" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-2">
-                            <a v-if="row.idCardRecto" :href="`https://serverbimnext.masmara-dimajelo.org${row.idCardRecto}`"
-                                target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                                <i class="pi pi-image text-xs" /> Recto
-                            </a>
-                            <a v-if="row.idCardVerso" :href="`https://serverbimnext.masmara-dimajelo.org${row.idCardVerso}`"
-                                target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
-                                <i class="pi pi-image text-xs" /> Verso
-                            </a>
-                            <span v-if="!row.idCardRecto && !row.idCardVerso" class="text-xs text-muted-color">—</span>
-                        </div>
-                    </template>
-                </Column>
-
-                <Column header="Évaluation" style="min-width:11rem">
-                    <template #body="{ data: row }">
-                        <div class="flex flex-col gap-1">
-                            <!-- Étoiles + score -->
-                            <div class="flex items-center gap-1.5">
-                                <span class="text-yellow-500 text-sm tracking-tight">{{ renderStars(row.rating) }}</span>
-                                <span class="text-xs font-bold text-surface-800 dark:text-surface-100">
-                                    {{ Number(row.rating || 0).toFixed(1) }}
-                                </span>
-                                <span class="text-xs text-muted-color">({{ row.ratingCount || 0 }} avis)</span>
+                        <div class="flex-1 min-w-0">
+                            <div v-if="row.user">
+                                <div class="font-semibold text-sm truncate">{{ row.user.username }}</div>
+                                <div class="text-xs text-muted-color truncate">{{ row.user.email }}</div>
+                                <a v-if="row.telephone" :href="`tel:${row.telephone}`"
+                                    class="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5 hover:underline">
+                                    <i class="pi pi-phone text-xs" /> {{ row.telephone }}
+                                </a>
                             </div>
-                            <!-- Badge classification -->
-                            <span
-                                :style="{
-                                    backgroundColor: getClassification(row.rating, row.ratingCount).bg,
-                                    color: getClassification(row.rating, row.ratingCount).color,
-                                    border: `1px solid ${getClassification(row.rating, row.ratingCount).color}`,
-                                    borderRadius: '20px',
-                                    padding: '2px 8px',
-                                    fontSize: '10px',
-                                    fontWeight: '700',
-                                    display: 'inline-block',
-                                }"
-                            >
-                                {{ getClassification(row.rating, row.ratingCount).label }}
-                            </span>
+                            <span v-else class="text-muted-color text-xs">—</span>
                         </div>
-                    </template>
-                </Column>
-
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
                         <Tag :value="STATUS_LABEL[row.status] ?? row.status"
                             :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
                             class="text-xs!" />
-                    </template>
-                </Column>
+                    </div>
 
-                <Column header="Actions" style="min-width:14rem">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 flex-wrap">
-                            <Button
-                                v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
-                                :key="action.status"
-                                :label="action.label"
-                                :icon="action.icon"
-                                :severity="action.severity"
-                                size="small"
-                                outlined
-                                :loading="updating"
-                                @click="handleAction(row, action.status)"
-                            />
-                            <span v-if="row.status === 'active'" class="text-xs text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
-                                <i class="pi pi-check-circle" /> Actif
+                    <!-- Date -->
+                    <span class="text-xs text-muted-color whitespace-nowrap">Candidature du {{ formatDate(row.createdAt) }}</span>
+
+                    <!-- Motivation -->
+                    <span class="text-xs text-muted-color line-clamp-2">{{ row.motivation || '—' }}</span>
+
+                    <!-- Pièce d'identité -->
+                    <div class="flex gap-2">
+                        <a v-if="row.idCardRecto" :href="`https://serverbimnext.masmara-dimajelo.org${row.idCardRecto}`"
+                            target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            <i class="pi pi-image text-xs" /> Recto
+                        </a>
+                        <a v-if="row.idCardVerso" :href="`https://serverbimnext.masmara-dimajelo.org${row.idCardVerso}`"
+                            target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1">
+                            <i class="pi pi-image text-xs" /> Verso
+                        </a>
+                        <span v-if="!row.idCardRecto && !row.idCardVerso" class="text-xs text-muted-color">Pas de pièce d'identité</span>
+                    </div>
+
+                    <!-- Évaluation -->
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-yellow-500 text-sm tracking-tight">{{ renderStars(row.rating) }}</span>
+                            <span class="text-xs font-bold text-surface-800 dark:text-surface-100">
+                                {{ Number(row.rating || 0).toFixed(1) }}
                             </span>
-                            <span v-if="row.status === 'rejected'" class="text-xs text-muted-color italic">Refusée</span>
+                            <span class="text-xs text-muted-color">({{ row.ratingCount || 0 }} avis)</span>
                         </div>
-                    </template>
-                </Column>
-            </DataTable>
+                        <span
+                            :style="{
+                                backgroundColor: getClassification(row.rating, row.ratingCount).bg,
+                                color: getClassification(row.rating, row.ratingCount).color,
+                                border: `1px solid ${getClassification(row.rating, row.ratingCount).color}`,
+                                borderRadius: '20px',
+                                padding: '2px 8px',
+                                fontSize: '10px',
+                                fontWeight: '700',
+                                display: 'inline-block',
+                            }"
+                        >
+                            {{ getClassification(row.rating, row.ratingCount).label }}
+                        </span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end">
+                        <Button
+                            v-for="action in (NEXT_ACTIONS[row.status] ?? [])"
+                            :key="action.status"
+                            :label="action.label"
+                            :icon="action.icon"
+                            :severity="action.severity"
+                            size="small"
+                            outlined
+                            :loading="updating"
+                            @click="handleAction(row, action.status)"
+                        />
+                        <span v-if="row.status === 'active'" class="text-xs text-green-600 dark:text-green-400 font-semibold flex items-center gap-1">
+                            <i class="pi pi-check-circle" /> Actif
+                        </span>
+                        <span v-if="row.status === 'rejected'" class="text-xs text-muted-color italic">Refusée</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

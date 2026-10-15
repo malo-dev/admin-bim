@@ -369,38 +369,34 @@ function formatNumber(n) {
                 <Badge :value="socketStore.onlineCount" severity="success" />
             </div>
 
-            <DataTable
-                :value="socketStore.onlineUsers"
-                :paginator="socketStore.onlineUsers.length > 10"
-                :rows="10"
-                emptyMessage="Aucun utilisateur connecté"
-                class="text-sm"
-                stripedRows
-            >
-                <Column header="Utilisateur" style="min-width:12rem">
-                    <template #body="{ data }">
-                        <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                <i class="pi pi-user text-primary text-xs" />
-                            </div>
-                            <div>
-                                <div class="font-semibold text-sm">{{ data.username ?? '—' }}</div>
-                                <div class="text-xs text-muted-color font-mono">#{{ data.userId }}</div>
-                            </div>
+            <!-- Vide -->
+            <div v-if="socketStore.onlineUsers.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-user text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun utilisateur connecté</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="data in socketStore.onlineUsers"
+                    :key="data.userId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="pi pi-user text-primary text-sm" />
                         </div>
-                    </template>
-                </Column>
-                <Column header="Connecté depuis" style="min-width:9rem">
-                    <template #body="{ data }">
-                        <span class="text-sm">{{ new Date(data.connectedAt).toLocaleTimeString('fr-FR') }}</span>
-                    </template>
-                </Column>
-                <Column header="Statut">
-                    <template #body>
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">{{ data.username ?? '—' }}</div>
+                            <div class="text-xs text-muted-color font-mono">#{{ data.userId }}</div>
+                        </div>
                         <Tag value="En ligne" severity="success" icon="pi pi-circle-fill" />
-                    </template>
-                </Column>
-            </DataTable>
+                    </div>
+                    <div class="text-xs text-muted-color">
+                        Connecté depuis {{ new Date(data.connectedAt).toLocaleTimeString('fr-FR') }}
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </template>

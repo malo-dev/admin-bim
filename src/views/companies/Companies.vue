@@ -289,146 +289,128 @@ function starClass(star, rating) {
                 </span>
             </div>
 
-            <!-- DataTable -->
-            <DataTable
-                :value="companies"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-building text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucune entreprise trouvée</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Entreprise -->
-                <Column header="Entreprise" style="min-width:18rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <Avatar
-                                v-if="row.logo"
-                                :image="row.logo"
-                                shape="circle"
-                                size="normal"
-                                :imageErrored="() => true"
-                            />
-                            <Avatar
-                                v-else
-                                :label="getInitials(row.name)"
-                                shape="circle"
-                                :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }"
-                            />
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.name }}</div>
-                                <div class="text-xs text-muted-color">{{ row.email }}</div>
-                            </div>
+            <!-- Vide -->
+            <div v-else-if="companies.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-building text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucune entreprise trouvée</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in companies"
+                    :key="row.companyId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <Avatar
+                            v-if="row.logo"
+                            :image="row.logo"
+                            shape="circle"
+                            size="large"
+                            :imageErrored="() => true"
+                        />
+                        <Avatar
+                            v-else
+                            :label="getInitials(row.name)"
+                            shape="circle"
+                            size="large"
+                            :style="{ backgroundColor: 'var(--p-primary-100)', color: 'var(--p-primary-700)', fontWeight: '700' }"
+                        />
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.name }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.email }}</div>
                         </div>
-                    </template>
-                </Column>
-
-                <!-- Secteur -->
-                <Column header="Secteur" style="min-width:12rem">
-                    <template #body="{ data: row }">
                         <Tag v-if="row.category" :value="row.category.name" severity="secondary" />
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Localisation -->
-                <Column header="Ville" style="min-width:9rem">
-                    <template #body="{ data: row }">
+                    <!-- Ville + Produits -->
+                    <div class="flex items-center justify-between gap-2 flex-wrap">
                         <span v-if="row.location" class="text-sm">
                             <i class="pi pi-map-marker text-muted-color mr-1 text-xs" />{{ row.location }}
                         </span>
                         <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <!-- Produits -->
-                <Column header="Produits" style="min-width:8rem">
-                    <template #body="{ data: row }">
                         <Tag
                             v-if="row.products?.length"
-                            :value="`${row.products.length}`"
+                            :value="`${row.products.length} produit(s)`"
                             severity="info"
                         />
-                        <span v-else class="text-muted-color text-sm">0</span>
-                    </template>
-                </Column>
+                        <span v-else class="text-muted-color text-xs">0 produit</span>
+                    </div>
 
-                <!-- Note & Avis -->
-                <Column header="Note / Avis" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div class="flex flex-col gap-0.5">
-                            <div class="flex items-center gap-0.5">
-                                <i
-                                    v-for="star in 5"
-                                    :key="star"
-                                    class="pi text-sm"
-                                    :class="starClass(star, companyRating(row))"
-                                />
-                                <span class="ml-1 text-xs font-semibold text-surface-700 dark:text-surface-300">
-                                    {{ companyRating(row) > 0 ? companyRating(row).toFixed(1) : '—' }}
-                                </span>
-                            </div>
-                            <span class="text-xs text-muted-color">
-                                {{ reviewCount(row) > 0 ? `${reviewCount(row)} avis au total` : 'Aucun avis' }}
+                    <!-- Note & Avis -->
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-0.5">
+                            <i
+                                v-for="star in 5"
+                                :key="star"
+                                class="pi text-sm"
+                                :class="starClass(star, companyRating(row))"
+                            />
+                            <span class="ml-1 text-xs font-semibold text-surface-700 dark:text-surface-300">
+                                {{ companyRating(row) > 0 ? companyRating(row).toFixed(1) : '—' }}
                             </span>
                         </div>
-                    </template>
-                </Column>
+                        <span class="text-xs text-muted-color">
+                            {{ reviewCount(row) > 0 ? `${reviewCount(row)} avis` : 'Aucun avis' }}
+                        </span>
+                    </div>
 
-                <!-- Date -->
-                <Column header="Créée le" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                </Column>
+                    <!-- Date -->
+                    <div class="text-xs text-muted-color">
+                        Créée le {{ formatDate(row.createdAt) }}
+                    </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:10rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <Button
-                                v-tooltip.top="'Ajouter un admin'"
-                                icon="pi pi-user-plus"
-                                severity="info"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openAddAdmin(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Modifier'"
-                                icon="pi pi-pencil"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openEdit(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Supprimer'"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="deletePending"
-                                @click="confirmDelete(row)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-tooltip.top="'Ajouter un admin'"
+                            icon="pi pi-user-plus"
+                            severity="info"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openAddAdmin(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Modifier'"
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openEdit(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Supprimer'"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="deletePending"
+                            @click="confirmDelete(row)"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- ── Create Dialog ─────────────────────────────────────────────── -->

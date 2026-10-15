@@ -114,53 +114,53 @@ function formatAmount(amount) {
                 </span>
             </div>
 
-            <DataTable :value="payments" :loading="isLoading" lazy paginator :rows="pageSize"
-                :totalRecords="totalRecords" @page="onPage" :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
-                stripedRows scrollable size="small">
-                <template #empty>
-                    <div class="text-center py-10 text-muted-color">
-                        <i class="pi pi-credit-card text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium text-sm">Aucun paiement trouvé</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="10rem" borderRadius="1rem" />
+            </div>
 
-                <Column header="Date" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
-                    </template>
-                </Column>
+            <!-- Vide -->
+            <div v-else-if="payments.length === 0" class="text-center py-10 text-muted-color">
+                <i class="pi pi-credit-card text-4xl mb-3 block opacity-30" />
+                <p class="font-medium text-sm">Aucun paiement trouvé</p>
+            </div>
 
-                <Column header="Client" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.payer">
-                            <div class="font-semibold text-xs sm:text-sm">{{ row.payer.username }}</div>
-                            <div class="text-xs text-muted-color hidden sm:block">{{ row.payer.email }}</div>
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="(row, idx) in payments"
+                    :key="row.id ?? row.reference ?? idx"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <div class="flex items-center justify-between gap-2">
+                        <div v-if="row.payer" class="min-w-0">
+                            <div class="font-semibold text-sm truncate">{{ row.payer.username }}</div>
+                            <div class="text-xs text-muted-color truncate">{{ row.payer.email }}</div>
                         </div>
                         <span v-else class="text-muted-color text-xs">—</span>
-                    </template>
-                </Column>
+                        <span class="text-xs text-muted-color whitespace-nowrap">{{ formatDate(row.createdAt) }}</span>
+                    </div>
 
-                <Column header="Produit" style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="text-xs sm:text-sm">{{ row.product?.name || '—' }}</span>
-                    </template>
-                </Column>
+                    <div class="text-sm">{{ row.product?.name || '—' }}</div>
 
-                <Column header="Montant" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <span class="font-bold text-xs sm:text-sm text-green-600 dark:text-green-400 whitespace-nowrap">
+                    <div class="flex items-center justify-between gap-2 pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <span class="font-mono text-xs text-muted-color truncate">{{ row.reference ?? '—' }}</span>
+                        <span class="font-bold text-sm text-green-600 dark:text-green-400 whitespace-nowrap">
                             {{ formatAmount(row.amount) }} EC
                         </span>
-                    </template>
-                </Column>
+                    </div>
+                </div>
+            </div>
 
-                <Column header="Réf." style="min-width:9rem">
-                    <template #body="{ data: row }">
-                        <span class="font-mono text-xs text-muted-color">{{ row.reference ?? '—' }}</span>
-                    </template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"
+                @page="onPage"
+            />
         </div>
     </div>
 </template>

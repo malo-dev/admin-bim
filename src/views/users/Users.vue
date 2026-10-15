@@ -6,6 +6,7 @@ import { useConfirm } from 'primevue/useconfirm';
 import {
     useUsersQuery,
     useCommercesQuery,
+    useUsersBalanceStatsQuery,
 } from '@/modules/users/queries/users.queries';
 import UsersService from '@/modules/users/services/users.service';
 import {
@@ -29,13 +30,59 @@ const dateTo = ref(null);
 const currentPage = ref(1);
 const pageSize = ref(20);
 
+// `.toISOString()` convertit en UTC avant de découper la date — avec un
+// fuseau local en avance sur UTC (RDC = UTC+1/+2), minuit local devenait la
+// veille en UTC et décalait tous les filtres "un jour" d'une journée. On
+// formate donc la date telle qu'affichée localement, sans passer par l'UTC.
+function toLocalDateStr(d) {
+    if (!d) return undefined;
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+}
+
+// ── Filtres rapides par période ──────────────────────────────────────────────
+const QUICK_PERIODS = [
+    { label: "Aujourd'hui", value: 'today' },
+    { label: 'Hier',        value: 'yesterday' },
+    { label: 'Semaine',     value: 'week' },
+    { label: 'Mois',        value: 'month' },
+];
+const selectedQuickPeriod = ref('today');
+
+function applyQuickPeriod(period) {
+    selectedQuickPeriod.value = period;
+    const today = new Date();
+    if (period === 'today') {
+        dateFrom.value = today;
+        dateTo.value = today;
+    } else if (period === 'yesterday') {
+        const y = new Date(today);
+        y.setDate(y.getDate() - 1);
+        dateFrom.value = y;
+        dateTo.value = y;
+    } else if (period === 'week') {
+        const start = new Date(today);
+        const dow = (start.getDay() + 6) % 7; // lundi = 0
+        start.setDate(start.getDate() - dow);
+        dateFrom.value = start;
+        dateTo.value = today;
+    } else if (period === 'month') {
+        dateFrom.value = new Date(today.getFullYear(), today.getMonth(), 1);
+        dateTo.value = today;
+    }
+}
+// Filtre "Aujourd'hui" actif par défaut à l'ouverture de la page.
+applyQuickPeriod('today');
+
 watch([search, selectedCommerceId, dateFrom, dateTo], () => { currentPage.value = 1; });
 
 const filters = computed(() => ({
     search: search.value || undefined,
     commerceId: selectedCommerceId.value || undefined,
-    createdAtFrom: dateFrom.value ? dateFrom.value.toISOString().split('T')[0] : undefined,
-    createdAtTo: dateTo.value ? dateTo.value.toISOString().split('T')[0] : undefined,
+    createdAtFrom: toLocalDateStr(dateFrom.value),
+    createdAtTo: toLocalDateStr(dateTo.value),
     page: currentPage.value,
     pageSize: pageSize.value,
 }));
@@ -54,8 +101,17 @@ const commerceOptions = computed(() => {
 });
 
 const hasActiveFilters = computed(() =>
-    !!(searchInput.value || selectedCommerceId.value || dateFrom.value || dateTo.value)
+    !!(searchInput.value || selectedCommerceId.value)
 );
+
+// ── KPI période (même intervalle que la liste ci-dessus) ─────────────────────
+const balanceStatsParams = computed(() => ({
+    createdAtFrom: toLocalDateStr(dateFrom.value),
+    createdAtTo: toLocalDateStr(dateTo.value),
+}));
+const { data: periodStats, isLoading: statsLoading } = useUsersBalanceStatsQuery(balanceStatsParams);
+const periodNewUsers    = computed(() => periodStats.value?.newUsers ?? totalRecords.value);
+const periodTotalBalance = computed(() => periodStats.value?.totalBalance ?? null);
 
 function onPage(event) {
     currentPage.value = event.page + 1;
@@ -65,9 +121,8 @@ function onPage(event) {
 function clearFilters() {
     searchInput.value = '';
     selectedCommerceId.value = null;
-    dateFrom.value = null;
-    dateTo.value = null;
     currentPage.value = 1;
+    applyQuickPeriod('today');
 }
 
 // ── Mutations ──────────────────────────────────────────────────────────────────
@@ -338,6 +393,54 @@ async function executeResetAll() {
             </div>
         </div>
 
+        <!-- ── KPI période ───────────────────────────────────────────────────── -->
+        <div class="card p-4">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                <span class="text-sm font-semibold text-surface-700 dark:text-surface-200">
+                    <i class="pi pi-calendar mr-2 text-primary" />Filtrer par période
+                </span>
+                <div class="flex flex-wrap gap-2">
+                    <Button
+                        v-for="opt in QUICK_PERIODS"
+                        :key="opt.value"
+                        :label="opt.label"
+                        size="small"
+                        :severity="selectedQuickPeriod === opt.value ? 'primary' : 'secondary'"
+                        :outlined="selectedQuickPeriod !== opt.value"
+                        @click="applyQuickPeriod(opt.value)"
+                    />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="flex items-start gap-3 p-4 rounded-xl bg-primary/5">
+                    <div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                        <i class="pi pi-user-plus text-primary" />
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-muted-color">Utilisateurs sur la période</p>
+                        <p class="text-2xl font-bold text-primary">
+                            <span v-if="statsLoading && isLoading" class="text-surface-300 text-base">Chargement…</span>
+                            <span v-else>{{ periodNewUsers }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20">
+                    <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center shrink-0">
+                        <i class="pi pi-wallet text-green-600 dark:text-green-400" />
+                    </div>
+                    <div class="min-w-0">
+                        <p class="text-xs text-muted-color">Solde total — tous utilisateurs</p>
+                        <p class="text-2xl font-bold text-green-600 dark:text-green-400">
+                            <span v-if="statsLoading" class="text-surface-300 text-base">Chargement…</span>
+                            <span v-else>{{ fmtEC(periodTotalBalance) }}</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ── Tableau ────────────────────────────────────────────────────────── -->
         <div class="card">
             <!-- Filters toolbar -->
@@ -363,6 +466,7 @@ async function executeResetAll() {
                     dateFormat="dd/mm/yy"
                     showButtonBar
                     style="min-width:9rem"
+                    @update:modelValue="selectedQuickPeriod = null"
                 />
                 <DatePicker
                     v-model="dateTo"
@@ -370,6 +474,7 @@ async function executeResetAll() {
                     dateFormat="dd/mm/yy"
                     showButtonBar
                     style="min-width:9rem"
+                    @update:modelValue="selectedQuickPeriod = null"
                 />
 
                 <Button
@@ -387,68 +492,58 @@ async function executeResetAll() {
                 </span>
             </div>
 
-            <DataTable
-                :value="users"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-users text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucun utilisateur trouvé</p>
-                        <p v-if="hasActiveFilters" class="text-sm mt-1">Essayez de modifier les filtres</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- Utilisateur -->
-                <Column header="Utilisateur" style="min-width:16rem">
-                    <template #body="{ data: row }">
-                        <div class="flex items-center gap-3">
-                            <Avatar
-                                v-if="row.imageUrl"
-                                :image="row.imageUrl"
-                                shape="circle"
-                            />
-                            <Avatar
-                                v-else
-                                :label="getInitials(row.username)"
-                                shape="circle"
-                                :style="{ backgroundColor: 'var(--p-surface-200)', color: 'var(--p-text-color)', fontWeight: '600' }"
-                            />
-                            <div>
-                                <div class="font-semibold text-surface-900 dark:text-surface-0">
-                                    {{ row.fullname || row.username }}
-                                </div>
-                                <div class="text-xs text-muted-color">{{ row.email }}</div>
+            <!-- Vide -->
+            <div v-else-if="users.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-users text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucun utilisateur trouvé</p>
+                <p v-if="hasActiveFilters" class="text-sm mt-1">Essayez de modifier les filtres</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in users"
+                    :key="row.id"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête -->
+                    <div class="flex items-center gap-3">
+                        <Avatar
+                            v-if="row.imageUrl"
+                            :image="row.imageUrl"
+                            shape="circle"
+                        />
+                        <Avatar
+                            v-else
+                            :label="getInitials(row.username)"
+                            shape="circle"
+                            :style="{ backgroundColor: 'var(--p-surface-200)', color: 'var(--p-text-color)', fontWeight: '600' }"
+                        />
+                        <div class="flex-1 min-w-0">
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+                                {{ row.fullname || row.username }}
                             </div>
+                            <div class="text-xs text-muted-color truncate">{{ row.email }}</div>
                         </div>
-                    </template>
-                </Column>
+                        <Tag
+                            :value="row.isActive ? 'Actif' : 'Inactif'"
+                            :severity="row.isActive ? 'success' : 'secondary'"
+                        />
+                    </div>
 
-                <!-- N° Compte -->
-                <Column header="N° Compte" style="min-width:10rem">
-                    <template #body="{ data: row }">
+                    <!-- N° compte + solde -->
+                    <div class="flex items-center justify-between gap-2">
                         <code
                             class="text-xs px-2 py-1 rounded"
                             style="background: var(--p-surface-100); color: var(--p-text-muted-color)"
                         >
                             {{ row.accountNumber || '—' }}
                         </code>
-                    </template>
-                </Column>
-
-                <!-- Solde -->
-                <Column header="Solde" style="min-width:9rem">
-                    <template #body="{ data: row }">
                         <span
                             v-if="getUserBalance(row) != null"
                             class="font-semibold text-sm"
@@ -463,108 +558,101 @@ async function executeResetAll() {
                         >
                             N/D
                         </span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Statut -->
-                <Column header="Statut" style="min-width:8rem">
-                    <template #body="{ data: row }">
-                        <Tag
-                            :value="row.isActive ? 'Actif' : 'Inactif'"
-                            :severity="row.isActive ? 'success' : 'secondary'"
-                        />
-                    </template>
-                </Column>
-
-                <!-- Accès -->
-                <Column header="Accès" style="min-width:8rem">
-                    <template #body="{ data: row }">
+                    <!-- Accès + date -->
+                    <div class="flex items-center gap-2">
                         <Tag v-if="row.isBlocked" value="Bloqué" severity="danger" />
                         <Tag v-else value="Normal" severity="secondary" />
-                    </template>
-                </Column>
+                        <span class="text-xs text-muted-color ml-auto whitespace-nowrap">
+                            Créé le {{ formatDate(row.createdAt) }}
+                        </span>
+                    </div>
 
-                <!-- Date -->
-                <Column header="Créé le" style="min-width:9rem">
-                    <template #body="{ data: row }">{{ formatDate(row.createdAt) }}</template>
-                </Column>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <Button
+                            v-tooltip.top="'Mot de passe de transaction'"
+                            icon="pi pi-lock"
+                            severity="contrast"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openPinDialog(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Modifier le solde'"
+                            icon="pi pi-pencil"
+                            severity="success"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="soldPending"
+                            @click="openEditSoldDialog(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Recharger le compte'"
+                            icon="pi pi-wallet"
+                            severity="info"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openRechargeDialog(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Réinitialiser mot de passe'"
+                            icon="pi pi-key"
+                            severity="secondary"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="resetPending"
+                            @click="openResetDialog(row)"
+                        />
+                        <Button
+                            v-tooltip.top="row.isActive ? 'Désactiver' : 'Activer'"
+                            :icon="row.isActive ? 'pi pi-power-off' : 'pi pi-check-circle'"
+                            :severity="row.isActive ? 'warning' : 'success'"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="activePending"
+                            @click="doToggleActive(row)"
+                        />
+                        <Button
+                            v-tooltip.top="row.isBlocked ? 'Débloquer' : 'Bloquer'"
+                            :icon="row.isBlocked ? 'pi pi-lock-open' : 'pi pi-ban'"
+                            :severity="row.isBlocked ? 'success' : 'danger'"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="blockPending"
+                            @click="doToggleBlock(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Supprimer'"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="deletePending"
+                            @click="confirmDelete(row)"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:14rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end flex-wrap">
-                            <Button
-                                v-tooltip.top="'Mot de passe de transaction'"
-                                icon="pi pi-lock"
-                                severity="contrast"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openPinDialog(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Modifier le solde'"
-                                icon="pi pi-pencil"
-                                severity="success"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="soldPending"
-                                @click="openEditSoldDialog(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Recharger le compte'"
-                                icon="pi pi-wallet"
-                                severity="info"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openRechargeDialog(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Réinitialiser mot de passe'"
-                                icon="pi pi-key"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="resetPending"
-                                @click="openResetDialog(row)"
-                            />
-                            <Button
-                                v-tooltip.top="row.isActive ? 'Désactiver' : 'Activer'"
-                                :icon="row.isActive ? 'pi pi-power-off' : 'pi pi-check-circle'"
-                                :severity="row.isActive ? 'warning' : 'success'"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="activePending"
-                                @click="doToggleActive(row)"
-                            />
-                            <Button
-                                v-tooltip.top="row.isBlocked ? 'Débloquer' : 'Bloquer'"
-                                :icon="row.isBlocked ? 'pi pi-lock-open' : 'pi pi-ban'"
-                                :severity="row.isBlocked ? 'success' : 'danger'"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="blockPending"
-                                @click="doToggleBlock(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Supprimer'"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="deletePending"
-                                @click="confirmDelete(row)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- ── Dialog Modifier Solde ───────────────────────────────────────── -->

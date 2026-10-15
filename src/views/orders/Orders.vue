@@ -244,97 +244,65 @@ function formatAmount(amount, currency) {
                 </span>
             </div>
 
-            <!-- DataTable -->
-            <DataTable
-                :value="orders"
-                :loading="isLoading"
-                lazy
-                paginator
-                :rows="pageSize"
-                :totalRecords="totalRecords"
-                @page="onPage"
-                :rowsPerPageOptions="[10, 20, 50]"
-                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
-                stripedRows
-                scrollable
-            >
-                <template #empty>
-                    <div class="text-center py-12 text-muted-color">
-                        <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
-                        <p class="font-medium">Aucune commande trouvée</p>
-                    </div>
-                </template>
+            <!-- Chargement -->
+            <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Skeleton v-for="n in 6" :key="n" height="11rem" borderRadius="1rem" />
+            </div>
 
-                <!-- N° commande — cliquable → detail -->
-                <Column header="N° Commande" style="min-width:12rem">
-                    <template #body="{ data: row }">
+            <!-- Vide -->
+            <div v-else-if="orders.length === 0" class="text-center py-12 text-muted-color">
+                <i class="pi pi-shopping-cart text-4xl mb-3 block opacity-30" />
+                <p class="font-medium">Aucune commande trouvée</p>
+            </div>
+
+            <!-- Cards -->
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div
+                    v-for="row in orders"
+                    :key="row.orderId"
+                    class="card mb-0! p-4! flex flex-col gap-3"
+                >
+                    <!-- En-tête : n° commande cliquable + statut -->
+                    <div class="flex items-center gap-3">
                         <div
-                            class="cursor-pointer hover:text-primary transition-colors"
+                            class="flex-1 min-w-0 cursor-pointer hover:text-primary transition-colors"
                             @click="router.push(`/orders/${row.orderId}`)"
                         >
-                            <div class="font-mono font-semibold text-surface-900 dark:text-surface-0 text-sm hover:text-primary">
+                            <div class="font-mono font-semibold text-surface-900 dark:text-surface-0 text-sm hover:text-primary truncate">
                                 {{ row.orderNumber }}
                             </div>
                             <div class="text-xs text-muted-color">{{ formatDate(row.createdAt) }}</div>
                         </div>
-                    </template>
-                </Column>
+                        <Tag
+                            :value="STATUS_LABEL[row.status] ?? row.status"
+                            :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
+                        />
+                    </div>
 
-                <!-- Client -->
-                <Column header="Client" style="min-width:12rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.user">
-                            <div class="font-semibold text-sm">{{ row.user.username }}</div>
-                            <div class="text-xs text-muted-color">{{ row.user.email }}</div>
-                        </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    <!-- Client -->
+                    <div v-if="row.user">
+                        <div class="font-semibold text-sm">{{ row.user.username }}</div>
+                        <div class="text-xs text-muted-color">{{ row.user.email }}</div>
+                    </div>
+                    <span v-else class="text-muted-color text-sm">—</span>
 
-                <!-- Entreprise -->
-                <Column header="Entreprise" style="min-width:10rem">
-                    <template #body="{ data: row }">
+                    <!-- Entreprise + produit -->
+                    <div class="flex items-center justify-between gap-2">
                         <Tag v-if="row.company?.name" :value="row.company.name" severity="secondary" />
                         <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
-
-                <!-- Produit -->
-                <Column header="Produit" style="min-width:11rem">
-                    <template #body="{ data: row }">
-                        <div v-if="row.product">
+                        <div v-if="row.product" class="text-right">
                             <div class="text-sm font-medium">{{ row.product.name }}</div>
                             <div class="text-xs text-muted-color">
                                 {{ formatAmount(row.product.price, row.product.currency) }}
                             </div>
                         </div>
-                        <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Montant total -->
-                <Column header="Total" style="min-width:9rem">
-                    <template #body="{ data: row }">
+                    <!-- Total + livreur -->
+                    <div class="flex items-center justify-between gap-2">
                         <span class="font-semibold">
                             {{ formatAmount(row.totalAmount, row.product?.currency) }}
                         </span>
-                    </template>
-                </Column>
-
-                <!-- Statut -->
-                <Column header="Statut" style="min-width:10rem">
-                    <template #body="{ data: row }">
-                        <Tag
-                            :value="STATUS_LABEL[row.status] ?? row.status"
-                            :severity="STATUS_SEVERITY[row.status] ?? 'secondary'"
-                        />
-                    </template>
-                </Column>
-
-                <!-- Livreur -->
-                <Column header="Livreur" style="min-width:10rem">
-                    <template #body="{ data: row }">
                         <div v-if="row.livreur?.user" class="flex items-center gap-2">
                             <span
                                 class="w-2 h-2 rounded-full shrink-0"
@@ -343,68 +311,75 @@ function formatAmount(amount, currency) {
                             <span class="text-sm">{{ row.livreur.user.username }}</span>
                         </div>
                         <span v-else class="text-muted-color text-sm">—</span>
-                    </template>
-                </Column>
+                    </div>
 
-                <!-- Actions -->
-                <Column header="Actions" style="min-width:9rem" alignHeader="right">
-                    <template #body="{ data: row }">
-                        <div class="flex gap-1 justify-end">
-                            <!-- Voir détails -->
-                            <Button
-                                v-tooltip.top="'Voir détails'"
-                                icon="pi pi-eye"
-                                severity="info"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="router.push(`/orders/${row.orderId}`)"
-                            />
-                            <!-- Quick confirm -->
-                            <Button
-                                v-if="row.status === 'pending'"
-                                v-tooltip.top="'Confirmer'"
-                                icon="pi pi-check"
-                                severity="success"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="quickStatus(row, 'confirmed')"
-                            />
-                            <!-- Quick cancel -->
-                            <Button
-                                v-if="!['cancelled', 'delivered'].includes(row.status)"
-                                v-tooltip.top="'Annuler'"
-                                icon="pi pi-times"
-                                severity="warn"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="quickStatus(row, 'cancelled')"
-                            />
-                            <Button
-                                v-tooltip.top="'Modifier'"
-                                icon="pi pi-pencil"
-                                severity="secondary"
-                                outlined
-                                rounded
-                                size="small"
-                                @click="openEdit(row)"
-                            />
-                            <Button
-                                v-tooltip.top="'Supprimer'"
-                                icon="pi pi-trash"
-                                severity="danger"
-                                outlined
-                                rounded
-                                size="small"
-                                :loading="deletePending"
-                                @click="confirmDelete(row)"
-                            />
-                        </div>
-                    </template>
-                </Column>
-            </DataTable>
+                    <!-- Actions -->
+                    <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
+                        <!-- Voir détails -->
+                        <Button
+                            v-tooltip.top="'Voir détails'"
+                            icon="pi pi-eye"
+                            severity="info"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="router.push(`/orders/${row.orderId}`)"
+                        />
+                        <!-- Quick confirm -->
+                        <Button
+                            v-if="row.status === 'pending'"
+                            v-tooltip.top="'Confirmer'"
+                            icon="pi pi-check"
+                            severity="success"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="quickStatus(row, 'confirmed')"
+                        />
+                        <!-- Quick cancel -->
+                        <Button
+                            v-if="!['cancelled', 'delivered'].includes(row.status)"
+                            v-tooltip.top="'Annuler'"
+                            icon="pi pi-times"
+                            severity="warn"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="quickStatus(row, 'cancelled')"
+                        />
+                        <Button
+                            v-tooltip.top="'Modifier'"
+                            icon="pi pi-pencil"
+                            severity="secondary"
+                            outlined
+                            rounded
+                            size="small"
+                            @click="openEdit(row)"
+                        />
+                        <Button
+                            v-tooltip.top="'Supprimer'"
+                            icon="pi pi-trash"
+                            severity="danger"
+                            outlined
+                            rounded
+                            size="small"
+                            :loading="deletePending"
+                            @click="confirmDelete(row)"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <Paginator
+                v-if="totalRecords > 0"
+                class="mt-4"
+                :rows="pageSize"
+                :totalRecords="totalRecords"
+                :rowsPerPageOptions="[10, 20, 50]"
+                template="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="{first} à {last} sur {totalRecords}"
+                @page="onPage"
+            />
         </div>
 
         <!-- ── Edit Dialog ─────────────────────────────────────────────────── -->
