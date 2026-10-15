@@ -12,77 +12,62 @@ const router = createRouter({
             children: [
                 { path: '/', name: 'dashboard', component: () => import('@/views/Dashboard.vue') },
 
-                // Temps réel
-                { path: '/online-users', name: 'onlineUsers', component: () => import('@/views/online-users/OnlineUsers.vue') },
+                // ── 3 pages hub ──────────────────────────────────────────────────
+                { path: '/gestion', name: 'gestion', component: () => import('@/views/gestion/Gestion.vue') },
+                { path: '/finance-support', name: 'financeSupport', component: () => import('@/views/finance-support/FinanceSupport.vue') },
 
-                // Comptes
-                { path: '/accounts/create', name: 'createAccount', component: () => import('@/views/accounts/CreateAccount.vue') },
-                { path: '/accounts/list', name: 'accountsList', component: () => import('@/views/accounts/AccountsList.vue') },
-                { path: '/accounts/create-company', name: 'createCompanyAccount', component: () => import('@/views/accounts/CreateCompanyAccount.vue') },
-
-                // Utilisateurs & Accès
-                { path: '/users', name: 'users', component: () => import('@/views/users/Users.vue') },
-                { path: '/roles', name: 'roles', component: () => import('@/views/roles/Roles.vue') },
-                { path: '/user-roles', name: 'userRoles', component: () => import('@/views/user-roles/UserRoles.vue') },
-
-                // Entreprises & Commerce
-                { path: '/companies', name: 'companies', component: () => import('@/views/companies/Companies.vue') },
-                { path: '/commerces', name: 'commerces', component: () => import('@/views/commerces/Commerces.vue') },
-                { path: '/branches', name: 'branches', component: () => import('@/views/branches/Branches.vue') },
-                { path: '/business-categories', name: 'businessCategories', component: () => import('@/views/business-categories/BusinessCategories.vue') },
-
-                // Catalogue Produits
-                { path: '/products', name: 'products', component: () => import('@/views/products/Products.vue') },
-                { path: '/products-random', name: 'productsRandom', component: () => import('@/views/products/RandomProducts.vue') },
-                { path: '/product-categories', name: 'productCategories', component: () => import('@/views/product-categories/ProductCategories.vue') },
-                { path: '/products-sold', name: 'productsSold', component: () => import('@/views/products-sold/ProductsSold.vue') },
-
-                // Accueil app (BIM mobile)
-                { path: '/banners', name: 'banners', component: () => import('@/views/banners/Banners.vue') },
-                { path: '/app-version', name: 'appVersion', component: () => import('@/views/app-version/AppVersionSettings.vue') },
-
-                // BIM Transport
-                { path: '/chauffeurs', name: 'chauffeurs', component: () => import('@/views/chauffeurs/Chauffeurs.vue') },
-                { path: '/tarifs-transport', name: 'tarifsTransport', component: () => import('@/views/tarifs/Tarifs.vue') },
-
-                // Commandes
-                { path: '/orders', name: 'orders', component: () => import('@/views/orders/Orders.vue') },
+                // Détail de commande — reste une route à part (drill-down depuis l'onglet Commandes)
                 { path: '/orders/:id', name: 'orderDetail', component: () => import('@/views/orders/OrderDetail.vue') },
-                { path: '/consumption', name: 'consumption', component: () => import('@/views/consumption/Consumption.vue') },
 
-                // Livreurs (BIM super admin)
-                { path: '/livreurs', name: 'livreurs', component: () => import('@/views/livreurs/Livreurs.vue') },
+                // ── Anciennes URLs → redirection vers le bon onglet du bon hub ──
+                { path: '/online-users', redirect: '/' },
 
-                // Agents BIM
-                { path: '/agents', name: 'agents', component: () => import('@/views/agents/Agents.vue') },
+                { path: '/accounts/create', redirect: '/gestion?tab=0' },
+                { path: '/accounts/list', redirect: '/gestion?tab=0' },
+                { path: '/accounts/create-company', redirect: '/gestion?tab=0' },
 
-                // Formation
-                { path: '/tutorials', name: 'tutorials', component: () => import('@/views/tutorials/Tutorials.vue') },
+                { path: '/users', redirect: '/gestion?tab=1' },
+                { path: '/roles', redirect: '/gestion?tab=1' },
+                { path: '/user-roles', redirect: '/gestion?tab=1' },
 
-                // Transactions & Finance
-                { path: '/transactions', name: 'transactions', component: () => import('@/views/transactions/Transactions.vue') },
-                { path: '/recharges', name: 'recharges', component: () => import('@/views/recharges/Recharges.vue') },
-                { path: '/history', name: 'history', component: () => import('@/views/history/History.vue') },
-                { path: '/bonus', name: 'bonus', component: () => import('@/views/bonus/Bonus.vue') },
-                { path: '/finance-stats', name: 'financeStats', component: () => import('@/views/finance-stats/FinanceStats.vue') },
+                { path: '/companies', redirect: '/gestion?tab=2' },
+                { path: '/commerces', redirect: '/gestion?tab=2' },
+                { path: '/branches', redirect: '/gestion?tab=2' },
+                { path: '/business-categories', redirect: '/gestion?tab=2' },
 
-                // OTPs
-                { path: '/otps', name: 'otps', component: () => import('@/views/otps/Otps.vue') },
+                { path: '/products', redirect: '/gestion?tab=3' },
+                { path: '/products-random', redirect: '/gestion?tab=3' },
+                { path: '/product-categories', redirect: '/gestion?tab=3' },
+                { path: '/products-sold', redirect: '/gestion?tab=3' },
 
-                // Support & Suivi
-                { path: '/support', name: 'support', component: () => import('@/views/support/Support.vue') },
-                { path: '/feedbacks', name: 'feedbacks', component: () => import('@/views/feedbacks/Feedbacks.vue') },
-                { path: '/notifications', name: 'notifications', component: () => import('@/views/notifications/Notifications.vue') },
-                { path: '/notes', name: 'notes', component: () => import('@/views/notes/Notes.vue') },
-                { path: '/bim-sos', name: 'bimSOS', component: () => import('@/views/sos/BimSOS.vue') },
+                { path: '/banners', redirect: '/gestion?tab=4' },
+                { path: '/app-version', redirect: '/gestion?tab=4' },
 
-                // Paramètres
-                { path: '/currencies', name: 'currencies', component: () => import('@/views/currencies/Currencies.vue') },
-                { path: '/categories', name: 'categories', component: () => import('@/views/categories/Categories.vue') },
+                { path: '/chauffeurs', redirect: '/gestion?tab=5' },
+                { path: '/tarifs-transport', redirect: '/gestion?tab=5' },
 
-                // Développeur
-                { path: '/api-docs', name: 'apiDocs', component: () => import('@/views/api-docs/ApiDocs.vue') },
-                { path: '/portals', name: 'portals', component: () => import('@/views/portals/Portals.vue') },
+                { path: '/orders', redirect: '/gestion?tab=6' },
+                { path: '/consumption', redirect: '/gestion?tab=6' },
+                { path: '/livreurs', redirect: '/gestion?tab=6' },
+                { path: '/bonus', redirect: '/gestion?tab=6' },
+
+                { path: '/agents', redirect: '/gestion?tab=7' },
+                { path: '/tutorials', redirect: '/gestion?tab=8' },
+
+                { path: '/transactions', redirect: '/finance-support?tab=0' },
+                { path: '/recharges', redirect: '/finance-support?tab=1' },
+                { path: '/finance-stats', redirect: '/finance-support?tab=3' },
+                { path: '/history', redirect: '/finance-support?tab=4' },
+                { path: '/support', redirect: '/finance-support?tab=5' },
+                { path: '/notifications', redirect: '/finance-support?tab=6' },
+                { path: '/notes', redirect: '/finance-support?tab=7' },
+                { path: '/bim-sos', redirect: '/finance-support?tab=8' },
+                { path: '/feedbacks', redirect: '/finance-support?tab=9' },
+                { path: '/otps', redirect: '/finance-support?tab=10' },
+                { path: '/currencies', redirect: '/finance-support?tab=11' },
+                { path: '/categories', redirect: '/finance-support?tab=11' },
+                { path: '/api-docs', redirect: '/finance-support?tab=11' },
+                { path: '/portals', redirect: '/finance-support?tab=11' },
             ],
         },
         {

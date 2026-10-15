@@ -13,114 +13,33 @@ const pendingCount = computed(() => pendingData.value?.total ?? 0);
 
 const model = computed(() => [
     {
-        label: 'Accueil',
-        items: [
-            { label: 'Dashboard', icon: 'pi pi-fw pi-home', to: '/' }
-        ]
-    },
-    {
-        label: 'Temps Réel',
+        label: 'Tableau de bord',
         items: [
             {
-                label: 'Utilisateurs connectés',
-                icon: 'pi pi-fw pi-wifi',
-                to: '/online-users',
+                label: 'Tableau de bord',
+                icon: 'pi pi-fw pi-home',
+                to: '/',
                 badge: socketStore.onlineCount > 0 ? String(socketStore.onlineCount) : null,
-                badgeSeverity: 'success'
-            }
+                badgeSeverity: 'success',
+            },
         ]
     },
     {
-        label: 'Comptes',
+        label: 'Gestion',
         items: [
-            { label: 'Créer un compte', icon: 'pi pi-fw pi-user-plus', to: '/accounts/create' },
-            { label: 'Liste des comptes', icon: 'pi pi-fw pi-list', to: '/accounts/list' }
+            { label: 'Gestion', icon: 'pi pi-fw pi-cog', to: '/gestion' },
         ]
     },
     {
-        label: 'Agents BIM',
+        label: 'Finance & Support',
         items: [
-            { label: 'Agents de retrait', icon: 'pi pi-fw pi-id-card', to: '/agents' },
-        ]
-    },
-    {
-        label: 'Formation',
-        items: [
-            { label: 'Tutoriels vidéo', icon: 'pi pi-fw pi-play-circle', to: '/tutorials' },
-        ]
-    },
-    {
-        label: 'Utilisateurs & Accès',
-        items: [
-            { label: 'Utilisateurs', icon: 'pi pi-fw pi-users', to: '/users' },
-            { label: 'OTP envoyés', icon: 'pi pi-fw pi-shield', to: '/otps' },
-        ]
-    },
-    {
-        label: 'Entreprises & Commerce',
-        items: [
-            { label: "Secteurs d'activité", icon: 'pi pi-fw pi-tag', to: '/business-categories' },
-            { label: 'Entreprises', icon: 'pi pi-fw pi-building', to: '/companies' }
-        ]
-    },
-    {
-        label: 'Catalogue Produits',
-        items: [
-            { label: 'Produits', icon: 'pi pi-fw pi-box', to: '/products' },
-            { label: 'Produits aléatoires', icon: 'pi pi-fw pi-sparkles', to: '/products-random' },
-            { label: 'Catégories Produits', icon: 'pi pi-fw pi-tags', to: '/product-categories' },
-        ]
-    },
-    {
-        label: 'Accueil app (BIM mobile)',
-        items: [
-            { label: 'Bannières', icon: 'pi pi-fw pi-images', to: '/banners' },
-            { label: "Version de l'app", icon: 'pi pi-fw pi-mobile', to: '/app-version' },
-        ]
-    },
-    {
-        label: 'BIM Transport',
-        items: [
-            { label: 'Chauffeurs', icon: 'pi pi-fw pi-car', to: '/chauffeurs' },
-            { label: 'Tarifs', icon: 'pi pi-fw pi-dollar', to: '/tarifs-transport' },
-        ]
-    },
-    {
-        label: 'Commandes & Livraisons',
-        items: [
-            { label: 'Commandes',  icon: 'pi pi-fw pi-shopping-cart', to: '/orders' },
-            { label: 'Fiches de consommation & Fidélité', icon: 'pi pi-fw pi-verified', to: '/consumption' },
-            { label: 'Livreurs',   icon: 'pi pi-fw pi-truck',         to: '/livreurs' },
-        ]
-    },
-    {
-        label: 'Transactions & Finance',
-        items: [
-            { label: 'Transactions', icon: 'pi pi-fw pi-arrows-h', to: '/transactions' },
             {
-                label: 'Recharges',
-                icon: 'pi pi-fw pi-plus-circle',
-                to: '/recharges',
+                label: 'Finance & Support',
+                icon: 'pi pi-fw pi-wallet',
+                to: '/finance-support',
                 badge: pendingCount.value > 0 ? String(pendingCount.value) : null,
                 badgeSeverity: 'warn',
             },
-            { label: 'Statistiques financières', icon: 'pi pi-fw pi-chart-bar', to: '/finance-stats' },
-        ]
-    },
-    {
-        label: 'Support & Suivi',
-        items: [
-            { label: 'Support', icon: 'pi pi-fw pi-headphones', to: '/support' },
-            { label: 'Notifications', icon: 'pi pi-fw pi-bell', to: '/notifications' },
-            { label: 'Notes entreprises', icon: 'pi pi-fw pi-file-edit', to: '/notes' },
-            { label: 'BIM SOS', icon: 'pi pi-fw pi-exclamation-triangle', to: '/bim-sos' }
-        ]
-    },
-    {
-        label: 'Développeur',
-        items: [
-            { label: 'Documentation API', icon: 'pi pi-fw pi-code', to: '/api-docs' },
-            { label: 'Portails & Liens', icon: 'pi pi-fw pi-link', to: '/portals' },
         ]
     },
 ]);

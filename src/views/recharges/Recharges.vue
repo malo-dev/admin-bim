@@ -158,8 +158,8 @@ function confirmReverse(row) {
         <!-- Header -->
         <div class="flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center">
-                    <i class="pi pi-plus-circle text-amber-600 dark:text-amber-400 text-lg" />
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <i class="pi pi-plus-circle text-primary text-lg" />
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">Demandes de Recharge</h1>

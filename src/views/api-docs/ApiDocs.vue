@@ -145,8 +145,8 @@ function copyUrl(path) {
         <!-- Header -->
         <div class="flex items-center justify-between flex-wrap gap-3">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-900/30 flex items-center justify-center">
-                    <i class="pi pi-code text-violet-600 dark:text-violet-400 text-lg" />
+                <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <i class="pi pi-code text-primary text-lg" />
                 </div>
                 <div>
                     <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">Documentation API</h1>

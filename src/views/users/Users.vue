@@ -6,7 +6,6 @@ import { useConfirm } from 'primevue/useconfirm';
 import {
     useUsersQuery,
     useCommercesQuery,
-    useUsersBalanceStatsQuery,
 } from '@/modules/users/queries/users.queries';
 import UsersService from '@/modules/users/services/users.service';
 import {
@@ -70,47 +69,6 @@ function clearFilters() {
     dateTo.value = null;
     currentPage.value = 1;
 }
-
-// ── Solde total (cards du haut) ────────────────────────────────────────────────
-const BALANCE_PERIODS = [
-    { label: "Aujourd'hui", value: 'daily' },
-    { label: 'Semaine',     value: 'weekly' },
-    { label: 'Ce mois',     value: 'monthly' },
-    { label: 'Cette année', value: 'annual' },
-    { label: 'Personnalisé', value: 'custom' },
-];
-
-const selectedBalancePeriod = ref('daily');
-const balanceCustomFrom = ref(null);
-const balanceCustomTo = ref(null);
-
-const isBalanceCustom = computed(() => selectedBalancePeriod.value === 'custom');
-
-const balancePeriodParam = computed(() =>
-    isBalanceCustom.value ? '' : selectedBalancePeriod.value
-);
-
-const {
-    data: balanceStats,
-    isLoading: balanceLoading,
-    isError: balanceError,
-    refetch: balanceRefetch,
-} = useUsersBalanceStatsQuery(balancePeriodParam);
-
-const totalBalance     = computed(() => balanceStats.value?.totalBalance ?? null);
-const totalUsers       = computed(() => balanceStats.value?.totalUsers   ?? totalRecords.value);
-const activeUsersCount = computed(() => balanceStats.value?.activeUsers  ?? null);
-const newUsersCount    = computed(() => balanceStats.value?.newUsers     ?? null);
-const avgBalance       = computed(() => {
-    if (totalBalance.value != null && totalUsers.value > 0)
-        return Math.round(totalBalance.value / totalUsers.value);
-    return null;
-});
-
-const balancePeriodLabel = computed(() => {
-    const found = BALANCE_PERIODS.find((p) => p.value === selectedBalancePeriod.value);
-    return found?.label ?? '';
-});
 
 // ── Mutations ──────────────────────────────────────────────────────────────────
 const { mutate: toggleActive, isPending: activePending } = useToggleUserActiveMutation();
@@ -324,11 +282,6 @@ function fmtEC(val) {
     return Number(val).toLocaleString('fr-FR') + ' EC';
 }
 
-function fmtBig(val) {
-    if (val === undefined || val === null) return '—';
-    return Number(val).toLocaleString('fr-FR');
-}
-
 // ── ⚠️ Zone dangereuse : réinitialisation de tous les soldes ──────────────────
 const resetDone       = ref(false);   // désactive le bouton après usage
 const resetConfDialog = ref(false);
@@ -382,104 +335,6 @@ async function executeResetAll() {
             <div>
                 <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">Utilisateurs</h1>
                 <p class="text-sm text-muted-color">Tous les utilisateurs de la plateforme BIM</p>
-            </div>
-        </div>
-
-        <!-- ── Cards Solde Total ──────────────────────────────────────────────── -->
-        <div class="card p-4">
-            <!-- Sélecteur de période -->
-            <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <span class="text-sm font-semibold text-surface-700 dark:text-surface-200">
-                    <i class="pi pi-wallet mr-2 text-primary" />Solde total des utilisateurs
-                </span>
-                <div class="flex flex-wrap gap-2 items-center">
-                    <Button
-                        v-for="opt in BALANCE_PERIODS"
-                        :key="opt.value"
-                        :label="opt.label"
-                        size="small"
-                        :severity="selectedBalancePeriod === opt.value ? 'primary' : 'secondary'"
-                        :outlined="selectedBalancePeriod !== opt.value"
-                        @click="selectedBalancePeriod = opt.value"
-                    />
-                    <Button
-                        icon="pi pi-refresh"
-                        size="small"
-                        severity="secondary"
-                        text
-                        rounded
-                        :loading="balanceLoading"
-                        @click="balanceRefetch"
-                    />
-                </div>
-            </div>
-
-            <!-- Custom date range -->
-            <div v-if="isBalanceCustom" class="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-surface-200 dark:border-surface-700">
-                <DatePicker v-model="balanceCustomFrom" placeholder="Depuis" dateFormat="dd/mm/yy" showButtonBar style="min-width:9rem" />
-                <span class="text-muted-color">→</span>
-                <DatePicker v-model="balanceCustomTo" placeholder="Jusqu'au" dateFormat="dd/mm/yy" showButtonBar style="min-width:9rem" />
-                <Button label="Appliquer" icon="pi pi-search" size="small" @click="balanceRefetch" />
-            </div>
-
-            <!-- Message endpoint non disponible -->
-            <div v-if="balanceError" class="flex items-center gap-3 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-700 mb-2">
-                <i class="pi pi-exclamation-triangle text-orange-500 text-xl" />
-                <div>
-                    <p class="text-sm font-semibold text-orange-700 dark:text-orange-300">Endpoint non disponible</p>
-                    <p class="text-xs text-orange-600 dark:text-orange-400">
-                        L'API <code class="bg-orange-100 dark:bg-orange-900 px-1 rounded">/auth/users/balance-stats</code> doit être créée côté backend pour afficher ces statistiques.
-                    </p>
-                </div>
-            </div>
-
-            <!-- 3 Cards -->
-            <div v-else class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <!-- Solde total (toujours la somme de tous les utilisateurs) -->
-                <div class="flex items-start gap-3 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20">
-                    <div class="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/40 flex items-center justify-center shrink-0">
-                        <i class="pi pi-wallet text-blue-600 dark:text-blue-400" />
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs text-muted-color">Solde total — tous utilisateurs</p>
-                        <p class="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                            <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
-                            <span v-else-if="totalBalance != null">{{ fmtBig(totalBalance) }} EC</span>
-                            <span v-else class="text-surface-400 text-base">— EC</span>
-                        </p>
-                        <p class="text-xs text-muted-color mt-0.5">{{ totalUsers }} comptes · solde cumulé</p>
-                    </div>
-                </div>
-
-                <!-- Utilisateurs actifs -->
-                <div class="flex items-start gap-3 p-4 rounded-xl bg-green-50 dark:bg-green-900/20">
-                    <div class="w-10 h-10 rounded-lg bg-green-100 dark:bg-green-900/40 flex items-center justify-center shrink-0">
-                        <i class="pi pi-users text-green-600 dark:text-green-400" />
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs text-muted-color">Utilisateurs actifs</p>
-                        <p class="text-2xl font-bold text-green-600 dark:text-green-400">
-                            <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
-                            <span v-else>{{ fmtBig(activeUsersCount) }}</span>
-                        </p>
-                        <p class="text-xs text-muted-color mt-0.5">Total enregistrés</p>
-                    </div>
-                </div>
-
-                <!-- Nouveaux inscrits sur la période -->
-                <div class="flex items-start gap-3 p-4 rounded-xl bg-violet-50 dark:bg-violet-900/20">
-                    <div class="w-10 h-10 rounded-lg bg-violet-100 dark:bg-violet-900/40 flex items-center justify-center shrink-0">
-                        <i class="pi pi-user-plus text-violet-600 dark:text-violet-400" />
-                    </div>
-                    <div class="min-w-0">
-                        <p class="text-xs text-muted-color">Nouveaux inscrits</p>
-                        <p class="text-2xl font-bold text-violet-600 dark:text-violet-400">
-                            <span v-if="balanceLoading" class="text-surface-300 text-base">Chargement…</span>
-                            <span v-else>{{ fmtBig(newUsersCount) }}</span>
-                        </p>
-                        <p class="text-xs text-muted-color mt-0.5">{{ balancePeriodLabel }}</p>
-                    </div>
-                </div>
             </div>
         </div>
 
