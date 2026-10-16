@@ -6,6 +6,7 @@ import AccountsList from '@/views/accounts/AccountsList.vue';
 import Users from '@/views/users/Users.vue';
 import Roles from '@/views/roles/Roles.vue';
 import UserRoles from '@/views/user-roles/UserRoles.vue';
+import AccessCodes from '@/views/access-codes/AccessCodes.vue';
 import Companies from '@/views/companies/Companies.vue';
 import Commerces from '@/views/commerces/Commerces.vue';
 import Branches from '@/views/branches/Branches.vue';
@@ -75,6 +76,7 @@ watch(activeTab, (v) => router.replace({ query: { ...route.query, tab: v } }));
             <TabPanel :value="1">
                 <div class="flex flex-col gap-6 mt-4">
                     <Users />
+                    <AccessCodes />
                     <Roles />
                     <UserRoles />
                 </div>
