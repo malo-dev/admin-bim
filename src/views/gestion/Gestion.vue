@@ -19,6 +19,7 @@ import Banners from '@/views/banners/Banners.vue';
 import AppVersionSettings from '@/views/app-version/AppVersionSettings.vue';
 import Chauffeurs from '@/views/chauffeurs/Chauffeurs.vue';
 import Tarifs from '@/views/tarifs/Tarifs.vue';
+import Courses from '@/views/rides/Courses.vue';
 import Orders from '@/views/orders/Orders.vue';
 import Consumption from '@/views/consumption/Consumption.vue';
 import Livreurs from '@/views/livreurs/Livreurs.vue';
@@ -109,6 +110,7 @@ watch(activeTab, (v) => router.replace({ query: { ...route.query, tab: v } }));
 
             <TabPanel :value="5">
                 <div class="flex flex-col gap-6 mt-4">
+                    <Courses />
                     <Chauffeurs />
                     <Tarifs />
                 </div>

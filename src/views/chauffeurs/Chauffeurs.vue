@@ -8,6 +8,7 @@ import {
     useUpdateChauffeurMutation,
     useDeleteChauffeurMutation,
 } from '@/modules/chauffeurs/mutations/chauffeurs.mutations';
+import UsersService from '@/modules/users/services/users.service';
 
 const toast = useToast();
 const confirm = useConfirm();
@@ -47,12 +48,32 @@ const form = ref(emptyForm());
 const imageFile = ref(null);
 const imagePreview = ref(null);
 const fileInputRef = ref(null);
+const selectedUser = ref(null);
+const userSuggestions = ref([]);
 
 function openCreate() {
     form.value = emptyForm();
     imageFile.value = null;
     imagePreview.value = null;
+    selectedUser.value = null;
+    userSuggestions.value = [];
     createDialog.value = true;
+}
+
+// Rechercher un compte BIM par nom/email au lieu d'exiger de connaître son ID
+// numérique à l'avance (il fallait avant aller le chercher sur la page Utilisateurs).
+async function searchUsers(event) {
+    try {
+        const res = await UsersService.getUsers({ search: event.query, paginate: 'true', pageSize: 10 });
+        userSuggestions.value = res?.data ?? [];
+    } catch {
+        userSuggestions.value = [];
+    }
+}
+
+function onUserSelect(event) {
+    form.value.userId = event.value.id;
+    if (!form.value.telephone) form.value.telephone = event.value.telephone ?? '';
 }
 
 function onFileChange(event) {
@@ -208,8 +229,24 @@ function onPage(event) {
                     </div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-medium text-sm">ID Utilisateur (compte BIM existant) <span class="text-red-400">*</span></label>
-                    <InputText v-model.number="form.userId" type="number" placeholder="Ex: 42 (voir page Utilisateurs)" />
+                    <label class="font-medium text-sm">Compte BIM (nom ou email) <span class="text-red-400">*</span></label>
+                    <AutoComplete
+                        v-model="selectedUser"
+                        :suggestions="userSuggestions"
+                        optionLabel="username"
+                        placeholder="Rechercher par nom ou email…"
+                        class="w-full"
+                        inputClass="w-full"
+                        @complete="searchUsers"
+                        @item-select="onUserSelect"
+                    >
+                        <template #option="{ option }">
+                            <div class="flex flex-col">
+                                <span class="font-medium">{{ option.username }}</span>
+                                <span class="text-xs text-muted-color">{{ option.email }}</span>
+                            </div>
+                        </template>
+                    </AutoComplete>
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">Téléphone</label>
