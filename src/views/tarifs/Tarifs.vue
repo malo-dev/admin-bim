@@ -12,6 +12,14 @@ import {
 const toast = useToast();
 const confirm = useConfirm();
 
+const SERVER_ROOT = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1').replace('/api/v1', '');
+
+function imageUrl(path) {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return SERVER_ROOT + path;
+}
+
 const { data, isLoading } = useTarifsQuery();
 const tiers = computed(() => data.value?.data ?? []);
 
@@ -20,22 +28,35 @@ const { mutate: updateTier } = useUpdateTierMutation();
 const { mutate: deleteTier, isPending: deleting } = useDeleteTierMutation();
 
 function emptyForm() {
-    return { tierKey: '', label: '', base: 0, perKm: 0, seats: 4, etaMin: 3, sortOrder: 0 };
+    return { tierKey: '', label: '', base: 0, perKm: 0, seats: 4, etaMin: 3, sortOrder: 0, imageUrl: null };
 }
 
 const dialogVisible = ref(false);
 const editing = ref(false);
 const form = ref(emptyForm());
+const imageFile = ref(null);
+const imagePreview = ref(null);
+
+function onImageSelected(event) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    imageFile.value = file;
+    imagePreview.value = URL.createObjectURL(file);
+}
 
 function openCreate() {
     editing.value = false;
     form.value = emptyForm();
+    imageFile.value = null;
+    imagePreview.value = null;
     dialogVisible.value = true;
 }
 
 function openEdit(row) {
     editing.value = true;
     form.value = { ...row, base: Number(row.base), perKm: Number(row.perKm) };
+    imageFile.value = null;
+    imagePreview.value = null;
     dialogVisible.value = true;
 }
 
@@ -43,8 +64,8 @@ const canSubmit = computed(() => !!form.value.tierKey && !!form.value.label && f
 
 function submit() {
     if (editing.value) {
-        const { tierKey, ...payload } = form.value;
-        updateTier({ tierKey, payload }, {
+        const { tierKey, imageUrl, ...payload } = form.value;
+        updateTier({ tierKey, payload, imageFile: imageFile.value }, {
             onSuccess: () => {
                 toast.add({ severity: 'success', summary: 'Mis à jour', detail: 'Tarif mis à jour', life: 3000 });
                 dialogVisible.value = false;
@@ -52,7 +73,8 @@ function submit() {
             onError: (err) => toast.add({ severity: 'error', summary: 'Erreur', detail: err?.response?.data?.message ?? 'Erreur serveur', life: 4000 }),
         });
     } else {
-        createTier(form.value, {
+        const { imageUrl, ...payload } = form.value;
+        createTier({ payload, imageFile: imageFile.value }, {
             onSuccess: () => {
                 toast.add({ severity: 'success', summary: 'Créé', detail: 'Gamme ajoutée', life: 3000 });
                 dialogVisible.value = false;
@@ -119,9 +141,19 @@ function confirmDelete(row) {
                 >
                     <!-- En-tête -->
                     <div class="flex items-center justify-between gap-2">
-                        <div>
-                            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ row.label }}</div>
-                            <div class="text-xs text-muted-color">{{ row.tierKey }}</div>
+                        <div class="flex items-center gap-3 min-w-0">
+                            <img
+                                v-if="imageUrl(row.imageUrl)"
+                                :src="imageUrl(row.imageUrl)"
+                                class="w-12 h-12 rounded-lg object-cover border border-surface-200 dark:border-surface-700"
+                            />
+                            <div v-else class="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                                <i class="pi pi-car text-primary" />
+                            </div>
+                            <div class="min-w-0">
+                                <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.label }}</div>
+                                <div class="text-xs text-muted-color">{{ row.tierKey }}</div>
+                            </div>
                         </div>
                         <ToggleSwitch :modelValue="!!row.active" @update:modelValue="toggleActive(row)" />
                     </div>
@@ -153,6 +185,23 @@ function confirmDelete(row) {
 
         <Dialog v-model:visible="dialogVisible" :header="editing ? 'Modifier la gamme' : 'Nouvelle gamme'" modal style="width:28rem" :draggable="false">
             <div class="flex flex-col gap-4 pt-1">
+                <div class="flex flex-col gap-2">
+                    <label class="font-medium text-sm">Image du véhicule</label>
+                    <div class="flex items-center gap-3">
+                        <img
+                            v-if="imagePreview || imageUrl(form.imageUrl)"
+                            :src="imagePreview || imageUrl(form.imageUrl)"
+                            class="w-16 h-16 rounded-lg object-cover border border-surface-200 dark:border-surface-700"
+                        />
+                        <div v-else class="w-16 h-16 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <i class="pi pi-car text-primary text-xl" />
+                        </div>
+                        <label class="cursor-pointer">
+                            <span class="p-button p-button-outlined p-button-sm">Choisir une image</span>
+                            <input type="file" accept="image/*" class="hidden" @change="onImageSelected" />
+                        </label>
+                    </div>
+                </div>
                 <div class="flex flex-col gap-2" v-if="!editing">
                     <label class="font-medium text-sm">Clé technique (unique, sans espace) <span class="text-red-400">*</span></label>
                     <InputText v-model="form.tierKey" placeholder="ex: xl, business…" />

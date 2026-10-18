@@ -4,7 +4,7 @@ import TarifsService from '../services/tarifs.service';
 export function useCreateTierMutation() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: (payload) => TarifsService.createTier(payload),
+        mutationFn: ({ payload, imageFile }) => TarifsService.createTier(payload, imageFile),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ride-tiers'] }),
     });
 }
@@ -12,7 +12,7 @@ export function useCreateTierMutation() {
 export function useUpdateTierMutation() {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn: ({ tierKey, payload }) => TarifsService.updateTier(tierKey, payload),
+        mutationFn: ({ tierKey, payload, imageFile }) => TarifsService.updateTier(tierKey, payload, imageFile),
         onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ride-tiers'] }),
     });
 }
