@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "inverse-primary": "#b8c4ff",
+          "on-secondary-fixed": "#131b2e",
+          "on-primary": "#ffffff",
+          "outline": "#757684",
+          "surface-tint": "#3755c3",
+          "tertiary-fixed": "#ffdada",
+          "primary-fixed": "#dde1ff",
+          "on-secondary": "#ffffff",
+          "surface-dim": "#cbdbf5",
+          "surface-variant": "#d3e4fe",
+          "on-tertiary-fixed": "#40000c",
+          "on-surface-variant": "#444653",
+          "on-tertiary-fixed-variant": "#920028",
+          "outline-variant": "#c4c5d5",
+          "tertiary-container": "#9a002b",
+          "inverse-surface": "#213145",
+          "secondary": "#565e74",
+          "on-secondary-container": "#5c647a",
+          "on-tertiary-container": "#ffa2a7",
+          "on-primary-container": "#a8b8ff",
+          "surface-bright": "#f8f9ff",
+          "secondary-container": "#dae2fd",
+          "on-error": "#ffffff",
+          "primary-fixed-dim": "#b8c4ff",
+          "on-background": "#0b1c30",
+          "on-surface": "#0b1c30",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#eff4ff",
+          "on-primary-fixed-variant": "#173bab",
+          "on-secondary-fixed-variant": "#3f465c",
+          "on-primary-fixed": "#001453",
+          "primary-container": "#1e40af",
+          "tertiary-fixed-dim": "#ffb3b6",
+          "inverse-on-surface": "#eaf1ff",
+          "background": "#f8f9ff",
+          "surface-container": "#e5eeff",
+          "surface": "#f8f9ff",
+          "surface-container-high": "#dce9ff",
+          "error": "#ba1a1a",
+          "surface-container-highest": "#d3e4fe",
+          "secondary-fixed-dim": "#bec6e0",
+          "tertiary": "#6f001c",
+          "on-tertiary": "#ffffff",
+          "secondary-fixed": "#dae2fd",
+          "error-container": "#ffdad6",
+          "primary": "#00288e",
+          "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "space-xl": "2rem",
+          "gutter": "1.25rem",
+          "margin": "1.5rem"
+        },
+        "fontFamily": {
+          "display-lg": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Inter"
+          ],
+          "numeric-kpi": [
+            "Inter"
+          ],
+          "label-md": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Inter"
+          ],
+          "label-sm": [
+            "Inter"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "body-sm": [
+            "Inter"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "headline-sm": [
+            "Inter"
+          ]
+        },
+        "fontSize": {
+          "display-lg": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "24px",
+            {
+              "lineHeight": "32px",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "numeric-kpi": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.025em",
+              "fontWeight": "700"
+            }
+          ],
+          "label-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.04em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "28px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.02em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-sm": [
+            "13px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-sm": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "letterSpacing": "-0.005em",
+              "fontWeight": "600"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center gap-space-sm bg-surface-container-lowest"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-md font-bold">B</div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">BIM</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">NEXT</span></div><span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Enterprise Platform</span></div></div><div class="flex-1 overflow-y-auto px-space-sm py-space-sm space-y-space-md"><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Principal</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm transition-all text-on-surface-variant" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-body-sm text-body-sm font-medium">Tableau de bord</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Gestion</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="comptes-utilisateurs" href="#"><span class="material-symbols-outlined text-[20px]">manage_accounts</span><span class="font-body-sm text-body-sm font-medium">Comptes &amp; Utilisateurs</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="entreprises-partenaires" href="#"><span class="material-symbols-outlined text-[20px]">apartment</span><span class="font-body-sm text-body-sm font-medium">Entreprises &amp; Partenaires</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="catalogue-services" href="#"><span class="material-symbols-outlined text-[20px]">layers</span><span class="font-body-sm text-body-sm font-medium">Catalogue &amp; Services</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="commandes-logistique" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-body-sm text-body-sm font-medium">Commandes &amp; Logistique</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Finance &amp; Trésorerie</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="transactions-recharges" href="#"><span class="material-symbols-outlined text-[20px]">sync_alt</span><span class="font-body-sm text-body-sm font-medium">Transactions &amp; Recharges</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="portefeuilles" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-body-sm text-body-sm font-medium">Portefeuilles</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="rapports-statistiques" href="#"><span class="material-symbols-outlined text-[20px]">monitoring</span><span class="font-body-sm text-body-sm font-medium">Rapports &amp; Statistiques</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Système &amp; Support</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="tickets-support" href="#"><span class="material-symbols-outlined text-[20px]">headset_mic</span><span class="font-body-sm text-body-sm font-medium">Tickets Support</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="logs-activite" href="#"><span class="material-symbols-outlined text-[20px]">history_toggle_off</span><span class="font-body-sm text-body-sm font-medium">Logs d'activité</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="parametres" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-sm text-body-sm font-medium">Paramètres</span></a></nav></div></div><div class="p-space-sm bg-surface-container-low mx-space-sm mb-space-sm rounded-lg"><div class="flex items-center justify-between mb-1.5"><span class="font-label-sm text-label-sm text-secondary font-medium">Sécurité Instance</span><span class="font-label-sm text-label-sm text-primary font-semibold">v4.8.2</span></div><div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden"><div class="bg-primary h-full rounded-full w-4/5"></div></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-medium"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span>Système opérationnel • 1 en ligne</span></div><div class="hidden xl:flex items-center gap-1.5 px-space-sm py-1 rounded-md bg-surface-container-low text-secondary font-label-md text-label-md"><span class="material-symbols-outlined text-[16px] text-primary">currency_exchange</span><span>Taux : <strong class="text-on-surface">1 EC = 2 350 FC</strong></span></div></div><div class="flex items-center gap-space-md"><div class="relative hidden md:flex items-center"><span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span><input class="h-9 pl-9 pr-space-md rounded-lg bg-surface-container-lowest font-body-sm text-body-sm text-on-surface placeholder:text-outline w-64 lg:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Rechercher compte, transaction, dossier..." type="text"/></div><button class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">light_mode</span></button><div class="relative"><button class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary-container ring-2 ring-surface"></span></button></div><div class="h-8 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-headline-sm text-body-sm font-semibold text-on-surface leading-tight">Marc K. Mwamba</div><div class="font-label-sm text-label-sm text-primary font-medium leading-none mt-0.5">Super Admin BIM</div></div><div class="relative"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsrPn1s0Hw_3PqJYcZLOnzEz89mV6h7ecEdOwkck2_CBm8i83Tya4hR_OD2qrC4tQ4rh9mLxRTrPCtFjZSM9aN5jcmp2gMVg9iKsvRKiYq9gSaPg2i_yNkBGEKpDbJj2qBK8oodsrAHHhEGDF401644XZ5p5ekpZPge_62d2un1mygugmVznSHFVPhw9q_1fAguv0ZjElHmAsFGEjW8sIIq_38jN6TEZ0WuxkIZBwJHo3suL4bbBKBjytzSppvxckaIfiA8BSsw"/><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-primary-container ring-2 ring-surface"></span></div></div></div></header><main class="w-full pt-16 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Top Section Header & Actions -->
+<div class="px-space-lg py-space-md flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center gap-space-xs text-secondary font-label-md">
+<span class="hover:text-primary cursor-pointer transition-colors">Gestion</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="hover:text-primary cursor-pointer transition-colors">Commandes &amp; Livraisons</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-semibold">Suivi en direct v4.8</span>
+</div>
+<div class="flex items-center gap-space-sm mt-1">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">local_shipping</span>
+</div>
+<div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Commandes &amp; Livraisons BIM</h1>
+<p class="font-body-sm text-body-sm text-secondary">
+            Supervision en temps réel des 96 commandes, dispatch et tracking des livreurs partenaires, et suivi des fiches de fidélité produit.
+          </p>
+</div>
+</div>
+</div>
+<!-- Quick Global Actions -->
+<div class="flex items-center gap-space-sm self-start lg:self-center">
+<button class="inline-flex items-center gap-space-xs h-9 px-space-md rounded-lg bg-surface-container-lowest text-on-surface hover:bg-surface-container font-body-sm shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">file_download</span>
+<span>Exporter (CSV / PDF)</span>
+</button>
+<button class="inline-flex items-center gap-space-xs h-9 px-space-md rounded-lg bg-primary-container text-on-primary hover:bg-primary font-body-sm font-medium shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+<span>+ Nouvelle commande</span>
+</button>
+</div>
+</div>
+<!-- Primary Sub-navigation Tabs (Module Level) -->
+<div class="px-space-lg bg-surface-container-lowest shadow-sm overflow-x-auto">
+<div class="flex items-center gap-space-xs min-w-max">
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Comptes</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+<span>Utilisateurs &amp; Accès</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+<span>Entreprises &amp; Commerce</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+<span>Catalogue Produits</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">smartphone</span>
+<span>Accueil app mobile</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">commute</span>
+<span>BIM Transport</span>
+</a>
+<!-- Active Module Tab -->
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm font-semibold text-primary bg-primary-fixed/20 shadow-[inset_0_-2px_0_0_#1e40af] transition-all" href="#">
+<span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
+<span>Commandes &amp; Livraisons</span>
+<span class="ml-1 px-1.5 py-0.5 rounded-full bg-primary-container text-on-primary font-label-sm text-[10px] leading-tight">96</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+<span>Agents BIM</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-md py-3 font-body-sm text-secondary hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">school</span>
+<span>Formation</span>
+</a>
+</div>
+</div>
+<div class="px-space-lg py-space-lg space-y-space-lg">
+<!-- Executive KPI Grid (5 Cards) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-space-md">
+<!-- Card 1 -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-secondary">Total Commandes</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">shopping_bag</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-kpi text-numeric-kpi text-on-surface">96</span>
+<span class="font-label-sm text-label-sm text-secondary">globales</span>
+</div>
+<div class="mt-3 flex items-center gap-1.5 text-secondary font-label-sm">
+<span class="text-primary font-semibold">+14%</span>
+<span>vs mois précédent</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-secondary">En attente traitement</span>
+<div class="w-8 h-8 rounded-lg bg-tertiary-fixed flex items-center justify-center text-tertiary-container">
+<span class="material-symbols-outlined text-[18px]">hourglass_top</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-kpi text-numeric-kpi text-tertiary-container">13</span>
+<span class="px-1.5 py-0.5 rounded bg-tertiary-fixed text-tertiary-container font-label-sm font-semibold">Prioritaire</span>
+</div>
+<div class="mt-3 flex items-center gap-1 text-secondary font-label-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary-container"></span>
+<span>Nécessite dispatch</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-secondary">Livrées &amp; Clôturées</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-kpi text-numeric-kpi text-on-surface">68</span>
+<span class="font-label-sm text-label-sm text-primary font-medium">94.2% succès</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 94%;"></div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-secondary">Livreurs en ligne</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">two_wheeler</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-kpi text-numeric-kpi text-on-surface">2 / 2</span>
+<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-surface-container text-primary font-label-sm font-semibold">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-ping"></span>
+            100%
+          </span>
+</div>
+<div class="mt-3 text-secondary font-label-sm">
+<span>Secteur : Bunia Centre &amp; Périphérie</span>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col justify-between">
+<div class="flex items-center justify-between">
+<span class="font-body-sm text-secondary">Fiches Fidélité 10+1</span>
+<div class="w-8 h-8 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[18px]">loyalty</span>
+</div>
+</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="font-numeric-kpi text-numeric-kpi text-on-surface">35</span>
+<span class="font-label-sm text-label-sm text-secondary">actives</span>
+</div>
+<div class="mt-3 flex items-center gap-1 text-secondary font-label-sm truncate">
+<span class="material-symbols-outlined text-[14px] text-primary">auto_awesome</span>
+<span>10 achats = 11ème offert</span>
+</div>
+</div>
+</div>
+<!-- Section Sub-Tabs (Internal View Switcher) -->
+<div class="flex items-center justify-between border-b-0 pb-1">
+<div class="flex items-center gap-2 bg-surface-container-low p-1 rounded-xl">
+<button class="px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary font-body-sm font-semibold shadow-sm transition-all flex items-center gap-2" id="tab-btn-orders" onclick="switchMainTab('orders')" type="button">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span>
+<span>Toutes les commandes</span>
+<span class="px-1.5 py-0.5 rounded-full bg-primary-container text-on-primary font-label-sm text-[10px]">96</span>
+</button>
+<button class="px-space-md py-1.5 rounded-lg text-secondary hover:text-on-surface font-body-sm font-medium transition-all flex items-center gap-2" id="tab-btn-deliverers" onclick="switchMainTab('deliverers')" type="button">
+<span class="material-symbols-outlined text-[18px]">sports_motorsports</span>
+<span>Flotte Livreurs</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-[10px]">2</span>
+</button>
+<button class="px-space-md py-1.5 rounded-lg text-secondary hover:text-on-surface font-body-sm font-medium transition-all flex items-center gap-2" id="tab-btn-fidelity" onclick="switchMainTab('fidelity')" type="button">
+<span class="material-symbols-outlined text-[18px]">card_membership</span>
+<span>Fiches Fidélité &amp; Consommation</span>
+<span class="px-1.5 py-0.5 rounded-full bg-surface-container-highest text-secondary font-label-sm text-[10px]">35</span>
+</button>
+</div>
+<div class="hidden xl:flex items-center gap-space-sm text-secondary font-label-sm">
+<span class="material-symbols-outlined text-[16px] text-primary">sync</span>
+<span>Dernière synchro : Aujourd'hui à 14:13:26</span>
+</div>
+</div>
+<!-- TAB 1: ORDERS SECTION -->
+<div class="space-y-space-md" id="view-orders">
+<!-- Filter Bar -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm space-y-space-sm">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm">
+<!-- Search input -->
+<div class="md:col-span-4 relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span>
+<input class="w-full h-10 pl-9 pr-space-md rounded-lg bg-surface font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20 shadow-inner" placeholder="N° commande, adresse, notes, client..." type="text"/>
+</div>
+<!-- Enterprise filter dropdown -->
+<div class="md:col-span-2">
+<select class="w-full h-10 px-space-sm rounded-lg bg-surface font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option value="">Toutes les entreprises</option>
+<option value="galaxy">Maison Galaxy super market</option>
+<option value="citadelle">Polyclinique Citadelle</option>
+<option value="katam">ETS KATAMLPG</option>
+<option value="bim">BIM PRODUIT</option>
+</select>
+</div>
+<!-- Status filter dropdown -->
+<div class="md:col-span-2">
+<select class="w-full h-10 px-space-sm rounded-lg bg-surface font-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option value="">Tous les statuts</option>
+<option value="attente">En attente (13)</option>
+<option value="payee">Payée (15)</option>
+<option value="livree">Livrée (68)</option>
+<option value="annulee">Annulée (0)</option>
+</select>
+</div>
+<!-- Date Du -->
+<div class="md:col-span-2">
+<input class="w-full h-10 px-space-sm rounded-lg bg-surface font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Du 01/10/2026" type="text"/>
+</div>
+<!-- Date Au -->
+<div class="md:col-span-2 flex items-center gap-space-xs">
+<input class="w-full h-10 px-space-sm rounded-lg bg-surface font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Au 18/10/2026" type="text"/>
+<button class="h-10 px-3 bg-surface-container hover:bg-surface-container-high rounded-lg text-primary flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]">filter_alt</span>
+</button>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-sm text-secondary">Filtres actifs :</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm">
+              Mois courant (Octobre 2026)
+              <span class="material-symbols-outlined text-[14px] cursor-pointer hover:text-error">close</span>
+</span>
+</div>
+<span class="font-label-md text-secondary">
+<strong class="text-primary font-semibold">96</strong> commande(s) répertoriée(s)
+          </span>
+</div>
+</div>
+<!-- Orders Grid (Cards inspired by the exact screenshot data) -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-md">
+<!-- Order Card 1 (En attente) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792255084427-384</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>17/10/2026 18:38</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-tertiary-container font-label-sm font-semibold">
+                En attente
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                R
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Richard</div>
+<div class="font-label-sm text-secondary truncate">quick_07379de493dfa936@bimreseau.com</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article commandé :</span>
+<span class="font-medium text-on-surface">30 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                12,5 kg de gaz, livraison incluse.
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">30 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 70 500 FC</span>
+</div>
+<!-- Action buttons from screenshot -->
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" title="Valider la commande">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-tertiary-container flex items-center justify-center hover:bg-tertiary-container hover:text-on-tertiary transition-all" title="Annuler">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 2 (En attente) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792254983827-384</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>17/10/2026 18:36</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-tertiary-container font-label-sm font-semibold">
+                En attente
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                R
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Richard</div>
+<div class="font-label-sm text-secondary truncate">quick_07379de493dfa936@bimreseau.com</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article commandé :</span>
+<span class="font-medium text-on-surface">30 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                12,5 kg de gaz, livraison incluse.
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">30 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 70 500 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" title="Valider la commande">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-tertiary-container flex items-center justify-center hover:bg-tertiary-container hover:text-on-tertiary transition-all" title="Annuler">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 3 (Livrée) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792165530334-380</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>16/10/2026 17:45</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-primary font-label-sm font-semibold">
+                Livrée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                D
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Didiane</div>
+<div class="font-label-sm text-secondary truncate">quick_6a6b31a053fedb89@bimreseau.com</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article commandé :</span>
+<span class="font-medium text-on-surface">30 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                12,5 kg de gaz, livraison incluse.
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">30 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 70 500 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 4 (Livrée - Maison Galaxy) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792164748054-209</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>16/10/2026 17:32</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-primary font-label-sm font-semibold">
+                Livrée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-semibold text-xs">
+                T
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Tex</div>
+<div class="font-label-sm text-secondary truncate">belolimemeletex@gmail.com</div>
+</div>
+</div>
+<div class="mt-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm font-medium">
+                Maison Galaxy super market
+              </span>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article :</span>
+<span class="font-medium text-on-surface">1 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                Biscuit
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">1 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 2 350 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 5 (Livrée - Carton d'eau) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792159253761-371</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>16/10/2026 16:00</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-primary font-label-sm font-semibold">
+                Livrée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                C
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Christianlebon</div>
+<div class="font-label-sm text-secondary truncate">christiankatembo95@gmail.com</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article :</span>
+<span class="font-medium text-on-surface">5 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                Carton d’eau La Vie — 5 $
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">5 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 11 750 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 6 (Livrée - ETS KATAMLPG) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1792148361852-189</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>16/10/2026 12:59</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-primary-fixed text-primary font-label-sm font-semibold">
+                Livrée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-semibold text-xs">
+                J
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Joshua Muhindo</div>
+<div class="font-label-sm text-secondary truncate">yoshmuhindo@gmail.com</div>
+</div>
+</div>
+<div class="mt-2">
+<span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm font-medium">
+                ETS KATAMLPG
+              </span>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article :</span>
+<span class="font-medium text-on-surface">14 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                Recharge gaz 6 Kg
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">14 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 32 900 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 7 (En attente - Starlink Mini) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1791889195487-237</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>13/10/2026 12:59</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-tertiary-fixed text-tertiary-container font-label-sm font-semibold">
+                En attente
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                L
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Leader MUSHIO</div>
+<div class="font-label-sm text-secondary truncate">leadermushio377@gmail.com</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article commandé :</span>
+<span class="font-medium text-on-surface">380 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                Starlink Mini — Équipement satellite
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">380 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 893 000 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary-container hover:text-on-primary transition-all" title="Valider">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-tertiary-container flex items-center justify-center hover:bg-tertiary-container hover:text-on-tertiary transition-all" title="Annuler">
+<span class="material-symbols-outlined text-[16px]">close</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 8 (Payée - Polyclinique) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1791627160034</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>10/10/2026 12:12</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">
+                Payée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs">
+                P
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">POLYCLINIQUE CITADELLE</div>
+<div class="font-label-sm text-secondary truncate">Direction Médicale • Bunia</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Abonnement :</span>
+<span class="font-medium text-on-surface">200 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                BIM ACCÈS : 200$/AN (Service Entreprise)
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">200 EC</span>
+<span class="font-label-sm text-secondary ml-1">~ 470 000 FC</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Order Card 9 (Payée - Gaz x2) -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between space-y-space-sm">
+<div>
+<div class="flex items-start justify-between">
+<div>
+<span class="font-body-sm font-bold text-on-surface tracking-tight">ORD-1791626562627</span>
+<div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[14px]">calendar_today</span>
+<span>10/10/2026 12:02</span>
+</div>
+</div>
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">
+                Payée
+              </span>
+</div>
+<div class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-primary font-semibold text-xs">
+                K
+              </div>
+<div class="min-w-0 flex-1">
+<div class="font-body-sm font-semibold text-on-surface truncate">Client Partenaire</div>
+<div class="font-label-sm text-secondary truncate">Fournisseur : ETS KATAMLPG</div>
+</div>
+</div>
+<div class="mt-space-sm space-y-1">
+<div class="flex items-center justify-between text-secondary font-label-sm">
+<span>Article :</span>
+<span class="font-medium text-on-surface">56 EC</span>
+</div>
+<p class="font-body-sm text-on-surface font-medium bg-surface-container-lowest rounded py-1">
+                Recharge gaz 12 Kg (x2 bouteilles)
+              </p>
+</div>
+</div>
+<div class="pt-space-xs flex items-center justify-between">
+<div>
+<span class="font-numeric-kpi text-[22px] font-bold text-primary">56 EC</span>
+<span class="font-label-sm text-secondary ml-1">28 EC unitaire</span>
+</div>
+<div class="flex items-center gap-1.5">
+<button class="w-8 h-8 rounded-full bg-surface-container text-primary flex items-center justify-center hover:bg-primary hover:text-on-primary transition-all" title="Voir détails">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-secondary flex items-center justify-center hover:bg-surface-container-high transition-all" title="Éditer">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-full bg-surface-container text-error flex items-center justify-center hover:bg-error-container hover:text-on-error-container transition-all" title="Supprimer">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination for Orders -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
+<span class="font-label-md text-secondary">
+          Affichage de <strong class="text-on-surface">1 à 9</strong> sur <strong class="text-on-surface">96</strong> commandes
+        </span>
+<div class="flex items-center gap-space-xs">
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">first_page</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-primary text-on-primary font-body-sm font-medium">1</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors font-body-sm">2</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors font-body-sm">3</button>
+<span class="px-1 text-secondary">...</span>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors font-body-sm">10</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+<button class="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center text-secondary hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[16px]">last_page</span>
+</button>
+<div class="ml-2 flex items-center gap-1">
+<select class="h-8 px-2 rounded-lg bg-surface font-label-md text-secondary border-0">
+<option>10 / page</option>
+<option>20 / page</option>
+<option>50 / page</option>
+</select>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB 2: DELIVERERS FLEET SECTION (As extracted from Image 2) -->
+<div class="space-y-space-md hidden" id="view-deliverers">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm p-space-md bg-surface-container-lowest rounded-xl shadow-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">electric_moped</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Livreurs Partenaires &amp; Flotte</h2>
+<p class="font-body-sm text-body-sm text-secondary">Candidatures et gestion active des livreurs BIM en zone Bunia &amp; environs</p>
+</div>
+</div>
+<button class="inline-flex items-center gap-space-xs h-9 px-space-md rounded-lg bg-primary-container text-on-primary hover:bg-primary font-body-sm font-medium shadow-sm transition-all" type="button">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span>+ Créer un livreur</span>
+</button>
+</div>
+<!-- Deliverers Sub-KPIs (from capture) -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
+<div class="p-space-sm bg-surface-container-lowest rounded-xl shadow-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">group</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">2</div>
+<div class="font-label-sm text-secondary">Total inscrits</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded-xl shadow-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-low flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-[20px]">schedule</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-secondary">0</div>
+<div class="font-label-sm text-secondary">En attente</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded-xl shadow-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-on-surface">2</div>
+<div class="font-label-sm text-secondary">Actifs validés</div>
+</div>
+</div>
+<div class="p-space-sm bg-surface-container-lowest rounded-xl shadow-sm flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[20px]">sensors</span>
+</div>
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary">2</div>
+<div class="font-label-sm text-secondary">En ligne GPS</div>
+</div>
+</div>
+</div>
+<!-- Deliverers Cards Grid (Exact matching values from screenshot) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Deliverer 1: KATEMBO JOEL -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-md">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold text-base">
+                K
+              </div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-body-md font-bold text-on-surface">KATEMBO JOEL</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm font-semibold">Actif</span>
+</div>
+<div class="font-label-sm text-secondary mt-0.5">joel@bimreseau.com</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm px-2 py-1 rounded bg-surface-container text-primary font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              En ligne
+            </span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm bg-surface-container-low p-space-sm rounded-lg">
+<div>
+<span class="font-label-sm text-secondary block">Numéro Contact</span>
+<span class="font-body-sm font-medium text-on-surface">+243 846 717 868</span>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Entreprise assignée</span>
+<span class="inline-block mt-0.5 px-2 py-0.5 rounded bg-surface-container text-primary font-label-sm font-semibold">
+                BIM PRODUIT
+              </span>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Évaluation client</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-outline">star</span>
+<span class="font-body-sm font-semibold text-on-surface">0.00</span>
+<span class="font-label-sm text-secondary">(0 avis)</span>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Date d'enregistrement</span>
+<span class="font-body-sm text-secondary">10/08/2026 10:48</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-body-sm font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Localiser sur carte</span>
+</button>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-tertiary-container hover:bg-tertiary-fixed transition-colors font-label-md font-semibold" type="button">
+<span class="material-symbols-outlined text-[16px]">block</span>
+<span>Désactiver le compte</span>
+</button>
+</div>
+</div>
+<!-- Deliverer 2: Maison Galaxy Super Market Driver -->
+<div class="bg-surface-container-lowest rounded-xl p-space-md shadow-sm space-y-space-md">
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-11 h-11 rounded-lg bg-surface-container-high flex items-center justify-center text-primary font-bold text-base">
+                ?
+              </div>
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-headline-sm text-body-md font-bold text-on-surface">Livreur Dispatch 02</h3>
+<span class="px-2 py-0.5 rounded-full bg-primary-fixed text-primary font-label-sm font-semibold">Actif</span>
+</div>
+<div class="font-label-sm text-secondary mt-0.5">galaxy_driver_bunia@bimreseau.com</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 font-label-sm px-2 py-1 rounded bg-surface-container text-primary font-semibold">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+              En course
+            </span>
+</div>
+<div class="grid grid-cols-2 gap-space-sm bg-surface-container-low p-space-sm rounded-lg">
+<div>
+<span class="font-label-sm text-secondary block">Numéro Contact</span>
+<span class="font-body-sm font-medium text-on-surface">+243 977 624 084</span>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Entreprise assignée</span>
+<span class="inline-block mt-0.5 px-2 py-0.5 rounded bg-surface-container text-primary font-label-sm font-semibold truncate max-w-full">
+                Maison Galaxy super market
+              </span>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Évaluation client</span>
+<div class="flex items-center gap-1 mt-0.5">
+<span class="material-symbols-outlined text-[16px] text-primary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="font-body-sm font-semibold text-on-surface">3.00</span>
+<span class="font-label-sm text-secondary">(1 avis vérifié)</span>
+</div>
+</div>
+<div>
+<span class="font-label-sm text-secondary block">Date d'enregistrement</span>
+<span class="font-body-sm text-secondary">26/05/2026 15:06</span>
+</div>
+</div>
+<div class="flex items-center justify-between pt-1">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary font-body-sm font-medium transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+<span>Localiser sur carte</span>
+</button>
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-tertiary-container hover:bg-tertiary-fixed transition-colors font-label-md font-semibold" type="button">
+<span class="material-symbols-outlined text-[16px]">block</span>
+<span>Désactiver le compte</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB 3: FIDELITY & PRODUCT CONSUMPTION SECTION (As extracted from Image 2) -->
+<div class="space-y-space-md hidden" id="view-fidelity">
+<!-- Info Header Banner -->
+<div class="p-space-md bg-surface-container-lowest rounded-xl shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[24px]">verified_user</span>
+</div>
+<div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Fiches de Consommation &amp; Programme Fidélité</h2>
+<p class="font-body-sm text-body-sm text-secondary">
+              Historique des achats réguliers : après 10 achats payants d'un même produit, le 11ème est offert automatiquement par le système (Règle 10+1).
+            </p>
+</div>
+</div>
+<div class="flex items-center gap-space-xs self-start lg:self-center">
+<span class="px-2.5 py-1 rounded-full bg-surface-container text-primary font-label-md font-semibold">
+            35 fiches suivies
+          </span>
+<button class="h-9 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-label-md flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[16px]">tune</span>
+<span>Règles d'attribution</span>
+</button>
+</div>
+</div>
+<!-- High Density Table for Fidelity & Purchases -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left font-body-sm">
+<thead class="bg-surface-container-low text-secondary font-label-md uppercase tracking-wider">
+<tr>
+<th class="py-3 px-space-md">Client / Acheteur</th>
+<th class="py-3 px-space-md">Date Transaction</th>
+<th class="py-3 px-space-md">Type d'opération</th>
+<th class="py-3 px-space-md">Article / Produit</th>
+<th class="py-3 px-space-md">Quantité</th>
+<th class="py-3 px-space-md">Total Débité</th>
+<th class="py-3 px-space-md">Jauge Fidélité (10+1)</th>
+<th class="py-3 px-space-md text-right">Détails</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low text-on-surface">
+<!-- Item 1: Richard -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-primary font-bold text-xs flex items-center justify-center">R</div>
+<span class="font-semibold text-on-surface">Richard</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-secondary font-label-sm">17 oct. 2026, 18:38</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">Achat payant</span>
+</td>
+<td class="py-3 px-space-md font-medium">12,5 kg de gaz, livraison incluse</td>
+<td class="py-3 px-space-md font-mono text-secondary">1.0000</td>
+<td class="py-3 px-space-md font-bold text-primary">30.00 EC</td>
+<td class="py-3 px-space-md">
+<div class="w-36">
+<div class="flex items-center justify-between font-label-sm text-secondary mb-1">
+<span>2 / 10 achats</span>
+<span class="font-semibold text-primary">20%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 20%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<button class="w-7 h-7 rounded-lg bg-surface-container text-secondary hover:text-primary hover:bg-surface-container-high inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Item 2: Mokoto (from exact capture) -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-primary font-bold text-xs flex items-center justify-center">M</div>
+<span class="font-semibold text-on-surface">Mokoto</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-secondary font-label-sm">09 oct. 2026, 21:57</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">Achat payant</span>
+</td>
+<td class="py-3 px-space-md">
+<div>Biscuit</div>
+<div class="text-[11px] text-secondary">Maison Galaxy super market</div>
+</td>
+<td class="py-3 px-space-md font-mono text-secondary">4.0000</td>
+<td class="py-3 px-space-md font-bold text-primary">22.00 EC</td>
+<td class="py-3 px-space-md">
+<div class="w-36">
+<div class="flex items-center justify-between font-label-sm text-secondary mb-1">
+<span class="text-primary font-bold">9 / 10 achats</span>
+<span class="font-bold text-primary">90%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<button class="w-7 h-7 rounded-lg bg-surface-container text-secondary hover:text-primary hover:bg-surface-container-high inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Item 3: Mokoto Water -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-primary font-bold text-xs flex items-center justify-center">M</div>
+<span class="font-semibold text-on-surface">Mokoto</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-secondary font-label-sm">09 oct. 2026, 21:36</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">Achat payant</span>
+</td>
+<td class="py-3 px-space-md font-medium">Petit carton d'eau Vio — 6,50 $</td>
+<td class="py-3 px-space-md font-mono text-secondary">1.0000</td>
+<td class="py-3 px-space-md font-bold text-primary">5.50 EC</td>
+<td class="py-3 px-space-md">
+<div class="w-36">
+<div class="flex items-center justify-between font-label-sm text-secondary mb-1">
+<span>4 / 10 achats</span>
+<span class="font-semibold text-primary">40%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 40%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<button class="w-7 h-7 rounded-lg bg-surface-container text-secondary hover:text-primary hover:bg-surface-container-high inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Item 4: Didiane -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-primary-fixed text-primary font-bold text-xs flex items-center justify-center">D</div>
+<span class="font-semibold text-on-surface">Didiane</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-secondary font-label-sm">16 oct. 2026, 17:45</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">Achat payant</span>
+</td>
+<td class="py-3 px-space-md font-medium">12,5 kg de gaz, livraison incluse</td>
+<td class="py-3 px-space-md font-mono text-secondary">1.0000</td>
+<td class="py-3 px-space-md font-bold text-primary">30.00 EC</td>
+<td class="py-3 px-space-md">
+<div class="w-36">
+<div class="flex items-center justify-between font-label-sm text-secondary mb-1">
+<span>1 / 10 achats</span>
+<span class="font-semibold text-primary">10%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 10%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<button class="w-7 h-7 rounded-lg bg-surface-container text-secondary hover:text-primary hover:bg-surface-container-high inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</td>
+</tr>
+<!-- Item 5: Joshua Muhindo -->
+<tr class="hover:bg-surface-container-low/40 transition-colors">
+<td class="py-3 px-space-md">
+<div class="flex items-center gap-2">
+<div class="w-7 h-7 rounded-full bg-surface-container-high text-primary font-bold text-xs flex items-center justify-center">J</div>
+<span class="font-semibold text-on-surface">Joshua Muhindo</span>
+</div>
+</td>
+<td class="py-3 px-space-md text-secondary font-label-sm">16 oct. 2026, 12:59</td>
+<td class="py-3 px-space-md">
+<span class="px-2 py-0.5 rounded bg-surface-container-high text-primary font-label-sm font-semibold">Achat payant</span>
+</td>
+<td class="py-3 px-space-md">
+<div>Recharge gaz 6 Kg</div>
+<div class="text-[11px] text-secondary">ETS KATAMLPG</div>
+</td>
+<td class="py-3 px-space-md font-mono text-secondary">1.0000</td>
+<td class="py-3 px-space-md font-bold text-primary">14.00 EC</td>
+<td class="py-3 px-space-md">
+<div class="w-36">
+<div class="flex items-center justify-between font-label-sm text-secondary mb-1">
+<span>5 / 10 achats</span>
+<span class="font-semibold text-primary">50%</span>
+</div>
+<div class="w-full bg-surface-container-high h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full" style="width: 50%;"></div>
+</div>
+</div>
+</td>
+<td class="py-3 px-space-md text-right">
+<button class="w-7 h-7 rounded-lg bg-surface-container text-secondary hover:text-primary hover:bg-surface-container-high inline-flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">visibility</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="p-space-md bg-surface-container-lowest flex items-center justify-between border-t-0">
+<span class="font-label-md text-secondary">1 à 5 sur 35 fiches de fidélité</span>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded bg-primary text-on-primary font-label-sm font-medium">1</button>
+<button class="px-2.5 py-1 rounded bg-surface-container text-secondary hover:bg-surface-container-high font-label-sm">2</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<script>
+  function switchMainTab(tab) {
+    const ordersView = document.getElementById('view-orders');
+    const deliverersView = document.getElementById('view-deliverers');
+    const fidelityView = document.getElementById('view-fidelity');
+
+    const tabBtnOrders = document.getElementById('tab-btn-orders');
+    const tabBtnDeliverers = document.getElementById('tab-btn-deliverers');
+    const tabBtnFidelity = document.getElementById('tab-btn-fidelity');
+
+    // Reset styles
+    const inactiveClass = 'px-space-md py-1.5 rounded-lg text-secondary hover:text-on-surface font-body-sm font-medium transition-all flex items-center gap-2';
+    const activeClass = 'px-space-md py-1.5 rounded-lg bg-surface-container-lowest text-primary font-body-sm font-semibold shadow-sm transition-all flex items-center gap-2';
+
+    ordersView.classList.add('hidden');
+    deliverersView.classList.add('hidden');
+    fidelityView.classList.add('hidden');
+
+    tabBtnOrders.className = inactiveClass;
+    tabBtnDeliverers.className = inactiveClass;
+    tabBtnFidelity.className = inactiveClass;
+
+    if (tab === 'orders') {
+      ordersView.classList.remove('hidden');
+      tabBtnOrders.className = activeClass;
+    } else if (tab === 'deliverers') {
+      deliverersView.classList.remove('hidden');
+      tabBtnDeliverers.className = activeClass;
+    } else if (tab === 'fidelity') {
+      fidelityView.classList.remove('hidden');
+      tabBtnFidelity.className = activeClass;
+    }
+  }
+</script></main></div></body></html>

@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        "colors": {
+          "inverse-primary": "#b8c4ff",
+          "on-secondary-fixed": "#131b2e",
+          "on-primary": "#ffffff",
+          "outline": "#757684",
+          "surface-tint": "#3755c3",
+          "tertiary-fixed": "#ffdada",
+          "primary-fixed": "#dde1ff",
+          "on-secondary": "#ffffff",
+          "surface-dim": "#cbdbf5",
+          "surface-variant": "#d3e4fe",
+          "on-tertiary-fixed": "#40000c",
+          "on-surface-variant": "#444653",
+          "on-tertiary-fixed-variant": "#920028",
+          "outline-variant": "#c4c5d5",
+          "tertiary-container": "#9a002b",
+          "inverse-surface": "#213145",
+          "secondary": "#565e74",
+          "on-secondary-container": "#5c647a",
+          "on-tertiary-container": "#ffa2a7",
+          "on-primary-container": "#a8b8ff",
+          "surface-bright": "#f8f9ff",
+          "secondary-container": "#dae2fd",
+          "on-error": "#ffffff",
+          "primary-fixed-dim": "#b8c4ff",
+          "on-background": "#0b1c30",
+          "on-surface": "#0b1c30",
+          "surface-container-lowest": "#ffffff",
+          "surface-container-low": "#eff4ff",
+          "on-primary-fixed-variant": "#173bab",
+          "on-secondary-fixed-variant": "#3f465c",
+          "on-primary-fixed": "#001453",
+          "primary-container": "#1e40af",
+          "tertiary-fixed-dim": "#ffb3b6",
+          "inverse-on-surface": "#eaf1ff",
+          "background": "#f8f9ff",
+          "surface-container": "#e5eeff",
+          "surface": "#f8f9ff",
+          "surface-container-high": "#dce9ff",
+          "error": "#ba1a1a",
+          "surface-container-highest": "#d3e4fe",
+          "secondary-fixed-dim": "#bec6e0",
+          "tertiary": "#6f001c",
+          "on-tertiary": "#ffffff",
+          "secondary-fixed": "#dae2fd",
+          "error-container": "#ffdad6",
+          "primary": "#00288e",
+          "on-error-container": "#93000a"
+        },
+        "borderRadius": {
+          "DEFAULT": "0.25rem",
+          "lg": "0.5rem",
+          "xl": "0.75rem",
+          "full": "9999px"
+        },
+        "spacing": {
+          "space-sm": "0.5rem",
+          "space-md": "1rem",
+          "space-xs": "0.25rem",
+          "space-lg": "1.5rem",
+          "space-xl": "2rem",
+          "gutter": "1.25rem",
+          "margin": "1.5rem"
+        },
+        "fontFamily": {
+          "display-lg": [
+            "Inter"
+          ],
+          "headline-lg": [
+            "Inter"
+          ],
+          "numeric-kpi": [
+            "Inter"
+          ],
+          "label-md": [
+            "Inter"
+          ],
+          "headline-md": [
+            "Inter"
+          ],
+          "label-sm": [
+            "Inter"
+          ],
+          "body-md": [
+            "Inter"
+          ],
+          "body-sm": [
+            "Inter"
+          ],
+          "body-lg": [
+            "Inter"
+          ],
+          "headline-sm": [
+            "Inter"
+          ]
+        },
+        "fontSize": {
+          "display-lg": [
+            "32px",
+            {
+              "lineHeight": "40px",
+              "letterSpacing": "-0.02em",
+              "fontWeight": "700"
+            }
+          ],
+          "headline-lg": [
+            "24px",
+            {
+              "lineHeight": "32px",
+              "letterSpacing": "-0.015em",
+              "fontWeight": "600"
+            }
+          ],
+          "numeric-kpi": [
+            "28px",
+            {
+              "lineHeight": "36px",
+              "letterSpacing": "-0.025em",
+              "fontWeight": "700"
+            }
+          ],
+          "label-md": [
+            "12px",
+            {
+              "lineHeight": "16px",
+              "letterSpacing": "0.04em",
+              "fontWeight": "600"
+            }
+          ],
+          "headline-md": [
+            "20px",
+            {
+              "lineHeight": "28px",
+              "letterSpacing": "-0.01em",
+              "fontWeight": "600"
+            }
+          ],
+          "label-sm": [
+            "11px",
+            {
+              "lineHeight": "14px",
+              "letterSpacing": "0.02em",
+              "fontWeight": "500"
+            }
+          ],
+          "body-md": [
+            "14px",
+            {
+              "lineHeight": "20px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-sm": [
+            "13px",
+            {
+              "lineHeight": "18px",
+              "fontWeight": "400"
+            }
+          ],
+          "body-lg": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "fontWeight": "400"
+            }
+          ],
+          "headline-sm": [
+            "16px",
+            {
+              "lineHeight": "24px",
+              "letterSpacing": "-0.005em",
+              "fontWeight": "600"
+            }
+          ]
+        }
+      },
+    },
+  }</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-64 bg-surface-container-lowest z-50 flex flex-col shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 px-space-md flex items-center gap-space-sm bg-surface-container-lowest"><div class="w-9 h-9 rounded-lg bg-primary-container flex items-center justify-center text-on-primary font-headline-md font-bold">B</div><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-headline-sm text-headline-sm text-primary tracking-tight font-bold">BIM</span><span class="font-headline-sm text-headline-sm text-on-surface font-semibold">NEXT</span></div><span class="font-label-sm text-label-sm text-secondary uppercase tracking-wider">Enterprise Platform</span></div></div><div class="flex-1 overflow-y-auto px-space-sm py-space-sm space-y-space-md"><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Principal</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm transition-all text-on-surface-variant" data-path="tableau-de-bord" href="#"><span class="material-symbols-outlined text-[20px]">grid_view</span><span class="font-body-sm text-body-sm font-medium">Tableau de bord</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Gestion</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="comptes-utilisateurs" href="#"><span class="material-symbols-outlined text-[20px]">manage_accounts</span><span class="font-body-sm text-body-sm font-medium">Comptes &amp; Utilisateurs</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="entreprises-partenaires" href="#"><span class="material-symbols-outlined text-[20px]">apartment</span><span class="font-body-sm text-body-sm font-medium">Entreprises &amp; Partenaires</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="catalogue-services" href="#"><span class="material-symbols-outlined text-[20px]">layers</span><span class="font-body-sm text-body-sm font-medium">Catalogue &amp; Services</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="commandes-logistique" href="#"><span class="material-symbols-outlined text-[20px]">local_shipping</span><span class="font-body-sm text-body-sm font-medium">Commandes &amp; Logistique</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Finance &amp; Trésorerie</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="transactions-recharges" href="#"><span class="material-symbols-outlined text-[20px]">sync_alt</span><span class="font-body-sm text-body-sm font-medium">Transactions &amp; Recharges</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="portefeuilles" href="#"><span class="material-symbols-outlined text-[20px]">account_balance_wallet</span><span class="font-body-sm text-body-sm font-medium">Portefeuilles</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="rapports-statistiques" href="#"><span class="material-symbols-outlined text-[20px]">monitoring</span><span class="font-body-sm text-body-sm font-medium">Rapports &amp; Statistiques</span></a></nav></div><div class="space-y-space-xs"><div class="px-space-sm py-space-xs font-label-sm text-label-sm uppercase tracking-wider text-outline font-semibold">Système &amp; Support</div><nav class="space-y-0.5" data-active-classes="bg-primary-container text-on-primary font-medium rounded-lg shadow-sm"><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="tickets-support" href="#"><span class="material-symbols-outlined text-[20px]">headset_mic</span><span class="font-body-sm text-body-sm font-medium">Tickets Support</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="logs-activite" href="#"><span class="material-symbols-outlined text-[20px]">history_toggle_off</span><span class="font-body-sm text-body-sm font-medium">Logs d'activité</span></a><a class="flex items-center gap-space-sm px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-all" data-path="parametres" href="#"><span class="material-symbols-outlined text-[20px]">settings</span><span class="font-body-sm text-body-sm font-medium">Paramètres</span></a></nav></div></div><div class="p-space-sm bg-surface-container-low mx-space-sm mb-space-sm rounded-lg"><div class="flex items-center justify-between mb-1.5"><span class="font-label-sm text-label-sm text-secondary font-medium">Sécurité Instance</span><span class="font-label-sm text-label-sm text-primary font-semibold">v4.8.2</span></div><div class="w-full bg-surface-container rounded-full h-1.5 overflow-hidden"><div class="bg-primary h-full rounded-full w-4/5"></div></div></div></aside><div class="pl-64 flex flex-col min-h-screen"><header class="fixed top-0 left-64 right-0 h-16 bg-surface/90 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-40 flex items-center justify-between px-space-lg"><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs px-space-sm py-1 rounded-full bg-surface-container text-on-surface font-label-sm text-label-sm font-medium"><span class="w-2 h-2 rounded-full bg-primary-container animate-pulse"></span><span>Système opérationnel • 1 en ligne</span></div><div class="hidden xl:flex items-center gap-1.5 px-space-sm py-1 rounded-md bg-surface-container-low text-secondary font-label-md text-label-md"><span class="material-symbols-outlined text-[16px] text-primary">currency_exchange</span><span>Taux : <strong class="text-on-surface">1 EC = 2 350 FC</strong></span></div></div><div class="flex items-center gap-space-md"><div class="relative hidden md:flex items-center"><span class="material-symbols-outlined absolute left-3 text-outline text-[18px]">search</span><input class="h-9 pl-9 pr-space-md rounded-lg bg-surface-container-lowest font-body-sm text-body-sm text-on-surface placeholder:text-outline w-64 lg:w-80 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Rechercher compte, transaction, dossier..." type="text"/></div><button class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">light_mode</span></button><div class="relative"><button class="w-9 h-9 flex items-center justify-center rounded-lg text-secondary hover:bg-surface-container hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-[20px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-tertiary-container ring-2 ring-surface"></span></button></div><div class="h-8 w-px bg-surface-container-highest"></div><div class="flex items-center gap-space-sm pl-space-xs"><div class="text-right hidden sm:block"><div class="font-headline-sm text-body-sm font-semibold text-on-surface leading-tight">Marc K. Mwamba</div><div class="font-label-sm text-label-sm text-primary font-medium leading-none mt-0.5">Super Admin BIM</div></div><div class="relative"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1VzsrPn1s0Hw_3PqJYcZLOnzEz89mV6h7ecEdOwkck2_CBm8i83Tya4hR_OD2qrC4tQ4rh9mLxRTrPCtFjZSM9aN5jcmp2gMVg9iKsvRKiYq9gSaPg2i_yNkBGEKpDbJj2qBK8oodsrAHHhEGDF401644XZ5p5ekpZPge_62d2un1mygugmVznSHFVPhw9q_1fAguv0ZjElHmAsFGEjW8sIIq_38jN6TEZ0WuxkIZBwJHo3suL4bbBKBjytzSppvxckaIfiA8BSsw"/><span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-primary-container ring-2 ring-surface"></span></div></div></div></header><main class="w-full pt-16 bg-surface flex-1"><div class="flex flex-col w-full">
+<!-- Top Navigation & Management Module Header -->
+<div class="px-space-lg pt-space-lg pb-space-md">
+<!-- Breadcrumb / Overline Context -->
+<div class="flex items-center gap-space-xs text-outline font-label-sm text-label-sm mb-1.5">
+<span class="hover:text-primary transition-colors cursor-pointer">Gestion</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface font-semibold">Catalogue Produits &amp; Services</span>
+<span class="inline-flex items-center ml-2 px-1.5 py-0.5 rounded-full text-[10px] font-bold bg-primary-fixed text-on-primary-fixed">ECOIN CORE</span>
+</div>
+<!-- Main Title Block & Top Actions -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-space-md pb-space-lg">
+<div class="space-y-0.5">
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight font-bold flex items-center gap-space-sm">
+<span class="w-10 h-10 rounded-xl bg-primary-fixed text-primary flex items-center justify-center shadow-sm">
+<span class="material-symbols-outlined text-[24px]">inventory_2</span>
+</span>
+          Catalogue &amp; Services BIM NEXT
+        </h1>
+<p class="font-body-md text-body-md text-secondary">
+          Gestion centrale des offres santé, énergie, télécoms, hôtellerie et pilotage de la mise en avant sur l'app mobile BIM.
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-3.5 py-2 rounded-lg bg-surface-container-lowest text-on-surface text-body-sm font-medium shadow-sm hover:bg-surface-container-low transition-all" type="button">
+<span class="material-symbols-outlined text-[18px] text-secondary">download</span>
+<span>Exporter (CSV / PDF)</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-4 py-2 rounded-lg bg-primary text-on-primary text-body-sm font-semibold shadow-sm hover:bg-primary-container hover:shadow-md transition-all active:scale-[0.98]" type="button">
+<span class="material-symbols-outlined text-[18px]">add_box</span>
+<span>Ajouter un produit</span>
+</button>
+</div>
+</div>
+<!-- Management Modules Horizontal Tabs -->
+<div class="flex items-center gap-1 overflow-x-auto pb-1 bg-surface-container-lowest rounded-xl p-1.5 shadow-sm">
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">person</span>
+<span>Comptes</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">key</span>
+<span>Utilisateurs &amp; Accès</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">domain</span>
+<span>Entreprises &amp; Commerce</span>
+</a>
+<a class="px-3.5 py-2 rounded-lg font-headline-sm text-body-sm bg-primary text-on-primary flex items-center gap-2 whitespace-nowrap shadow-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">layers</span>
+<span>Catalogue Produits</span>
+<span class="px-1.5 py-0.2 rounded-full text-[10px] bg-primary-fixed text-on-primary-fixed font-bold">25</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">stay_current_portrait</span>
+<span>Accueil app mobile</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">local_taxi</span>
+<span>BIM Transport</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">shopping_cart_checkout</span>
+<span>Commandes &amp; Livraisons</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">badge</span>
+<span>Agents BIM</span>
+</a>
+<a class="px-3 py-2 rounded-lg font-body-sm text-body-sm text-secondary hover:text-on-surface hover:bg-surface-container flex items-center gap-2 whitespace-nowrap transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">play_circle</span>
+<span>Formation</span>
+</a>
+</div>
+</div>
+<!-- Main Work Canvas -->
+<div class="px-space-lg space-y-space-lg pb-space-xl">
+<!-- KPI Metrics Matrix -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- KPI 1 -->
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-md text-label-md text-secondary uppercase font-semibold">Total Références</span>
+<span class="w-8 h-8 rounded-lg bg-surface-container text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">dataset</span>
+</span>
+</div>
+<div>
+<div class="font-numeric-kpi text-numeric-kpi text-on-surface font-bold leading-tight">25</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-label-sm text-label-sm text-on-primary-fixed-variant bg-surface-container px-1.5 py-0.5 rounded font-medium">100% indexées</span>
+<span class="font-body-sm text-body-sm text-secondary">8 partenaires actifs</span>
+</div>
+</div>
+</div>
+<!-- KPI 2 -->
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-md text-label-md text-secondary uppercase font-semibold">Packages Santé BIM</span>
+<span class="w-8 h-8 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">health_and_safety</span>
+</span>
+</div>
+<div>
+<div class="font-numeric-kpi text-numeric-kpi text-on-surface font-bold leading-tight">3</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-label-sm text-label-sm text-primary font-semibold">Polyclinique Citadelle</span>
+<span class="font-body-sm text-body-sm text-secondary">• Formules Annuelles</span>
+</div>
+</div>
+</div>
+<!-- KPI 3 -->
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-md text-label-md text-secondary uppercase font-semibold">Carburants &amp; Énergie</span>
+<span class="w-8 h-8 rounded-lg bg-secondary-container text-secondary flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">local_gas_station</span>
+</span>
+</div>
+<div>
+<div class="font-numeric-kpi text-numeric-kpi text-on-surface font-bold leading-tight">7</div>
+<div class="flex items-center gap-1.5 mt-1">
+<span class="font-label-sm text-label-sm text-on-secondary-fixed bg-secondary-fixed px-1.5 py-0.5 rounded font-medium">Essence, Mazout, Gaz</span>
+<span class="font-body-sm text-body-sm text-secondary">Indexation FC</span>
+</div>
+</div>
+</div>
+<!-- KPI 4 -->
+<div class="p-4 rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+<div class="flex items-center justify-between mb-3">
+<span class="font-label-md text-label-md text-secondary uppercase font-semibold">À la Une / App Mobile</span>
+<span class="w-8 h-8 rounded-lg bg-tertiary-fixed text-on-tertiary-fixed-variant flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">star</span>
+</span>
+</div>
+<div class="flex items-end justify-between">
+<div>
+<div class="font-numeric-kpi text-numeric-kpi text-on-surface font-bold leading-tight">0 <span class="font-headline-sm text-body-md text-secondary font-normal">actif</span></div>
+<div class="font-body-sm text-body-sm text-secondary mt-1">Section recommandée vide</div>
+</div>
+<button class="px-2.5 py-1 text-label-sm font-semibold rounded-lg bg-surface-container hover:bg-primary hover:text-on-primary text-primary transition-colors flex items-center gap-1" type="button">
+<span>Configurer</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Cross-Selling & Recommendations Callout Bar -->
+<div class="p-4 rounded-xl bg-surface-container-low shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-lowest shadow-sm flex items-center justify-center text-primary flex-shrink-0">
+<span class="material-symbols-outlined text-[22px]">campaign</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Mise en avant sur l'App Mobile BIM</h2>
+<span class="px-2 py-0.5 rounded-full text-label-sm font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant">0 Recommandation active</span>
+</div>
+<p class="font-body-sm text-body-sm text-secondary">
+            Basculez l'interrupteur « Recommander » sur chaque carte pour afficher instantanément un produit dans le carrousel d'accueil des clients.
+          </p>
+</div>
+</div>
+<div class="flex items-center gap-2 self-stretch md:self-auto justify-end">
+<button class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-on-surface text-body-sm font-medium hover:bg-surface shadow-sm transition-colors flex items-center gap-1.5" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">tune</span>
+<span>Règles d'affichage</span>
+</button>
+<button class="px-3.5 py-1.5 rounded-lg bg-primary text-on-primary text-body-sm font-semibold hover:bg-primary-container shadow-sm transition-colors" type="button">
+          Prévisualiser l'App
+        </button>
+</div>
+</div>
+<!-- Main Listing Panel -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md space-y-space-md">
+<!-- Sub-Navigation Filters Tabs -->
+<div class="flex items-center justify-between border-b border-surface-container pb-1 overflow-x-auto">
+<div class="flex items-center gap-2 sm:gap-4">
+<button class="px-3 py-2 text-body-sm font-semibold text-primary border-b-2 border-primary flex items-center gap-1.5 whitespace-nowrap" type="button">
+<span class="material-symbols-outlined text-[18px]">apps</span>
+<span>Tous les produits</span>
+<span class="ml-1 px-1.5 py-0.2 rounded-full text-label-sm bg-primary-fixed text-on-primary-fixed">25</span>
+</button>
+<button class="px-3 py-2 text-body-sm font-medium text-secondary hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-tertiary">star</span>
+<span>Articles Recommandés</span>
+<span class="ml-1 px-1.5 py-0.2 rounded-full text-label-sm bg-surface-container text-secondary">0</span>
+</button>
+<button class="px-3 py-2 text-body-sm font-medium text-secondary hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary">add_shopping_cart</span>
+<span>Cross-Selling Supermarché</span>
+<span class="ml-1 px-1.5 py-0.2 rounded-full text-label-sm bg-surface-container text-secondary">2</span>
+</button>
+<button class="px-3 py-2 text-body-sm font-medium text-secondary hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">casino</span>
+<span>Produits du moment</span>
+<span class="ml-1 px-1.5 py-0.2 rounded-full text-label-sm bg-surface-container text-secondary">11</span>
+</button>
+<button class="px-3 py-2 text-body-sm font-medium text-secondary hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">category</span>
+<span>Catégories</span>
+</button>
+</div>
+<!-- View Switcher -->
+<div class="hidden sm:flex items-center bg-surface-container p-0.5 rounded-lg text-secondary">
+<button class="p-1.5 rounded-md bg-surface-container-lowest text-primary shadow-sm" title="Vue Cartes Grille" type="button">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+<button class="p-1.5 rounded-md hover:text-on-surface transition-colors" title="Vue Tableau Liste" type="button">
+<span class="material-symbols-outlined text-[18px]">view_list</span>
+</button>
+</div>
+</div>
+<!-- Search & Multi-Filters Bar -->
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-space-sm pt-1">
+<!-- Search Input -->
+<div class="relative flex-1">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline text-[20px]">search</span>
+<input class="w-full h-10 pl-10 pr-4 rounded-lg bg-surface-container-low text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all" placeholder="Rechercher par nom de produit, référence, catégorie..." type="text"/>
+</div>
+<!-- Filtering Dropdowns -->
+<div class="flex flex-wrap items-center gap-2">
+<!-- Filter Partner / Enterprise -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-body-sm font-medium text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Toutes les entreprises (8)</option>
+<option>Polyclinique Citadelle</option>
+<option>Station XXXL</option>
+<option>Station Dieu Merci</option>
+<option>ETS KATAMLPG</option>
+<option>Hôtel La Casa Sir Henry</option>
+<option>Starlink RDC Satellites</option>
+<option>Eau Minérale La Vie / Vio</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+<!-- Filter Category -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-body-sm font-medium text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Toutes catégories</option>
+<option>Santé &amp; Mutuelle</option>
+<option>Carburant &amp; Lubrifiants</option>
+<option>Gaz Domestique</option>
+<option>Hôtellerie &amp; Séjours</option>
+<option>Télécoms &amp; Internet</option>
+<option>Boissons &amp; Eaux</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+<!-- Filter Status -->
+<div class="relative">
+<select class="h-10 pl-3 pr-8 rounded-lg bg-surface-container-low text-body-sm font-medium text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
+<option>Tous statuts</option>
+<option>Actifs / Valides</option>
+<option>Expiration &lt; 90j</option>
+<option>Désactivés</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 text-outline pointer-events-none text-[18px]">expand_more</span>
+</div>
+<!-- Total Count Display -->
+<div class="h-10 px-3 flex items-center rounded-lg bg-surface-container font-label-md text-label-md text-secondary font-semibold">
+            25 produit(s)
+          </div>
+</div>
+</div>
+<!-- PRODUCTS CATALOGUE GRID (Responsive Bento-Style Cards) -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-space-md pt-2">
+<!-- CARD 1: BIM ACCÈS 200$/AN -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual & Header Meta -->
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Professional medical healthcare clinic flyer with African doctor in modern Kinshasa hospital setting, warm lighting, corporate fintech health insurance photography, high resolution" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjBpkbN3Qn8rNgKFbr6gQ4xM02_rZ9iJwZnOs9M_eIJ4O5DMJftXJmWj62Ub_NNINi4uDVi1ayu2C0iqSmOQJ5CU6PvETNVgLFnY6z5VF-ooTTcxYwGaRTF4hVKUtGz8hEtvVH0NHbmngC29XSfPF9paP1O0TYYPg6W8u8wXYg3F183le5D72q_Ts7krWeFGO8zKlwPG_935uYsLFgaCckl-M8AOMzkI6w_bvWhzI216mtI9Wm-RAmDA"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-fixed text-on-primary-fixed">Santé</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">1 Package</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">BIM ACCÈS : 200$/AN</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">local_hospital</span>
+<span class="truncate">POLYCLINIQUE CITADELLE</span>
+</div>
+</div>
+</div>
+<!-- Description -->
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Package individuel valable une année. Prise en charge pathologies courantes : consultations, labo, paludisme, prise en charge hospitalisation 50%.
+            </p>
+<!-- Price & Validity Matrix -->
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Annuel</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">200.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<!-- Bottom Actions & Toggle Switch -->
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" title="Modifier le produit" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" title="Supprimer" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 2: BIM FAMILY 400$/AN -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual & Header Meta -->
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="African family of four smiling happily outside modern polyclinic clinic, warm sunny lighting, health insurance package commercial, corporate fintech photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3Dt6LrAotiY6hz3vl77DkNDvoWikuNS7I_0MhK8xyCAeb4Kmkz7igjO9a9tI_tQjq-6lpEQVwJp7HF0xAv-lQoHa1tAxHP8vdXb6RpH6W1tmC8MaBkU_3dPgCFjwUZ808-GINm4oy4FO1h3gqsqf_HUY-BFObkL3Yo8env6XGazI3-sr9ZRwWxQhWPDYfRHQGDC8JPj27rSh5f1qh8o2Gb6JBGh6hW1P-Psinw-HROVWF8qgCyEmcxA"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-fixed text-on-primary-fixed">Santé Mutuelle</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">4 Packages</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">BIM FAMILY : 400$/AN</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">local_hospital</span>
+<span class="truncate">POLYCLINIQUE CITADELLE</span>
+</div>
+</div>
+</div>
+<!-- Description -->
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Package familial valable 1 an pour 4 personnes (père, mère et 2 enfants à charge). Soins ambulatoires complets, urgences 24/7 et pédiatrie.
+            </p>
+<!-- Price & Validity Matrix -->
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Annuel</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">400.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<!-- Bottom Actions & Toggle Switch -->
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" title="Modifier le produit" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" title="Supprimer" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 3: BIM FULL FAMILY 1000$/AN -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual & Header Meta -->
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Large multigen family smiling in front of a medical center, premium health coverage plan advertising, Kinshasa Congo corporate photography, natural daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDUOxyAyHstQFEBcRMpGEm_wqoUBrE3z0amA4uLfM2V6DMRIbv6kheaBYG_zFBT3yMnIzt_LHyGQpH5uVU7UyRsFBl9jcqrtUpzsDQkorsKmC49tKuJx_esqTeK7g2zp4U68BbRl7rPkZQJfrDGlMUkTa538QxITx2p-zHUeRtl2mBZnyaadY-Rbn2K4LTY8irxSBuSlRZmY4QzPHV2AeI5xaI9K-h179x5LWcNiKfAHE3cqcrOYZmYoQ"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-fixed text-on-primary-fixed">Santé Mutuelle</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">10 Packages</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">BIM FULL FAMILY : 1000$/AN</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">local_hospital</span>
+<span class="truncate">POLYCLINIQUE CITADELLE</span>
+</div>
+</div>
+</div>
+<!-- Description -->
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Couverture intégrale premium jusqu'à 10 personnes. Hospitalisation 100%, maternité, consultations spécialistes et pharmacie conventionnée.
+            </p>
+<!-- Price & Validity Matrix -->
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Annuel</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">1 000.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<!-- Bottom Actions & Toggle Switch -->
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" title="Modifier le produit" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" title="Supprimer" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 4: ESSENCE - 4200 FC (STATION XXXL) -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center font-display-lg text-headline-lg font-bold text-primary flex-shrink-0">
+                E
+              </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-secondary-fixed text-on-secondary-fixed">Carburant</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">1 Litre</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Essence - 4200 FC</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">local_gas_station</span>
+<span class="truncate">STATION XXXL</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Bon carburant Essence sans plomb Super indexé sur les bornes partenaires Station XXXL. QR Code de retrait instantané.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif / Litre</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">1.83 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">≈ 4 200 FC</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 5: MAZOUT - 5000 FC (STATION XXXL) -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center font-display-lg text-headline-lg font-bold text-secondary flex-shrink-0">
+                M
+              </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-secondary-fixed text-on-secondary-fixed">Carburant</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">1 Litre</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Mazout - 5000 FC</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-secondary">local_gas_station</span>
+<span class="truncate">STATION XXXL</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Gasoil Premium certifié pour groupes électrogènes et flottes utilitaires. Échangeable contre bon numérique à la pompe.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif / Litre</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">2.20 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">≈ 5 000 FC</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 6: RECHARGE GAZ 6 KG (ETS KATAMLPG) -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center font-display-lg text-headline-lg font-bold text-primary flex-shrink-0">
+                R
+              </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant">Gaz Énergie</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">6 Kg</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Recharge Gaz 6 Kg</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary">propane_tank</span>
+<span class="truncate">ETS KATAMLPG</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Recharge standard bouteille de gaz butane 6 kg. Valable dans tous les dépôts KatamLPG et partenaires de livraison.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Recharge</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">14.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">Bouteille consignée</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 7: RECHARGE GAZ 12.5 KG (ETS KATAMLPG) -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container flex items-center justify-center font-display-lg text-headline-lg font-bold text-secondary flex-shrink-0">
+                G
+              </div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant">Gaz Énergie</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">12.5 Kg</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Recharge Gaz 12.5 Kg</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-tertiary">propane_tank</span>
+<span class="truncate">ETS KATAMLPG</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Grande bouteille familiale 12.5 kg butane haute performance. Valve standardisée sécurisée compatible tout détendeur.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Recharge</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">28.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">Bouteille consignée</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 8: HÔTEL LA CASA SIR HENRY - CHAMBRE VIP -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Luxury boutique hotel suite interior with plush bed, contemporary wooden design, subtle warm lighting, upscale hospitality photography for Kinshasa VIP executive suite" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6oAWu9GxPKy6p6jS2BOJZYy0iUSXvesLhOTzOyIRqBhHvmfeUN5BlKDIhn2EQEUZurWmbihl8MEbgBrS9BCx-T07jfwxG7yOUakgAb8rcKz8SOGpU9ZtCkQTsmzpLUlSh_3eG1eN8lP_yuwONh8EhvJdiHEzrv6Q9L2IgLMMqebDKYcFVxDoolRJoZspGOgw3A8ItbRnfN0XF2OpQqx7LMNaDa4YFjMPJHXFs-vfdIv-cS6KHfNDhZg"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-primary-fixed text-on-primary-fixed">Hôtellerie</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">Nuitée</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Chambre VIP - La Casa</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">hotel</span>
+<span class="truncate">HÔTEL LA CASA SIR HENRY</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Chambre VIP grand confort avec petit-déjeuner inclus, Wi-Fi très haut débit, accès lounge et service conciergerie 24h/24.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif par Nuit</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">140.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">Standard à 90.00 EC</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+<!-- CARD 9: STARLINK KIT STANDARD (SATELLITE INTERNET) -->
+<div class="group rounded-xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="flex items-start gap-space-sm mb-3">
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden flex-shrink-0 relative">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="High tech flat satellite antenna dish mounted on rooftop with modern router on sleek desk, tech hardware commercial product photography, crisp lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB2TCOZIcsiwy9LOdU9VQOKHtneGIs8jQh-H9VEMb5pdEfuRBelHK_I0gG2xKMPHtcPPtBjZjjWlLMg3djsrqn6ZgVfN30bJzCPEfDNsPwXcwUvsIomNW1w213_S8LBd4JYtoxyPhfHkjppfoJpOJncBT6YHpGRXdg9GqhlowaWiqgPXFiGGGDO_nq0Jx-_iPWBa6crcPvccRICVlhMENHHCX6xOr3_KyIpPPiUyhMEDZ7zeSiJi_D4KQ"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex items-center gap-1.5 flex-wrap">
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-secondary-fixed text-on-secondary-fixed">Télécoms</span>
+<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-surface-container-low text-secondary">Kit Matériel</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface mt-1 truncate">Starlink Kit Standard V4</h3>
+<div class="flex items-center gap-1 text-label-sm text-secondary font-medium mt-0.5">
+<span class="material-symbols-outlined text-[14px] text-primary">satellite_alt</span>
+<span class="truncate">STARLINK RDC SATELLITES</span>
+</div>
+</div>
+</div>
+<p class="font-body-sm text-body-sm text-secondary line-clamp-2 mb-3">
+              Antenne motorisée résidentielle, routeur Wi-Fi 6, câbles et bloc alimentation. Connexion Internet très haut débit basse latence.
+            </p>
+<div class="p-2.5 rounded-lg bg-surface-container-low flex items-center justify-between mb-4">
+<div>
+<span class="font-label-sm text-label-sm text-outline block">Tarif Kit</span>
+<span class="font-headline-md text-headline-md font-bold text-primary">600.00 <span class="font-label-md text-body-sm font-medium text-secondary">EC</span></span>
+<span class="text-[11px] text-secondary block font-medium">Mini disponible à 380 EC</span>
+</div>
+<div class="text-right">
+<span class="font-label-sm text-label-sm text-outline block">Expiration</span>
+<span class="font-label-md text-body-sm font-semibold text-on-surface">31/12/2026</span>
+</div>
+</div>
+</div>
+<div class="pt-3 border-t border-surface-container flex items-center justify-between">
+<label class="flex items-center gap-2 cursor-pointer select-none">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-8 h-4 bg-surface-container rounded-full peer peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-surface-container-lowest after:rounded-full after:h-3 after:w-3 after:transition-all relative"></div>
+<span class="font-label-sm text-label-sm text-secondary peer-checked:text-primary peer-checked:font-semibold">Recommander</span>
+</label>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-primary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:text-error hover:bg-error-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Additional Categorized Accordion / Section Matrix: Eaux & Boissons + Autres Offres -->
+<div class="pt-space-md border-t border-surface-container">
+<div class="flex items-center justify-between mb-4">
+<div>
+<h3 class="font-headline-sm text-headline-sm font-bold text-on-surface">Pack Eaux Minérales &amp; Boissons (Cross-selling Supermarché)</h3>
+<p class="font-body-sm text-body-sm text-secondary">Articles fréquemment suggérés en fin de commande sur le module livraison.</p>
+</div>
+<span class="px-2.5 py-1 rounded-md bg-surface-container font-label-sm text-label-sm text-primary font-semibold">4 Produits référencés</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-sm">
+<!-- Item Water 1 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div>
+<span class="font-body-sm text-body-sm font-bold text-on-surface block">Carton d'eau La Vie</span>
+<span class="font-label-sm text-label-sm text-secondary">12 x 1.5L</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-sm text-body-sm font-bold text-primary">5.00 EC</span>
+<span class="text-[10px] text-outline block">Actif</span>
+</div>
+</div>
+<!-- Item Water 2 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div>
+<span class="font-body-sm text-body-sm font-bold text-on-surface block">Bidon Anana Water</span>
+<span class="font-label-sm text-label-sm text-secondary">Fontaine 18.9L</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-sm text-body-sm font-bold text-primary">5.50 EC</span>
+<span class="text-[10px] text-outline block">Actif</span>
+</div>
+</div>
+<!-- Item Water 3 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div>
+<span class="font-body-sm text-body-sm font-bold text-on-surface block">Carton Vio 500ml</span>
+<span class="font-label-sm text-label-sm text-secondary">24 bouteilles</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-sm text-body-sm font-bold text-primary">6.50 EC</span>
+<span class="text-[10px] text-outline block">Actif</span>
+</div>
+</div>
+<!-- Item Water 4 -->
+<div class="p-3 rounded-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-2.5">
+<div class="w-9 h-9 rounded-lg bg-surface-container flex items-center justify-center text-primary font-bold">
+<span class="material-symbols-outlined text-[18px]">water_drop</span>
+</div>
+<div>
+<span class="font-body-sm text-body-sm font-bold text-on-surface block">Carton Vio 1.5L</span>
+<span class="font-label-sm text-label-sm text-secondary">12 bouteilles</span>
+</div>
+</div>
+<div class="text-right">
+<span class="font-body-sm text-body-sm font-bold text-primary">7.70 EC</span>
+<span class="text-[10px] text-outline block">Actif</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination & Bottom Statistics Footer -->
+<div class="pt-space-md border-t border-surface-container flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<div class="font-body-sm text-body-sm text-secondary">
+          Affichage de <span class="font-semibold text-on-surface">1 à 9</span> sur <span class="font-semibold text-on-surface">25</span> produits enregistrés
+        </div>
+<div class="flex items-center gap-1">
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container transition-colors disabled:opacity-40" disabled="" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center bg-primary text-on-primary font-semibold text-body-sm shadow-sm" type="button">
+            1
+          </button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container hover:text-on-surface font-medium text-body-sm transition-colors" type="button">
+            2
+          </button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container hover:text-on-surface font-medium text-body-sm transition-colors" type="button">
+            3
+          </button>
+<button class="w-8 h-8 rounded-lg flex items-center justify-center text-secondary hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div></main></div></body></html>

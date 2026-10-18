@@ -50,6 +50,38 @@ const assignDialog = ref(false);
 const assignTarget = ref(null);
 const selectedChauffeurId = ref(null);
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+// Chauffeurs triés du plus proche au plus loin du point de prise en charge,
+// pour que l'admin appelle d'abord celui qui arrivera le plus vite.
+const sortedAvailableChauffeurs = computed(() => {
+    const pLat = assignTarget.value?.pickupLat != null ? Number(assignTarget.value.pickupLat) : null;
+    const pLng = assignTarget.value?.pickupLng != null ? Number(assignTarget.value.pickupLng) : null;
+    const withDistance = availableChauffeurs.value.map((c) => {
+        const hasCoords = pLat != null && pLng != null && c.latitude != null && c.longitude != null;
+        const distanceKm = hasCoords ? haversineKm(pLat, pLng, Number(c.latitude), Number(c.longitude)) : null;
+        return { ...c, distanceKm };
+    });
+    return withDistance.sort((a, b) => {
+        if (a.distanceKm == null) return 1;
+        if (b.distanceKm == null) return -1;
+        return a.distanceKm - b.distanceKm;
+    });
+});
+
+function proximityLabel(distanceKm) {
+    if (distanceKm == null) return null;
+    if (distanceKm < 1.5) return { label: 'Très proche', severity: 'success' };
+    if (distanceKm < 5) return { label: 'Proche', severity: 'info' };
+    return { label: 'Loin', severity: 'warn' };
+}
+
 function openAssign(row) {
     assignTarget.value = row;
     selectedChauffeurId.value = null;
@@ -195,20 +227,27 @@ function formatDate(d) {
                 Choisissez un chauffeur en ligne et disponible — vous devrez ensuite l'appeler vous-même pour lui
                 dire d'aller récupérer le client à l'adresse indiquée.
             </p>
-            <div v-if="availableChauffeurs.length === 0" class="text-center py-6 text-muted-color text-sm">
+            <div v-if="sortedAvailableChauffeurs.length === 0" class="text-center py-6 text-muted-color text-sm">
                 Aucun chauffeur en ligne et disponible pour le moment.
             </div>
             <div v-else class="flex flex-col gap-2">
                 <div
-                    v-for="c in availableChauffeurs"
+                    v-for="c in sortedAvailableChauffeurs"
                     :key="c.chauffeurId"
                     class="flex items-center justify-between gap-2 rounded-lg border p-2 cursor-pointer"
                     :class="selectedChauffeurId === c.chauffeurId ? 'border-primary bg-primary/5' : 'border-surface-200 dark:border-surface-700'"
                     @click="selectedChauffeurId = c.chauffeurId"
                 >
                     <div class="min-w-0">
-                        <div class="text-sm font-medium truncate">{{ c.user?.username ?? 'Chauffeur' }}</div>
-                        <div class="text-xs text-muted-color">{{ c.user?.telephone ?? c.telephone ?? '—' }} · {{ c.vehicleTier }} · ⭐ {{ Number(c.rating ?? 5).toFixed(1) }}</div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-sm font-medium truncate">{{ c.user?.username ?? 'Chauffeur' }}</span>
+                            <Tag :value="c.isOnline ? 'En ligne' : 'Hors ligne'" :severity="c.isOnline ? 'success' : 'secondary'" class="text-xs!" />
+                            <Tag v-if="proximityLabel(c.distanceKm)" :value="proximityLabel(c.distanceKm).label" :severity="proximityLabel(c.distanceKm).severity" class="text-xs!" />
+                        </div>
+                        <div class="text-xs text-muted-color">
+                            {{ c.user?.telephone ?? c.telephone ?? '—' }} · {{ c.vehicleTier }} · ⭐ {{ Number(c.rating ?? 5).toFixed(1) }}
+                            <template v-if="c.distanceKm != null"> · {{ c.distanceKm.toFixed(1) }} km</template>
+                        </div>
                     </div>
                     <RadioButton :value="c.chauffeurId" v-model="selectedChauffeurId" />
                 </div>

@@ -40,7 +40,7 @@ const TIER_OPTIONS = [
 ];
 
 function emptyForm() {
-    return { userId: null, telephone: '', vehicleMake: '', vehicleModel: '', vehicleColor: '', plateNumber: '', vehicleTier: 'eco', seats: 4 };
+    return { userId: null, fullname: '', telephone: '', vehicleMake: '', vehicleModel: '', vehicleColor: '', plateNumber: '', vehicleTier: 'eco', seats: 4 };
 }
 
 const createDialog = ref(false);
@@ -83,7 +83,9 @@ function onFileChange(event) {
     imagePreview.value = URL.createObjectURL(file);
 }
 
-const canCreate = computed(() => !!form.value.userId && !!form.value.plateNumber);
+// Soit un compte BIM existant est lié, soit un nom est fourni pour générer
+// un accès par code personnel (compte créé à la première connexion du chauffeur).
+const canCreate = computed(() => (!!form.value.userId || !!form.value.fullname.trim()) && !!form.value.plateNumber);
 
 function submitCreate() {
     const payload = { ...form.value, ...(imageFile.value && { image: imageFile.value }) };
@@ -167,10 +169,18 @@ function onPage(event) {
                             <i class="pi pi-user" />
                         </div>
                         <div class="flex-1 min-w-0">
-                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ row.user?.username ?? `User #${row.userId}` }}</div>
+                            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+                                {{ row.user?.username ?? row.fullname ?? `Chauffeur #${row.chauffeurId}` }}
+                            </div>
                             <div class="text-xs text-muted-color truncate">{{ row.telephone }}</div>
                         </div>
                         <Tag :value="TIER_OPTIONS.find(t => t.value === row.vehicleTier)?.label ?? row.vehicleTier" />
+                    </div>
+
+                    <!-- Code d'accès personnel (à donner au chauffeur) -->
+                    <div v-if="row.accessCode" class="flex items-center justify-between gap-2 rounded-lg bg-primary/5 px-2.5 py-1.5">
+                        <span class="text-xs text-muted-color">Code d'accès</span>
+                        <span class="font-mono font-bold text-sm text-primary tracking-wider">{{ row.accessCode }}</span>
                     </div>
 
                     <!-- Véhicule -->
@@ -229,7 +239,7 @@ function onPage(event) {
                     </div>
                 </div>
                 <div class="flex flex-col gap-2">
-                    <label class="font-medium text-sm">Compte BIM (nom ou email) <span class="text-red-400">*</span></label>
+                    <label class="font-medium text-sm">Compte BIM existant (optionnel)</label>
                     <AutoComplete
                         v-model="selectedUser"
                         :suggestions="userSuggestions"
@@ -247,6 +257,13 @@ function onPage(event) {
                             </div>
                         </template>
                     </AutoComplete>
+                    <p class="text-xs text-muted-color">
+                        Sans compte lié, remplissez le nom ci-dessous — un code d'accès personnel sera généré pour que le chauffeur se connecte lui-même.
+                    </p>
+                </div>
+                <div class="flex flex-col gap-2" v-if="!form.userId">
+                    <label class="font-medium text-sm">Nom complet du chauffeur <span class="text-red-400">*</span></label>
+                    <InputText v-model="form.fullname" placeholder="Jean Mukendi" />
                 </div>
                 <div class="flex flex-col gap-2">
                     <label class="font-medium text-sm">Téléphone</label>
