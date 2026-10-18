@@ -38,5 +38,8 @@ const getCurrencies = () =>
 const updateCurrency = (id, data) =>
     apiClient.put(`/currency/update/${id}`, data).then((r) => r.data);
 
-const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies, approveRecharge, rejectRecharge, reverseRecharge, verifyPayment, getCurrencies, updateCurrency };
+const createCurrency = (data) =>
+    apiClient.post('/currency/create', data).then((r) => r.data);
+
+const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies, approveRecharge, rejectRecharge, reverseRecharge, verifyPayment, getCurrencies, updateCurrency, createCurrency };
 export default TransactionsService;

@@ -37,10 +37,22 @@ function openRateDialog() {
 }
 
 async function saveCdfRate() {
-    if (!cdfCurrencyId.value || !rateInput.value || rateInput.value <= 0) return;
+    if (!rateInput.value || rateInput.value <= 0) return;
     savingRate.value = true;
     try {
-        await TransactionsService.updateCurrency(cdfCurrencyId.value, { rate: rateInput.value });
+        if (cdfCurrencyId.value) {
+            await TransactionsService.updateCurrency(cdfCurrencyId.value, { rate: rateInput.value });
+        } else {
+            // Pas encore de ligne CDF sur ce serveur (ex: jamais créée en prod) — on la crée.
+            const res = await TransactionsService.createCurrency({
+                code: 'CDF',
+                name: 'Franc Congolais',
+                description: "Taux de conversion EC/USD -> CDF, utilisé pour les recharges et retraits payés en francs.",
+                symbol: 'FC',
+                rate: rateInput.value,
+            });
+            cdfCurrencyId.value = res?.data?.currencyId ?? null;
+        }
         cdfRate.value = rateInput.value;
         showRateDialog.value = false;
         toast.add({ severity: 'success', summary: 'Taux mis à jour', detail: `1 EC = ${rateInput.value} FC`, life: 3000 });
