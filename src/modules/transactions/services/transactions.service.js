@@ -24,5 +24,19 @@ const rejectRecharge = (id, reason) =>
 const reverseRecharge = (id) =>
     apiClient.patch(`/tsx/admin/recharges/${id}/reverse`).then((r) => r.data);
 
-const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies, approveRecharge, rejectRecharge, reverseRecharge };
+// FlexPay confirme le paiement via un webhook — s'il n'arrive jamais, la
+// recharge reste "en attente" même si FlexPay a bien confirmé le paiement
+// de son côté. On interroge FlexPay directement pour trancher avant de
+// créditer, au lieu d'approuver à l'aveugle.
+const verifyPayment = (reference) =>
+    apiClient.post('/tsx/recharge/verify', { reference }).then((r) => r.data);
+
+// Taux de change (ex: EC/USD → CDF) utilisé pour les recharges/retraits en francs.
+const getCurrencies = () =>
+    apiClient.get('/currency').then((r) => r.data);
+
+const updateCurrency = (id, data) =>
+    apiClient.put(`/currency/update/${id}`, data).then((r) => r.data);
+
+const TransactionsService = { getTransactions, getRecharges, getRetraits, getPaiements, getAllCompanies, approveRecharge, rejectRecharge, reverseRecharge, verifyPayment, getCurrencies, updateCurrency };
 export default TransactionsService;

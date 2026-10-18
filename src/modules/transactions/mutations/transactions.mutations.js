@@ -24,3 +24,11 @@ export function useReverseRechargeMutation() {
         onSuccess: () => qc.refetchQueries({ queryKey: ['recharges'] }),
     });
 }
+
+export function useVerifyPaymentMutation() {
+    const qc = useQueryClient();
+    return useMutation({
+        mutationFn: (reference) => TransactionsService.verifyPayment(reference),
+        onSuccess: () => qc.refetchQueries({ queryKey: ['recharges'] }),
+    });
+}

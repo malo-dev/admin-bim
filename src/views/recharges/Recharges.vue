@@ -11,6 +11,7 @@ import {
     useApproveRechargeMutation,
     useRejectRechargeMutation,
     useReverseRechargeMutation,
+    useVerifyPaymentMutation,
 } from '@/modules/transactions/mutations/transactions.mutations';
 
 const toast   = useToast();
@@ -156,6 +157,7 @@ function onPage(event) {
 const { mutate: doApprove,  isPending: approving  } = useApproveRechargeMutation();
 const { mutate: doReject,   isPending: rejecting   } = useRejectRechargeMutation();
 const { mutate: doReverse,  isPending: reversing   } = useReverseRechargeMutation();
+const { mutate: doVerify,   isPending: verifying   } = useVerifyPaymentMutation();
 
 const actionId     = ref(null);
 const rejectDialog = ref(false);
@@ -258,6 +260,43 @@ function confirmReverse(row) {
                     actionId.value = null;
                 },
             });
+        },
+    });
+}
+
+/* ── Vérifier avec FlexPay ──────────────────────────────────────────────────
+   FlexPay confirme le paiement via un webhook — s'il n'arrive jamais (réseau,
+   callback indisponible au mauvais moment...), la recharge reste "en attente"
+   dans notre base MÊME SI FlexPay a bien confirmé le paiement de son côté.
+   Approuver à l'aveugle créditerait sans certitude ; cette action interroge
+   directement FlexPay avant de créditer (ou de rejeter si FlexPay dit non). */
+function handleVerify(row) {
+    if (!row.reference) {
+        toast.add({ severity: 'warn', summary: 'Impossible', detail: 'Cette demande n\'a pas de référence FlexPay.', life: 4000 });
+        return;
+    }
+    actionId.value = rowId(row);
+    doVerify(row.reference, {
+        onSuccess: (res) => {
+            const soldeTxt = res?.solde != null ? ` — solde actuel : ${Number(res.solde).toLocaleString('fr-FR')} EC` : '';
+            const byStatus = {
+                already_done: { severity: 'info', summary: 'Déjà crédité', detail: `Ce paiement était déjà crédité.${soldeTxt}` },
+                success: { severity: 'success', summary: 'Paiement confirmé', detail: `FlexPay confirme le paiement — compte crédité.${soldeTxt}` },
+                cancelled: { severity: 'warn', summary: 'Refusé par FlexPay', detail: 'FlexPay indique que ce paiement a été refusé/annulé.' },
+                pending: { severity: 'info', summary: 'Toujours en attente', detail: 'FlexPay n\'a pas encore confirmé ce paiement, réessayez plus tard.' },
+            };
+            const t = byStatus[res?.status] ?? { severity: 'info', summary: 'Statut inconnu', detail: res?.message ?? '' };
+            toast.add({ ...t, life: 5000 });
+            actionId.value = null;
+            refetch();
+        },
+        onError: (err) => {
+            toast.add({
+                severity: 'error', summary: 'Erreur',
+                detail: err?.response?.data?.message ?? 'Impossible de vérifier — ce n\'est peut-être pas une recharge FlexPay automatique.',
+                life: 5000,
+            });
+            actionId.value = null;
         },
     });
 }
@@ -402,8 +441,18 @@ function confirmReverse(row) {
 
                     <!-- Actions -->
                     <div class="flex gap-1 flex-wrap justify-end pt-2 border-t border-surface-100 dark:border-surface-800">
-                        <!-- En attente → Approuver + Rejeter -->
+                        <!-- En attente → Vérifier avec FlexPay + Approuver + Rejeter -->
                         <template v-if="isPending(row)">
+                            <Button
+                                v-tooltip.top="'Vérifier avec FlexPay avant de décider'"
+                                icon="pi pi-sync"
+                                label="Vérifier"
+                                severity="info"
+                                outlined
+                                size="small"
+                                :loading="actionId === rowId(row) && verifying"
+                                @click="handleVerify(row)"
+                            />
                             <Button
                                 v-tooltip.top="'Approuver'"
                                 icon="pi pi-check"

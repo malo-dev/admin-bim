@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { refDebounced } from '@vueuse/core';
 import { useToast } from 'primevue/usetoast';
 import {
@@ -15,6 +15,43 @@ import autoTable from 'jspdf-autotable';
 
 const toast = useToast();
 const activeTab = ref(0);
+
+// ── Taux de change CDF (recharges/retraits en francs) ───────────────────────
+const cdfCurrencyId = ref(null);
+const cdfRate        = ref(null);
+const showRateDialog = ref(false);
+const rateInput      = ref(null);
+const savingRate      = ref(false);
+
+async function loadCdfRate() {
+    try {
+        const res = await TransactionsService.getCurrencies();
+        const cdf = (res?.data ?? []).find((c) => c.code === 'CDF');
+        if (cdf) { cdfCurrencyId.value = cdf.currencyId; cdfRate.value = cdf.rate; }
+    } catch { /* non bloquant */ }
+}
+
+function openRateDialog() {
+    rateInput.value = cdfRate.value;
+    showRateDialog.value = true;
+}
+
+async function saveCdfRate() {
+    if (!cdfCurrencyId.value || !rateInput.value || rateInput.value <= 0) return;
+    savingRate.value = true;
+    try {
+        await TransactionsService.updateCurrency(cdfCurrencyId.value, { rate: rateInput.value });
+        cdfRate.value = rateInput.value;
+        showRateDialog.value = false;
+        toast.add({ severity: 'success', summary: 'Taux mis à jour', detail: `1 EC = ${rateInput.value} FC`, life: 3000 });
+    } catch (e) {
+        toast.add({ severity: 'error', summary: 'Erreur', detail: e?.response?.data?.message || 'Impossible de mettre à jour le taux.', life: 4000 });
+    } finally {
+        savingRate.value = false;
+    }
+}
+
+onMounted(loadCdfRate);
 
 // ── Filtres rapides par période (communs aux 4 onglets) ─────────────────────
 const QUICK_PERIODS = [
@@ -426,15 +463,45 @@ async function exportPaiPdf() {
 <template>
     <div class="flex flex-col gap-4">
         <!-- Header -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3 flex-wrap">
             <div class="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
                 <i class="pi pi-arrows-h text-primary text-lg" />
             </div>
-            <div>
+            <div class="flex-1 min-w-48">
                 <h1 class="text-2xl font-bold text-surface-900 dark:text-surface-0">Transactions</h1>
                 <p class="text-sm text-muted-color">Transactions, recharges, retraits et paiements</p>
             </div>
+
+            <!-- Taux de change CDF, utilisé pour les recharges/retraits payés en francs -->
+            <button
+                type="button"
+                class="flex items-center gap-2 rounded-xl border border-surface-200 dark:border-surface-700 px-3 py-2 hover:bg-surface-50 dark:hover:bg-surface-800 transition-colors"
+                @click="openRateDialog"
+            >
+                <i class="pi pi-sync text-primary text-sm" />
+                <span class="text-sm">
+                    <span class="text-muted-color">Taux CDF : </span>
+                    <span class="font-semibold">1 EC = {{ cdfRate ?? '…' }} FC</span>
+                </span>
+                <i class="pi pi-pencil text-xs text-muted-color" />
+            </button>
         </div>
+
+        <Dialog v-model:visible="showRateDialog" header="Taux de change CDF" modal style="width: 26rem">
+            <p class="text-sm text-muted-color mb-4">
+                Nombre de Francs Congolais (FC) équivalents à 1 EC (= 1 USD). Utilisé pour convertir les
+                recharges et retraits lorsque l'utilisateur choisit de payer/retirer en francs.
+            </p>
+            <label class="text-sm font-medium block mb-2">1 EC =</label>
+            <div class="flex items-center gap-2">
+                <InputNumber v-model="rateInput" class="flex-1" :min="1" :maxFractionDigits="2" />
+                <span class="text-muted-color">FC</span>
+            </div>
+            <template #footer>
+                <Button label="Annuler" severity="secondary" text @click="showRateDialog = false" />
+                <Button label="Enregistrer" :loading="savingRate" @click="saveCdfRate" />
+            </template>
+        </Dialog>
 
         <Tabs v-model:value="activeTab">
             <TabList>
@@ -658,6 +725,11 @@ async function exportPaiPdf() {
                                 <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
                             </div>
 
+                            <div v-if="row.currency === 'CDF'" class="flex items-center justify-between gap-2">
+                                <span class="text-xs text-muted-color">Payé en</span>
+                                <span class="text-sm font-semibold text-primary">{{ fmt(row.convertedAmount) }} FC</span>
+                            </div>
+
                             <div class="flex items-center justify-between gap-2">
                                 <span class="font-mono text-xs text-muted-color truncate">{{ row.reference }}</span>
                             </div>
@@ -759,6 +831,10 @@ async function exportPaiPdf() {
                                 <span class="font-semibold">{{ fmt(row.amount) }} EC</span>
                             </div>
 
+                            <div v-if="row.currency === 'CDF'" class="flex items-center justify-between gap-2">
+                                <span class="text-xs text-muted-color">À remettre en cash</span>
+                                <span class="text-sm font-semibold text-primary">{{ fmt(row.convertedAmount) }} FC</span>
+                            </div>
                             <div class="flex items-center justify-between gap-2">
                                 <span class="text-xs text-muted-color">Frais total</span>
                                 <span class="text-sm text-muted-color">{{ fmt(row.fraisTransaction) }} EC</span>
