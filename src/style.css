@@ -1,0 +1,136 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    overscroll-behavior: none;
+    /* Inter : chiffres alignés et formes plus lisibles (1, l, I) */
+    font-feature-settings: 'cv11', 'ss01', 'tnum';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: rgb(30 64 175 / 0.18);
+    color: inherit;
+  }
+  /* Focus visible uniquement au clavier */
+  :focus-visible {
+    outline: 2px solid rgb(30 64 175 / 0.55);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    user-select: none;
+  }
+  /* Icône pleine pour l'élément actif du menu */
+  [aria-current='page'] > .material-symbols-outlined {
+    font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+  }
+}
+
+/* Barres de défilement fines et discrètes */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(117 118 132 / 0.28) transparent;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgb(117 118 132 / 0.25);
+  border: 2px solid transparent;
+  border-radius: 9999px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(117 118 132 / 0.45);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* ------------------------------------------------------------------
+   Glassmorphism : les cartes blanches des pages deviennent du verre
+   dépoli posé sur le fond coloré du layout.
+   ------------------------------------------------------------------ */
+main .bg-surface-container-lowest,
+main .bg-white:is(.rounded-xl, .rounded-2xl) {
+  background-color: rgb(255 255 255 / 0.62);
+  -webkit-backdrop-filter: blur(18px) saturate(170%);
+  backdrop-filter: blur(18px) saturate(170%);
+}
+
+/* Teintes secondaires légèrement translucides pour laisser passer la couleur */
+main .bg-surface-container-low {
+  background-color: rgb(243 246 254 / 0.7);
+}
+main .bg-surface {
+  background-color: rgb(251 252 255 / 0.7);
+}
+
+/* Fenêtres modales : verre plus opaque pour rester lisible sur le voile sombre */
+main .fixed .bg-surface-container-lowest,
+main .fixed .bg-white {
+  background-color: rgb(255 255 255 / 0.9);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* Les cartes interactives se soulèvent légèrement au survol */
+main .bg-surface-container-lowest.hover\:shadow-md,
+main .bg-white.hover\:shadow-md {
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    background-color 0.25s ease;
+}
+main .bg-surface-container-lowest.hover\:shadow-md:hover,
+main .bg-white.hover\:shadow-md:hover {
+  transform: translateY(-2px);
+  background-color: rgb(255 255 255 / 0.78);
+}
+
+/* Transition entre les pages */
+.page-enter-active,
+.page-leave-active {
+  transition:
+    opacity 0.22s ease,
+    transform 0.22s ease;
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(8px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

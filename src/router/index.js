@@ -1,162 +1,63 @@
-import AppLayout from '@/layout/AppLayout.vue';
-import CompanyLayout from '@/layout/CompanyLayout.vue';
-import { createRouter, createWebHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router'
+import LoginView from '@/views/LoginView.vue'
+import AdminLayout from '@/layouts/AdminLayout.vue'
+import { authStore } from '@/stores/auth'
+
+const TITLE_SUFFIX = 'BIM NEXT Enterprise Platform'
+
+// `section` indique l'entrée du menu latéral à mettre en surbrillance.
+const adminPages = [
+  { path: 'tableau-de-bord', name: 'tableau-de-bord', title: 'Tableau de bord', section: 'tableau-de-bord', component: () => import('@/views/TableauDeBordView.vue') },
+  { path: 'comptes', name: 'comptes', title: 'Gestion des comptes', section: 'comptes', component: () => import('@/views/GestionComptesView.vue') },
+  { path: 'utilisateurs-acces', name: 'utilisateurs-acces', title: 'Utilisateurs & Accès', section: 'comptes', component: () => import('@/views/UtilisateursAccesView.vue') },
+  { path: 'codes-acces-staff', name: 'codes-acces-staff', title: "Codes d'accès Staff", section: 'comptes', component: () => import('@/views/CodesAccesStaffView.vue') },
+  { path: 'entreprises', name: 'entreprises', title: 'Entreprises & Partenaires', section: 'entreprises', component: () => import('@/views/EntreprisesPartenairesView.vue') },
+  { path: 'catalogue', name: 'catalogue', title: 'Catalogue Produits & Services', section: 'catalogue', component: () => import('@/views/CatalogueProduitsView.vue') },
+  { path: 'transport', name: 'transport', title: 'BIM Transport', section: 'commandes', component: () => import('@/views/TransportChauffeursView.vue') },
+  { path: 'commandes', name: 'commandes', title: 'Commandes & Livraisons', section: 'commandes', component: () => import('@/views/CommandesLivraisonsView.vue') },
+  { path: 'agents', name: 'agents', title: 'Agents BIM', section: 'commandes', component: () => import('@/views/AgentsCashOutView.vue') },
+  { path: 'formation', name: 'formation', title: 'Tutoriels Formation', section: 'catalogue', component: () => import('@/views/TutorielsFormationView.vue') },
+  { path: 'transactions', name: 'transactions', title: 'Finance & Transactions', section: 'transactions', component: () => import('@/views/FinanceTransactionsView.vue') },
+  { path: 'recharges', name: 'recharges', title: 'Demandes de recharge', section: 'transactions', component: () => import('@/views/RechargesTresorerieView.vue') },
+  { path: 'recharges/rapprochement', name: 'recharges-rapprochement', title: 'Rapprochement Mobile Money', section: 'transactions', component: () => import('@/views/RechargesRapprochementView.vue') },
+  { path: 'portefeuilles', name: 'portefeuilles', title: 'Portefeuilles utilisateurs', section: 'portefeuilles', component: () => import('@/views/PortefeuillesView.vue') },
+  { path: 'statistiques', name: 'statistiques', title: 'Statistiques financières', section: 'statistiques', component: () => import('@/views/StatistiquesFinancieresView.vue') },
+  { path: 'logs', name: 'logs', title: "Logs d'activité", section: 'logs', component: () => import('@/views/LogsActiviteView.vue') },
+  { path: 'parametres', name: 'parametres', title: 'Paramètres', section: 'parametres', component: () => import('@/views/ParametresView.vue') }
+]
 
 const router = createRouter({
-    history: createWebHistory(),
-    routes: [
-        {
-            path: '/',
-            component: AppLayout,
-            meta: { requiresAuth: true },
-            children: [
-                { path: '/', name: 'dashboard', component: () => import('@/views/Dashboard.vue') },
-
-                // ── 3 pages hub ──────────────────────────────────────────────────
-                { path: '/gestion', name: 'gestion', component: () => import('@/views/gestion/Gestion.vue') },
-                { path: '/finance-support', name: 'financeSupport', component: () => import('@/views/finance-support/FinanceSupport.vue') },
-
-                // Détail de commande — reste une route à part (drill-down depuis l'onglet Commandes)
-                { path: '/orders/:id', name: 'orderDetail', component: () => import('@/views/orders/OrderDetail.vue') },
-
-                // ── Anciennes URLs → redirection vers le bon onglet du bon hub ──
-                { path: '/online-users', redirect: '/' },
-
-                { path: '/accounts/create', redirect: '/gestion?tab=0' },
-                { path: '/accounts/list', redirect: '/gestion?tab=0' },
-                { path: '/accounts/create-company', redirect: '/gestion?tab=0' },
-
-                { path: '/users', redirect: '/gestion?tab=1' },
-                { path: '/roles', redirect: '/gestion?tab=1' },
-                { path: '/user-roles', redirect: '/gestion?tab=1' },
-
-                { path: '/companies', redirect: '/gestion?tab=2' },
-                { path: '/commerces', redirect: '/gestion?tab=2' },
-                { path: '/branches', redirect: '/gestion?tab=2' },
-                { path: '/business-categories', redirect: '/gestion?tab=2' },
-
-                { path: '/products', redirect: '/gestion?tab=3' },
-                { path: '/products-random', redirect: '/gestion?tab=3' },
-                { path: '/product-categories', redirect: '/gestion?tab=3' },
-                { path: '/products-sold', redirect: '/gestion?tab=3' },
-
-                { path: '/banners', redirect: '/gestion?tab=4' },
-                { path: '/app-version', redirect: '/gestion?tab=4' },
-
-                { path: '/chauffeurs', redirect: '/gestion?tab=5' },
-                { path: '/tarifs-transport', redirect: '/gestion?tab=5' },
-
-                { path: '/orders', redirect: '/gestion?tab=6' },
-                { path: '/consumption', redirect: '/gestion?tab=6' },
-                { path: '/livreurs', redirect: '/gestion?tab=6' },
-                { path: '/bonus', redirect: '/gestion?tab=6' },
-
-                { path: '/agents', redirect: '/gestion?tab=7' },
-                { path: '/tutorials', redirect: '/gestion?tab=8' },
-
-                { path: '/transactions', redirect: '/finance-support?tab=0' },
-                { path: '/recharges', redirect: '/finance-support?tab=1' },
-                { path: '/finance-stats', redirect: '/finance-support?tab=3' },
-                { path: '/history', redirect: '/finance-support?tab=4' },
-                { path: '/support', redirect: '/finance-support?tab=5' },
-                { path: '/notifications', redirect: '/finance-support?tab=6' },
-                { path: '/notes', redirect: '/finance-support?tab=7' },
-                { path: '/bim-sos', redirect: '/finance-support?tab=8' },
-                { path: '/feedbacks', redirect: '/finance-support?tab=9' },
-                { path: '/otps', redirect: '/finance-support?tab=10' },
-                { path: '/currencies', redirect: '/finance-support?tab=11' },
-                { path: '/categories', redirect: '/finance-support?tab=11' },
-                { path: '/api-docs', redirect: '/finance-support?tab=11' },
-                { path: '/portals', redirect: '/finance-support?tab=11' },
-            ],
-        },
-        {
-            path: '/landing',
-            name: 'landing',
-            component: () => import('@/views/pages/Landing.vue'),
-        },
-        // ── Portail entreprise ──────────────────────────────────────────────────
-        {
-            path: '/company',
-            component: CompanyLayout,
-            meta: { requiresCompanyAuth: true },
-            children: [
-                { path: 'orders', name: 'companyOrders', component: () => import('@/views/company/CompanyOrders.vue') },
-                { path: 'payments', name: 'companyPayments', component: () => import('@/views/company/CompanyPayments.vue') },
-                { path: 'accounts', name: 'companyAccounts', component: () => import('@/views/company/CompanyAccounts.vue') },
-                { path: 'livreurs', name: 'companyLivreurs', component: () => import('@/views/company/CompanyLivreurs.vue') },
-                { path: 'settings', name: 'companySettings', component: () => import('@/views/company/CompanySettings.vue') },
-                { path: 'sos',      name: 'companySOSAlerts', component: () => import('@/views/company/CompanySOSAlerts.vue') },
-            ],
-        },
-        {
-            path: '/company/login',
-            name: 'companyLogin',
-            meta: { companyGuestOnly: true },
-            component: () => import('@/views/company/CompanyLogin.vue'),
-        },
-        // ── Auth admin ──────────────────────────────────────────────────────────
-        {
-            path: '/auth/login',
-            name: 'login',
-            meta: { guestOnly: true },
-            component: () => import('@/views/pages/auth/Login.vue'),
-        },
-        {
-            path: '/auth/bootstrap',
-            name: 'bootstrap',
-            meta: { guestOnly: true },
-            component: () => import('@/views/pages/auth/Bootstrap.vue'),
-        },
-        {
-            path: '/auth/reset',
-            name: 'resetAdminPassword',
-            meta: { guestOnly: true },
-            component: () => import('@/views/pages/auth/ResetAdminPassword.vue'),
-        },
-        {
-            path: '/auth/access',
-            name: 'accessDenied',
-            component: () => import('@/views/pages/auth/Access.vue'),
-        },
-        {
-            path: '/auth/error',
-            name: 'error',
-            component: () => import('@/views/pages/auth/Error.vue'),
-        },
-        {
-            path: '/:pathMatch(.*)*',
-            name: 'notfound',
-            component: () => import('@/views/pages/NotFound.vue'),
-        },
-    ],
-});
+  history: createWebHistory(),
+  routes: [
+    { path: '/', redirect: '/connexion' },
+    {
+      path: '/connexion',
+      name: 'connexion',
+      component: LoginView,
+      meta: { title: 'Connexion Administrateur' }
+    },
+    {
+      path: '/',
+      component: AdminLayout,
+      children: adminPages.map(({ title, section, ...route }) => ({ ...route, meta: { title, section } }))
+    },
+    { path: '/:pathMatch(.*)*', redirect: '/tableau-de-bord' }
+  ],
+  scrollBehavior: () => ({ top: 0 })
+})
 
 router.beforeEach((to) => {
-    const token = localStorage.getItem('bim_admin_token');
-    const isAuthenticated = !!token;
-    const userStr = localStorage.getItem('bim_admin_user');
-    const user = userStr ? JSON.parse(userStr) : null;
-    const role = user?.role;
-    const isCompanyAdmin = role === 'COMPANY_ADMIN';
+  if (to.name !== 'connexion' && !authStore.isAuthenticated) {
+    return { name: 'connexion' }
+  }
+  if (to.name === 'connexion' && authStore.isAuthenticated) {
+    return { path: '/tableau-de-bord' }
+  }
+  return true
+})
 
-    // Espace admin principal — réservé aux BIM
-    if (to.meta.requiresAuth && !isAuthenticated) return { name: 'login' };
-    if (to.meta.requiresAuth && isAuthenticated && isCompanyAdmin) return { name: 'companyOrders' };
+router.afterEach((to) => {
+  document.title = to.meta.title ? `${to.meta.title} - ${TITLE_SUFFIX}` : TITLE_SUFFIX
+})
 
-    // Espace portail entreprise — réservé aux COMPANY_ADMIN
-    if (to.meta.requiresCompanyAuth && !isAuthenticated) return { name: 'companyLogin' };
-    if (to.meta.requiresCompanyAuth && isAuthenticated && !isCompanyAdmin) return { name: 'dashboard' };
-
-    // Pages guest admin (login admin)
-    if (to.meta.guestOnly && isAuthenticated) {
-        return isCompanyAdmin ? { name: 'companyOrders' } : { name: 'dashboard' };
-    }
-
-    // Pages guest portail entreprise (login company)
-    if (to.meta.companyGuestOnly && isAuthenticated) {
-        return isCompanyAdmin ? { name: 'companyOrders' } : { name: 'dashboard' };
-    }
-});
-
-export default router;
+export default router

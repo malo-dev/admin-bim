@@ -1,3 +1,18 @@
-Sakai is an application template for Vue based on the [create-vue](https://github.com/vuejs/create-vue), the recommended way to start a Vite-powered Vue projects.
+# bim-next-admin
 
-Visit the [documentation](https://sakai.primevue.org/documentation) to get started.
+Console d'administration BIM NEXT (Vue 3 + Vite + Tailwind CSS).
+
+## Démarrer
+
+```bash
+npm install
+npm run dev
+```
+
+Puis ouvrir l'adresse affichée par Vite (par défaut http://localhost:5173).
+
+## Scripts
+
+- `npm run dev` : serveur de développement
+- `npm run build` : build de production dans `dist/`
+- `npm run preview` : prévisualise le build
