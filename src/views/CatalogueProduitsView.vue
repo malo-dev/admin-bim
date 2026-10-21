@@ -235,22 +235,21 @@ async function onFileChange(event) {
   imageFile.value = await compressImage(file)
   imagePreview.value = URL.createObjectURL(imageFile.value)
 }
-const canSubmitProduct = computed(
-  () =>
-    !!productForm.value.name &&
-    productForm.value.price !== null &&
-    productForm.value.price !== '' &&
-    !!productForm.value.description &&
-    productForm.value.qty !== null &&
-    productForm.value.qty !== '' &&
-    !!productForm.value.currencyId &&
-    !!productForm.value.companyId
-)
-
 async function saveProduct() {
+  const f = productForm.value
+  const missing = []
+  if (!f.name) missing.push('le nom')
+  if (f.price === null || f.price === '') missing.push('le prix')
+  if (!f.description) missing.push('la description')
+  if (f.qty === null || f.qty === '') missing.push('la quantité')
+  if (!f.currencyId) missing.push('la devise')
+  if (!f.companyId) missing.push("l'entreprise")
+  if (missing.length) {
+    toast.warn(`Champs obligatoires manquants : ${missing.join(', ')}.`)
+    return
+  }
   productSaving.value = true
   try {
-    const f = productForm.value
     const basePayload = {
       name: f.name,
       price: f.price,
@@ -625,7 +624,7 @@ Catalogue &amp; Services BIM NEXT
 
 <div class="flex justify-end gap-space-sm pt-space-sm">
 <button class="h-10 px-space-md rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm font-medium" type="button" :disabled="productSaving" @click="productDialog = false">Annuler</button>
-<button class="h-10 px-space-md rounded-lg bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold disabled:opacity-60" type="button" :disabled="productSaving || !canSubmitProduct" @click="saveProduct">{{ productSaving ? 'Enregistrement…' : 'Enregistrer' }}</button>
+<button class="h-10 px-space-md rounded-lg bg-primary-container text-on-primary font-body-sm text-body-sm font-semibold disabled:opacity-60" type="button" :disabled="productSaving" @click="saveProduct">{{ productSaving ? 'Enregistrement…' : 'Enregistrer' }}</button>
 </div>
 </div>
 </div>

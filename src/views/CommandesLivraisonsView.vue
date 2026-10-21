@@ -33,6 +33,7 @@ const ORDER_STATUS_LABEL = Object.fromEntries(ORDER_STATUS.map((o) => [o.value, 
 const orderSearch = ref('')
 const orderCompanyId = ref('')
 const orderStatus = ref('')
+const orderCashOnly = ref(false)
 const orderPage = ref(1)
 const orderPageSize = ref(9)
 const orders = ref([])
@@ -43,7 +44,15 @@ async function loadOrders() {
   ordersLoading.value = true
   try {
     const { data } = await apiClient.get('/order', {
-      params: { search: orderSearch.value || undefined, companyId: orderCompanyId.value || undefined, status: orderStatus.value || undefined, page: orderPage.value, pageSize: orderPageSize.value, paginate: 'true' }
+      params: {
+        search: orderSearch.value || undefined,
+        companyId: orderCompanyId.value || undefined,
+        status: orderStatus.value || undefined,
+        paymentMethod: orderCashOnly.value ? 'cash' : undefined,
+        page: orderPage.value,
+        pageSize: orderPageSize.value,
+        paginate: 'true'
+      }
     })
     orders.value = data?.data ?? []
     ordersTotal.value = data?.total ?? orders.value.length
@@ -54,7 +63,7 @@ async function loadOrders() {
   }
 }
 let orderSearchDebounce = null
-watch([orderSearch, orderCompanyId, orderStatus], () => {
+watch([orderSearch, orderCompanyId, orderStatus, orderCashOnly], () => {
   clearTimeout(orderSearchDebounce)
   orderSearchDebounce = setTimeout(() => {
     orderPage.value = 1
@@ -103,15 +112,23 @@ async function removeOrder(row) {
 
 const orderEditDialog = ref(false)
 const orderEditSaving = ref(false)
-const orderEditForm = ref({ id: null, status: '', notes: '', shippingAddress: '', paymentMethod: '' })
+const orderEditForm = ref({ id: null, orderNumber: '', user: null, status: '', notes: '', shippingAddress: '', paymentMethod: '' })
 function openEditOrder(row) {
-  orderEditForm.value = { id: row.orderId, status: row.status, notes: row.notes ?? '', shippingAddress: row.shippingAddress ?? '', paymentMethod: row.paymentMethod ?? '' }
+  orderEditForm.value = {
+    id: row.orderId,
+    orderNumber: row.orderNumber ?? '',
+    user: row.user ?? null,
+    status: row.status,
+    notes: row.notes ?? '',
+    shippingAddress: row.shippingAddress ?? '',
+    paymentMethod: row.paymentMethod ?? ''
+  }
   orderEditDialog.value = true
 }
 async function saveOrderEdit() {
   orderEditSaving.value = true
   try {
-    const { id, ...payload } = orderEditForm.value
+    const { id, orderNumber, user, ...payload } = orderEditForm.value
     await apiClient.put(`/order/${id}`, payload)
     toast.success('Commande mise à jour.')
     orderEditDialog.value = false
@@ -348,7 +365,14 @@ onMounted(() => {
 </select>
 </div>
 </div>
-<div class="flex items-center justify-end pt-1">
+<div class="flex items-center justify-between pt-1">
+<label class="flex items-center gap-1.5 cursor-pointer">
+<input v-model="orderCashOnly" type="checkbox" class="w-4 h-4 rounded accent-primary"/>
+<span class="font-label-md text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-primary">payments</span>
+Payées en espèces uniquement
+</span>
+</label>
 <span class="font-label-md text-secondary"><strong class="text-primary font-semibold">{{ ordersTotal }}</strong> commande(s) répertoriée(s)</span>
 </div>
 </div>
@@ -368,7 +392,12 @@ onMounted(() => {
 <span class="font-body-sm font-bold text-on-surface tracking-tight">{{ row.orderNumber }}</span>
 <div class="text-secondary font-label-sm flex items-center gap-1 mt-0.5"><span class="material-symbols-outlined text-[14px]">calendar_today</span><span>{{ formatDate(row.createdAt) }}</span></div>
 </div>
+<div class="flex flex-col items-end gap-1">
 <span class="px-2 py-0.5 rounded font-label-sm font-semibold" :class="row.status === 'delivered' || row.status === 'paid' ? 'bg-primary-fixed text-primary' : row.status === 'cancelled' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-fixed text-tertiary-container'">{{ ORDER_STATUS_LABEL[row.status] ?? row.status }}</span>
+<span v-if="row.paymentMethod === 'cash'" class="px-2 py-0.5 rounded font-label-sm font-semibold bg-secondary-container text-on-secondary-fixed flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[12px]">payments</span>Espèces
+</span>
+</div>
 </div>
 <div v-if="row.user" class="mt-space-sm p-space-xs rounded-lg bg-surface-container-low/60 flex items-center gap-space-sm">
 <div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-semibold text-xs shrink-0">{{ (row.user.username ?? '?')[0]?.toUpperCase() }}</div>
@@ -563,6 +592,14 @@ onMounted(() => {
 <div v-if="orderEditDialog" class="fixed inset-0 z-[90] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4" @click.self="orderEditDialog = false">
 <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-space-lg space-y-space-md">
 <h2 class="font-headline-md text-headline-md font-bold text-on-surface">Modifier la commande</h2>
+<div v-if="orderEditForm.user" class="flex items-center gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="w-9 h-9 rounded-full bg-primary-fixed flex items-center justify-center text-primary font-bold text-sm shrink-0">{{ (orderEditForm.user.username ?? '?')[0]?.toUpperCase() }}</div>
+<div class="min-w-0 flex-1">
+<p class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ orderEditForm.user.username ?? '—' }}</p>
+<p class="font-label-sm text-label-sm text-secondary truncate">{{ orderEditForm.user.email ?? '—' }}</p>
+</div>
+<span class="font-label-sm text-label-sm text-outline shrink-0">#{{ orderEditForm.orderNumber }}</span>
+</div>
 <div>
 <label class="font-label-sm text-label-sm font-semibold text-secondary block mb-1">Statut</label>
 <select v-model="orderEditForm.status" class="h-10 w-full px-space-md rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none">
