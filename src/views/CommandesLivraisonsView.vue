@@ -118,6 +118,7 @@ function openEditOrder(row) {
     id: row.orderId,
     orderNumber: row.orderNumber ?? '',
     user: row.user ?? null,
+    clientPhone: row.clientPhone ?? '',
     status: row.status,
     notes: row.notes ?? '',
     shippingAddress: row.shippingAddress ?? '',
@@ -404,7 +405,16 @@ Payées en espèces uniquement
 <div class="min-w-0 flex-1">
 <div class="font-body-sm font-semibold text-on-surface truncate">{{ row.user.username }}</div>
 <div class="font-label-sm text-secondary truncate">{{ row.user.email }}</div>
+<div v-if="row.user.telephone" class="font-label-sm text-secondary truncate flex items-center gap-1"><span class="material-symbols-outlined text-[12px]">call</span>{{ row.user.telephone }}</div>
 </div>
+</div>
+<div v-if="row.clientPhone && row.clientPhone !== row.user?.telephone" class="mt-1.5 flex items-center gap-1.5 font-label-sm text-secondary">
+<span class="material-symbols-outlined text-[14px] text-primary">phone_in_talk</span>
+<span>Tél. commande : <span class="font-medium text-on-surface">{{ row.clientPhone }}</span></span>
+</div>
+<div v-if="row.shippingAddress" class="mt-1.5 flex items-start gap-1.5 font-label-sm text-secondary">
+<span class="material-symbols-outlined text-[14px] text-primary shrink-0">location_on</span>
+<span class="line-clamp-2">{{ row.shippingAddress }}</span>
 </div>
 <div v-if="row.company?.name" class="mt-2"><span class="px-2 py-0.5 rounded-full bg-surface-container text-primary font-label-sm font-medium">{{ row.company.name }}</span></div>
 <div v-if="row.product" class="mt-space-sm space-y-1">
@@ -597,9 +607,11 @@ Payées en espèces uniquement
 <div class="min-w-0 flex-1">
 <p class="font-body-sm text-body-sm font-semibold text-on-surface truncate">{{ orderEditForm.user.username ?? '—' }}</p>
 <p class="font-label-sm text-label-sm text-secondary truncate">{{ orderEditForm.user.email ?? '—' }}</p>
+<p v-if="orderEditForm.user.telephone" class="font-label-sm text-label-sm text-secondary truncate">📞 {{ orderEditForm.user.telephone }}</p>
 </div>
 <span class="font-label-sm text-label-sm text-outline shrink-0">#{{ orderEditForm.orderNumber }}</span>
 </div>
+<div><label class="font-label-sm text-label-sm font-semibold text-secondary block mb-1">Téléphone (commande)</label><input v-model="orderEditForm.clientPhone" class="h-10 w-full px-space-md rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none" placeholder="Numéro communiqué pour cette commande" type="text"/></div>
 <div>
 <label class="font-label-sm text-label-sm font-semibold text-secondary block mb-1">Statut</label>
 <select v-model="orderEditForm.status" class="h-10 w-full px-space-md rounded-lg bg-surface-container-low text-on-surface font-body-sm text-body-sm focus:outline-none">
