@@ -2,9 +2,10 @@
 import { computed, onMounted, ref, watch } from 'vue'
 import apiClient from '@/api/client'
 import { useToast } from '@/composables/useToast'
+import BimCatalogueSection from '@/components/BimCatalogueSection.vue'
 
 const toast = useToast()
-const activeTab = ref('all') // 'all' | 'highlight'
+const activeTab = ref('bim') // 'bim' | 'all' | 'highlight'
 
 const SERVER_ROOT = (import.meta.env.VITE_API_URL || 'http://localhost:8083/api/v1').replace(/\/api\/v\d+\/?$/, '')
 function imageUrl(path) {
@@ -400,7 +401,10 @@ Catalogue &amp; Services BIM NEXT
 </div>
 
 <!-- Tabs -->
-<div class="flex items-center gap-1 bg-surface-container-lowest rounded-xl p-1.5 shadow-sm w-fit">
+<div class="flex items-center gap-1 bg-surface-container-lowest rounded-xl p-1.5 shadow-sm w-fit flex-wrap">
+<button class="px-3.5 py-2 rounded-lg font-body-sm text-body-sm font-semibold flex items-center gap-2 transition-colors" :class="activeTab === 'bim' ? 'bg-primary text-on-primary' : 'text-secondary hover:text-on-surface'" type="button" @click="activeTab = 'bim'">
+<span class="material-symbols-outlined text-[18px]">water_drop</span><span>Eau · Gaz · Carburant</span>
+</button>
 <button class="px-3.5 py-2 rounded-lg font-body-sm text-body-sm font-semibold flex items-center gap-2 transition-colors" :class="activeTab === 'all' ? 'bg-primary text-on-primary' : 'text-secondary hover:text-on-surface'" type="button" @click="activeTab = 'all'">
 <span class="material-symbols-outlined text-[18px]">apps</span><span>Tous les produits</span>
 </button>
@@ -408,6 +412,9 @@ Catalogue &amp; Services BIM NEXT
 <span class="material-symbols-outlined text-[18px]">star</span><span>Mise en avant</span>
 </button>
 </div>
+
+<!-- Eau · Gaz · Carburant (écran « Commander » de l'app) -->
+<BimCatalogueSection v-if="activeTab === 'bim'" :company-options="companyOptions" :compress-image="compressImage" :image-url="imageUrl" @changed="() => { loadProducts(); loadAllProducts() }" />
 
 <!-- Tous les produits -->
 <div v-show="activeTab === 'all'" class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md space-y-space-md">
