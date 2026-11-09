@@ -7,8 +7,16 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import apiClient from '@/api/client'
 import { authStore } from '@/stores/auth'
+import { socketStore } from '@/stores/socket'
+import ToastHost from '@/components/ToastHost.vue'
 
 const router = useRouter()
+
+function logout() {
+  socketStore.disconnect()
+  authStore.clearAuth()
+  router.push('/connexion')
+}
 
 const GROUPS = [
   {
@@ -82,7 +90,19 @@ const hello = computed(() => {
 </script>
 
 <template>
-<div class="px-space-lg pt-space-lg pb-space-xl space-y-space-lg">
+<div class="min-h-full bg-surface">
+<!-- En-tête simple : pas de menu latéral sur cette page -->
+<header class="h-16 px-space-lg flex items-center justify-between bg-surface-container-lowest shadow-sm">
+  <div class="flex items-center gap-space-sm">
+    <span class="w-9 h-9 rounded-xl bg-primary text-on-primary font-bold flex items-center justify-center">B.</span>
+    <span class="font-headline-sm text-headline-sm font-bold text-on-surface">BIM NEXT <span class="font-normal text-secondary">Admin</span></span>
+  </div>
+  <button type="button" class="h-10 px-space-sm rounded-lg flex items-center gap-2 text-body-sm font-semibold text-error hover:bg-error-container/60 transition-colors" @click="logout">
+    <span class="material-symbols-outlined text-[19px]">logout</span><span class="hidden sm:inline">Se déconnecter</span>
+  </button>
+</header>
+
+<div class="max-w-6xl mx-auto px-space-lg pt-space-lg pb-space-xl space-y-space-lg">
   <div class="flex flex-col md:flex-row md:items-end justify-between gap-space-md">
     <div>
       <p class="font-body-md text-body-md text-secondary">{{ hello }}{{ authStore.user?.email ? `, ${authStore.user.email}` : '' }}</p>
@@ -115,5 +135,7 @@ const hello = computed(() => {
       </button>
     </div>
   </section>
+</div>
+<ToastHost />
 </div>
 </template>
