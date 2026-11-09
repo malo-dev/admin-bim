@@ -403,7 +403,7 @@ Catalogue &amp; Services BIM NEXT
 <!-- Tabs -->
 <div class="flex items-center gap-1 bg-surface-container-lowest rounded-xl p-1.5 shadow-sm w-fit flex-wrap">
 <button class="px-3.5 py-2 rounded-lg font-body-sm text-body-sm font-semibold flex items-center gap-2 transition-colors" :class="activeTab === 'bim' ? 'bg-primary text-on-primary' : 'text-secondary hover:text-on-surface'" type="button" @click="activeTab = 'bim'">
-<span class="material-symbols-outlined text-[18px]">water_drop</span><span>Eau · Gaz · Carburant</span>
+<span class="material-symbols-outlined text-[18px]">water_drop</span><span>Eau · Gaz · Carburant · Autres</span>
 </button>
 <button class="px-3.5 py-2 rounded-lg font-body-sm text-body-sm font-semibold flex items-center gap-2 transition-colors" :class="activeTab === 'all' ? 'bg-primary text-on-primary' : 'text-secondary hover:text-on-surface'" type="button" @click="activeTab = 'all'">
 <span class="material-symbols-outlined text-[18px]">apps</span><span>Tous les produits</span>

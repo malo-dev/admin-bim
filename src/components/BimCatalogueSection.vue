@@ -20,7 +20,8 @@ const toast = useToast()
 const TYPES = [
   { value: 'eau', label: 'Eau', icon: 'water_drop', subs: 'Bonbonne 20 L, Pack, Sachet…' },
   { value: 'gaz', label: 'Gaz', icon: 'local_fire_department', subs: 'Bouteille 6 kg, Bouteille 12 kg, Détendeur…' },
-  { value: 'carburant', label: 'Carburant', icon: 'local_gas_station', subs: 'Essence, Gasoil, Bidon…' }
+  { value: 'carburant', label: 'Carburant', icon: 'local_gas_station', subs: 'Essence, Gasoil, Bidon…' },
+  { value: 'autres', label: 'Autres', icon: 'category', subs: 'Épicerie, Hygiène, Électronique… (catégorie dans l\'app)' }
 ]
 const typeLabel = (t) => TYPES.find((x) => x.value === t)?.label ?? t
 
@@ -28,7 +29,7 @@ const typeLabel = (t) => TYPES.find((x) => x.value === t)?.label ?? t
 const filterType = ref('')
 const search = ref('')
 const items = ref([])
-const counts = ref({ eau: 0, gaz: 0, carburant: 0 })
+const counts = ref({ eau: 0, gaz: 0, carburant: 0, autres: 0 })
 const loading = ref(false)
 
 async function load() {
@@ -48,7 +49,7 @@ async function load() {
 let debounce = null
 watch(search, () => { clearTimeout(debounce); debounce = setTimeout(load, 400) })
 watch(filterType, load)
-const totalAll = computed(() => counts.value.eau + counts.value.gaz + counts.value.carburant)
+const totalAll = computed(() => counts.value.eau + counts.value.gaz + counts.value.carburant + (counts.value.autres || 0))
 
 /* Formulaire */
 function emptyForm(type = 'eau') {
@@ -178,7 +179,7 @@ onMounted(load)
 <div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-md space-y-space-md">
   <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-sm">
     <div>
-      <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Eau · Gaz · Carburant</h2>
+      <h2 class="font-headline-sm text-headline-sm text-on-surface font-bold">Eau · Gaz · Carburant · Autres</h2>
       <p class="font-body-sm text-body-sm text-secondary">Produits affichés dans l'écran « Commander » de l'app BIM NEXT. Prix en EC.</p>
     </div>
     <button class="inline-flex items-center gap-space-xs px-4 py-2 rounded-lg bg-primary text-on-primary text-body-sm font-semibold shadow-sm hover:bg-primary-container transition-all" type="button" @click="openCreate">
@@ -249,11 +250,11 @@ onMounted(load)
   <!-- Formulaire -->
   <div v-if="dialog" class="fixed inset-0 z-[90] flex items-center justify-center bg-inverse-surface/40 backdrop-blur-sm p-4" @click.self="!saving && (dialog = false)">
     <div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-space-lg space-y-space-md overflow-y-auto max-h-[90vh]">
-      <h2 class="font-headline-md text-headline-md font-bold text-on-surface">{{ form.id ? 'Modifier le produit' : 'Nouveau produit Eau · Gaz · Carburant' }}</h2>
+      <h2 class="font-headline-md text-headline-md font-bold text-on-surface">{{ form.id ? 'Modifier le produit' : 'Nouveau produit' }}</h2>
 
       <div>
         <label class="font-label-sm text-label-sm font-semibold text-secondary block mb-1">Catégorie *</label>
-        <div class="grid grid-cols-3 gap-space-sm">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-space-sm">
           <button v-for="t in TYPES" :key="t.value" type="button" class="h-12 rounded-lg flex items-center justify-center gap-2 font-semibold text-body-sm border" :class="form.bimType === t.value ? 'bg-primary text-on-primary border-primary' : 'bg-surface-container-low text-on-surface border-transparent'" @click="form.bimType = t.value">
             <span class="material-symbols-outlined text-[20px]">{{ t.icon }}</span>{{ t.label }}
           </button>
