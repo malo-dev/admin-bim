@@ -55,7 +55,7 @@ async function handleLogin() {
       return
     }
     authStore.setAuth({ ...data, email: form.email })
-    router.push('/tableau-de-bord')
+    router.push('/espaces')
   } catch (err) {
     errorMessage.value = err?.response?.data?.message || 'Identifiants invalides. Veuillez réessayer.'
   } finally {

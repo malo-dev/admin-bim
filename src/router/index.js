@@ -7,6 +7,7 @@ const TITLE_SUFFIX = 'BIM NEXT Enterprise Platform'
 
 // `section` indique l'entrée du menu latéral à mettre en surbrillance.
 const adminPages = [
+  { path: 'espaces', name: 'espaces', title: 'Espaces de gestion', section: 'espaces', component: () => import('@/views/EspacesView.vue') },
   { path: 'tableau-de-bord', name: 'tableau-de-bord', title: 'Tableau de bord', section: 'tableau-de-bord', component: () => import('@/views/TableauDeBordView.vue') },
   { path: 'comptes', name: 'comptes', title: 'Gestion des comptes', section: 'comptes', component: () => import('@/views/GestionComptesView.vue') },
   { path: 'utilisateurs-acces', name: 'utilisateurs-acces', title: 'Utilisateurs & Accès', section: 'comptes', component: () => import('@/views/UtilisateursAccesView.vue') },
@@ -41,7 +42,7 @@ const router = createRouter({
       component: AdminLayout,
       children: adminPages.map(({ title, section, ...route }) => ({ ...route, meta: { title, section } }))
     },
-    { path: '/:pathMatch(.*)*', redirect: '/tableau-de-bord' }
+    { path: '/:pathMatch(.*)*', redirect: '/espaces' }
   ],
   scrollBehavior: () => ({ top: 0 })
 })
@@ -51,7 +52,7 @@ router.beforeEach((to) => {
     return { name: 'connexion' }
   }
   if (to.name === 'connexion' && authStore.isAuthenticated) {
-    return { path: '/tableau-de-bord' }
+    return { path: '/espaces' }
   }
   return true
 })

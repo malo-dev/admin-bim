@@ -47,7 +47,10 @@ apiClient
 const navGroups = reactive([
   {
     title: 'Principal',
-    items: [{ label: 'Tableau de bord', icon: 'grid_view', to: '/tableau-de-bord', section: 'tableau-de-bord' }]
+    items: [
+      { label: 'Espaces de gestion', icon: 'apps', to: '/espaces', section: 'espaces' },
+      { label: 'Tableau de bord', icon: 'grid_view', to: '/tableau-de-bord', section: 'tableau-de-bord' }
+    ]
   },
   {
     title: 'Gestion',

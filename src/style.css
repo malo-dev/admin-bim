@@ -32,6 +32,19 @@
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     user-select: none;
+    /* Case fixe d'une icône : le nom (« inventory_2 »…) ne déborde jamais. */
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    line-height: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+  /* Tant que la police d'icônes n'est pas chargée, on n'affiche pas le texte
+     brut des icônes (retiré par main.js dès que la police est prête). */
+  .icons-loading .material-symbols-outlined {
+    visibility: hidden;
   }
   /* Icône pleine pour l'élément actif du menu */
   [aria-current='page'] > .material-symbols-outlined {
