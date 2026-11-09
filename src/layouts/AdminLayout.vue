@@ -5,6 +5,7 @@ import apiClient from '@/api/client'
 import { authStore } from '@/stores/auth'
 import { socketStore } from '@/stores/socket'
 import ToastHost from '@/components/ToastHost.vue'
+import { spaceOf } from '@/spaces'
 
 const AVATAR_URL =
   'https://lh3.googleusercontent.com/aida/AEtjO1VzsrPn1s0Hw_3PqJYcZLOnzEz89mV6h7ecEdOwkck2_CBm8i83Tya4hR_OD2qrC4tQ4rh9mLxRTrPCtFjZSM9aN5jcmp2gMVg9iKsvRKiYq9gSaPg2i_yNkBGEKpDbJj2qBK8oodsrAHHhEGDF401644XZ5p5ekpZPge_62d2un1mygugmVznSHFVPhw9q_1fAguv0ZjElHmAsFGEjW8sIIq_38jN6TEZ0WuxkIZBwJHo3suL4bbBKBjytzSppvxckaIfiA8BSsw'
@@ -42,9 +43,27 @@ apiClient
   })
   .catch(() => {})
 
+// Menu latéral : uniquement les pages de l'espace choisi (voir src/spaces.js),
+// plus un retour vers la liste des espaces. L'ancien menu complet
+// (ALL_NAV_GROUPS) ne sert plus qu'au fil d'Ariane hors espace.
+const currentSpace = computed(() => spaceOf(route.path))
+const navGroups = computed(() => {
+  const s = currentSpace.value
+  if (!s) return ALL_NAV_GROUPS
+  return [{
+    title: s.label,
+    items: s.pages.map((p) => ({
+      label: p.label,
+      icon: p.icon,
+      to: p.to,
+      badge: p.badgeKey === 'recharges' ? pendingRecharges.value : 0
+    }))
+  }]
+})
+
 // `section` correspond à `meta.section` des routes. Une entrée avec `children` devient un sous-menu dépliable.
 // Les entrées sans `to` ni `children` n'ont pas encore d'écran.
-const navGroups = reactive([
+const ALL_NAV_GROUPS = reactive([
   {
     title: 'Principal',
     items: [
@@ -136,9 +155,10 @@ const route = useRoute()
 const router = useRouter()
 const activeSection = computed(() => route.meta.section)
 
-// Fil d'Ariane : groupe du menu > entrée > page.
+// Fil d'Ariane : espace > page (ou groupe du menu > entrée > page hors espace).
 const breadcrumb = computed(() => {
-  for (const group of navGroups) {
+  if (currentSpace.value) return ['Espaces', currentSpace.value.label, route.meta.title]
+  for (const group of ALL_NAV_GROUPS) {
     const item = group.items.find((entry) => entry.section && entry.section === activeSection.value)
     if (item) {
       const crumbs = [group.title, item.label]
@@ -206,15 +226,48 @@ function onKeydown(event) {
 function onDocumentClick(event) {
   if (!event.target.closest('[data-panel]')) openPanel.value = null
 }
+// Dans un espace, les liens du contenu vers les pages d'un AUTRE espace
+// (barres d'onglets en haut des pages) sont masqués : l'admin ne voit que ce
+// qui concerne son espace. Réappliqué à chaque rendu (pages chargées en différé).
+const mainRef = ref(null)
+let linkObserver = null
+let filterQueued = false
+function filterForeignLinks() {
+  filterQueued = false
+  const root = mainRef.value
+  if (!root) return
+  const s = currentSpace.value
+  root.querySelectorAll('a[href^="/"]').forEach((a) => {
+    const target = spaceOf(new URL(a.href, window.location.origin).pathname)
+    const hide = !!(s && target && target.key !== s.key)
+    a.style.display = hide ? 'none' : ''
+  })
+}
+function queueFilter() {
+  if (filterQueued) return
+  filterQueued = true
+  requestAnimationFrame(filterForeignLinks)
+}
+watch(() => route.fullPath, queueFilter)
+
 onMounted(() => {
   document.addEventListener('keydown', onKeydown)
   document.addEventListener('click', onDocumentClick)
   socketStore.connect()
+  if (mainRef.value) {
+    linkObserver = new MutationObserver(queueFilter)
+    linkObserver.observe(mainRef.value, { childList: true, subtree: true })
+    queueFilter()
+  }
 })
 onBeforeUnmount(() => {
+  linkObserver?.disconnect()
   document.removeEventListener('keydown', onKeydown)
   document.removeEventListener('click', onDocumentClick)
 })
+
+// Entrée active : même page (menu d'un espace) ou même section (ancien menu complet).
+const isActive = (item) => (item.section ? activeSection.value === item.section : route.path === item.to)
 
 const itemBase = 'group relative flex items-center gap-3 rounded-xl transition-all duration-200'
 const itemIdle = 'text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface'
@@ -263,8 +316,30 @@ const itemParentActive = 'bg-surface-container-low text-primary'
 
       <!-- Navigation -->
       <div class="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 space-y-5">
+        <!-- Retour à la liste des espaces + espace courant -->
+        <div class="space-y-3">
+          <RouterLink
+            to="/espaces"
+            class="px-3 py-2.5 border border-surface-container-highest bg-white/60"
+            :class="[itemBase, itemIdle, { 'lg:justify-center lg:px-0': collapsed }]"
+            :title="collapsed ? 'Tous les espaces' : undefined"
+          >
+            <span class="material-symbols-outlined text-[21px] shrink-0">apps</span>
+            <span class="font-body-sm text-body-sm font-semibold truncate" :class="{ 'lg:hidden': collapsed }">Tous les espaces</span>
+          </RouterLink>
+          <div v-if="currentSpace" class="flex items-center gap-3 px-3 py-3 rounded-2xl bg-primary-fixed/50" :class="{ 'lg:justify-center lg:px-0': collapsed }">
+            <span class="w-9 h-9 shrink-0 rounded-xl bg-primary text-white flex items-center justify-center">
+              <span class="material-symbols-outlined text-[20px]">{{ currentSpace.icon }}</span>
+            </span>
+            <div class="min-w-0" :class="{ 'lg:hidden': collapsed }">
+              <div class="font-label-sm text-[10px] uppercase tracking-[0.14em] text-secondary font-semibold">Espace</div>
+              <div class="font-body-sm text-body-sm font-bold text-on-surface truncate">{{ currentSpace.label }}</div>
+            </div>
+          </div>
+        </div>
+
         <div v-for="group in navGroups" :key="group.title">
-          <div v-if="!collapsed" class="px-3 pb-1.5 font-label-sm text-[10.5px] uppercase tracking-[0.14em] text-outline font-semibold">{{ group.title }}</div>
+          <div v-if="!collapsed" class="px-3 pb-1.5 font-label-sm text-[10.5px] uppercase tracking-[0.14em] text-outline font-semibold">{{ currentSpace ? 'Pages de l’espace' : group.title }}</div>
           <div v-else class="hidden lg:block mx-auto mb-2 w-6 h-px bg-surface-container-highest"></div>
           <div v-if="collapsed" class="lg:hidden px-3 pb-1.5 font-label-sm text-[10.5px] uppercase tracking-[0.14em] text-outline font-semibold">{{ group.title }}</div>
 
@@ -316,12 +391,14 @@ const itemParentActive = 'bg-surface-container-low text-primary'
                 v-else-if="item.to"
                 :to="item.to"
                 class="px-3 py-2.5"
-                :class="[itemBase, activeSection === item.section ? itemActive : itemIdle, { 'lg:justify-center lg:px-0': collapsed }]"
-                :aria-current="activeSection === item.section ? 'page' : undefined"
+                :class="[itemBase, isActive(item) ? itemActive : itemIdle, { 'lg:justify-center lg:px-0': collapsed }]"
+                :aria-current="isActive(item) ? 'page' : undefined"
                 :title="collapsed ? item.label : undefined"
               >
                 <span class="material-symbols-outlined text-[21px] shrink-0">{{ item.icon }}</span>
-                <span class="font-body-sm text-body-sm font-medium truncate" :class="{ 'lg:hidden': collapsed }">{{ item.label }}</span>
+                <span class="font-body-sm text-body-sm font-medium truncate flex-1" :class="{ 'lg:hidden': collapsed }">{{ item.label }}</span>
+                <span v-if="item.badge" class="min-w-[20px] h-5 px-1.5 rounded-full bg-tertiary-container text-white text-[10px] font-bold flex items-center justify-center"
+                  :class="{ 'lg:absolute lg:top-1 lg:right-2 lg:min-w-[16px] lg:h-4 lg:px-1 lg:text-[9px]': collapsed }">{{ item.badge }}</span>
               </RouterLink>
 
               <!-- Entrée sans écran -->
@@ -506,7 +583,7 @@ const itemParentActive = 'bg-surface-container-low text-primary'
         </div>
       </header>
 
-      <main class="w-full pt-16 flex-1">
+      <main ref="mainRef" class="w-full pt-16 flex-1">
         <RouterView v-slot="{ Component }">
           <Transition name="page" mode="out-in">
             <div :key="route.path">
