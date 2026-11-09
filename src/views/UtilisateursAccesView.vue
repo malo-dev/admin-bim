@@ -58,6 +58,13 @@ const currentPage = ref(1)
 const pageSize = ref(9)
 
 const users = ref([])
+// Vraie adresse : les comptes créés avec le numéro ont un e-mail technique
+// (quick_…@bimreseau.com) ; l'adresse saisie est dans notificationEmail.
+function displayEmail(row) {
+  const e = row?.email ?? ''
+  if (/^quick_/i.test(e) || /@bimreseau\.generated$/i.test(e)) return row?.notificationEmail || 'Sans e-mail'
+  return e || row?.notificationEmail || '—'
+}
 const totalRecords = ref(0)
 const loading = ref(false)
 
@@ -74,7 +81,10 @@ async function loadUsers() {
         createdAtFrom: toLocalDateStr(dateFrom.value),
         createdAtTo: toLocalDateStr(dateTo.value),
         page: currentPage.value,
-        pageSize: pageSize.value
+        pageSize: pageSize.value,
+        // Sans ce paramètre, le serveur renvoyait au plus 1000 comptes (les plus
+        // anciens) et la pagination ne servait à rien.
+        paginate: 'true'
       }
     })
     users.value = data?.data ?? []
@@ -447,7 +457,7 @@ function copyPin() {
 <div class="grid grid-cols-1 md:grid-cols-12 gap-space-sm items-center">
 <div class="md:col-span-5 relative">
 <span class="material-symbols-outlined absolute left-3 top-2.5 text-outline text-[18px]">search</span>
-<input v-model="searchInput" class="w-full h-10 pl-9 pr-space-md rounded-lg bg-surface-container-low text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Rechercher par nom, email, identifiant..." type="text"/>
+<input v-model="searchInput" class="w-full h-10 pl-9 pr-space-md rounded-lg bg-surface-container-low text-body-sm font-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary/20" placeholder="Rechercher par nom, e-mail, téléphone, n° de compte..." type="text"/>
 </div>
 <div class="md:col-span-3 relative">
 <select v-model="selectedCommerceId" class="w-full h-10 px-space-sm rounded-lg bg-surface-container-low text-body-sm font-body-sm text-on-surface appearance-none focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer">
@@ -493,7 +503,8 @@ function copyPin() {
 <div class="w-10 h-10 rounded-lg bg-surface-container-high text-primary flex items-center justify-center font-headline-sm font-bold shrink-0">{{ initials(row.fullname || row.username) }}</div>
 <div class="min-w-0">
 <div class="font-headline-sm text-body-sm font-semibold text-on-surface truncate">{{ row.fullname || row.username }}</div>
-<div class="font-label-sm text-label-sm text-secondary truncate max-w-[210px]" :title="row.email">{{ row.email }}</div>
+<div class="font-label-sm text-label-sm text-secondary truncate max-w-[210px]" :title="displayEmail(row)">{{ displayEmail(row) }}</div>
+<div v-if="row.telephone" class="font-label-sm text-label-sm text-outline truncate max-w-[210px]">{{ row.telephone }}</div>
 </div>
 </div>
 <span class="inline-flex items-center px-2 py-0.5 rounded-full font-label-sm text-label-sm bg-surface-container text-on-surface font-semibold shrink-0">
