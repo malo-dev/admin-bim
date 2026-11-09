@@ -120,11 +120,15 @@ async function loadCdfRate() {
 
 const actionId = ref(null)
 async function approve(row) {
-  if (!window.confirm(`Approuver la recharge de ${fmtAmount(row)} pour ${row.user?.username ?? row.user?.email ?? 'cet utilisateur'} ? Cette action créditera immédiatement son compte.`)) return
+  const who = row.user?.username ?? row.user?.email ?? 'cet utilisateur'
+  const msg = row.user?.needsSubscription
+    ? `Première recharge de ${who} : l'abonnement annuel est d'abord payé et activé, puis le reste de ${fmtAmount(row)} est crédité. Approuver ?`
+    : `Approuver la recharge de ${fmtAmount(row)} pour ${who} ? Cette action créditera immédiatement son compte.`
+  if (!window.confirm(msg)) return
   actionId.value = rowId(row)
   try {
-    await apiClient.patch(`/tsx/admin/recharges/${rowId(row)}/approve`)
-    toast.success(`${fmtAmount(row)} crédité.`)
+    const { data } = await apiClient.patch(`/tsx/admin/recharges/${rowId(row)}/approve`)
+    toast.success(data?.message ?? `${fmtAmount(row)} crédité.`)
     await loadRecharges()
   } catch (err) {
     toast.error(err?.response?.data?.message ?? 'Erreur serveur.')
@@ -328,6 +332,7 @@ onMounted(() => {
 <div class="w-9 h-9 rounded-full bg-surface-container-high text-primary-container font-headline-sm text-body-sm font-bold flex items-center justify-center">{{ initials(row.user?.username) }}</div>
 <div>
 <h4 class="font-headline-sm text-body-sm font-semibold text-on-surface leading-tight">{{ row.user?.username ?? '—' }}</h4>
+<span v-if="row.status === 'pending' && row.user?.needsSubscription" class="inline-block mt-0.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant" title="À l'approbation : l'abonnement annuel est payé et activé d'abord, puis le reste est crédité.">1ʳᵉ recharge · abonnement</span>
 <span class="font-label-sm text-label-sm text-secondary truncate block max-w-[150px]">{{ row.user?.email ?? '—' }}</span>
 </div>
 </div>

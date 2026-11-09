@@ -55,10 +55,11 @@ async function loadCdfRate() {
 
 const actionId = ref(null)
 async function approve(row) {
+  if (row.user?.needsSubscription && !window.confirm(`Première recharge de ${row.user?.username ?? 'cet utilisateur'} : l'abonnement annuel est d'abord payé et activé, puis le reste du montant (${row.amount} EC) est crédité. Approuver ?`)) return
   actionId.value = rowId(row)
   try {
-    await apiClient.patch(`/tsx/admin/recharges/${rowId(row)}/approve`)
-    toast.success(`${row.amount} EC crédité à ${row.user?.username ?? "l'utilisateur"}.`)
+    const { data } = await apiClient.patch(`/tsx/admin/recharges/${rowId(row)}/approve`)
+    toast.success(data?.message ?? `${row.amount} EC crédité à ${row.user?.username ?? "l'utilisateur"}.`)
     await loadPending()
   } catch (err) {
     toast.error(err?.response?.data?.message ?? 'Erreur serveur.')
@@ -206,6 +207,7 @@ onMounted(() => {
 <div class="w-10 h-10 rounded-full bg-secondary-container text-primary font-headline-sm text-headline-sm font-bold flex items-center justify-center shrink-0">{{ initials(row.user?.username) }}</div>
 <div class="min-w-0">
 <h3 class="font-headline-sm text-headline-sm text-on-surface font-semibold truncate">{{ row.user?.username ?? '—' }}</h3>
+<span v-if="row.status === 'pending' && row.user?.needsSubscription" class="inline-block mt-0.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-tertiary-fixed text-on-tertiary-fixed-variant" title="À l'approbation : l'abonnement annuel est payé et activé d'abord, puis le reste est crédité.">1ʳᵉ recharge · abonnement</span>
 <div class="font-body-sm text-label-sm text-secondary truncate">{{ row.user?.email ?? '—' }}</div>
 </div>
 </div>
